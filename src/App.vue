@@ -1,26 +1,288 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="top-content">
+        <h1><a href="https://novelai.net/image">NovelAI</a> 呪文ジェネレーター</h1>
+        <div class="content">
+            <div class="main-content">
+                <section v-for="(tags, i) in tagsList" :key="tags.slag">
+                    <h2>{{ tags.jp }}</h2>
+                    <div class="tag-list">
+                        <div 
+                            class="spell-list"
+                            v-for="(tag, j) in tags.content"
+                            :key="tag.slag"
+                        >
+                            <p :style="'font-weight:bold'">{{ tag.jp }}</p>
+                            <div>
+                                <div v-if="tag.type === 'select'">
+                                    <div v-for="(spells, k) in tag.content" :key="spells.slag">
+                                        <input 
+                                            type="radio" 
+                                            :id="spells.slag"
+                                            :name="tag.slag"
+                                            @click="addSetSpells(i, j, k, tag.type)">
+                                        <label :for="spells.slag">{{ spells.jp }}</label>
+                                    </div>
+                                </div>
+                                <div v-if="tag.type === 'checkbox'">
+                                    <div v-for="(spells, k) in tag.content" :key="spells.slag">
+                                        <input 
+                                            type="checkbox" 
+                                            :id="spells.slag" 
+                                            @click="addSetSpells(i, j, k)"
+                                        >
+                                        <label :for="spells.slag">{{ spells.jp }}</label>
+                                    </div>
+                                </div>
+                                <div v-if="tag.type === 'number'">
+                                    <button @click="adjustAge(-1)">－</button>
+                                    <input 
+                                        v-model.number="age"
+                                        :id="tag.slag"
+                                        min="0"
+                                        :style="'width: 32px;'"
+                                    >
+                                    <label>歳</label>
+                                    <button @click="adjustAge(1)">＋</button>
+                                    <br>
+                                    <button @click="addSetSpells(i, j, 0, tag.type, age)">追加</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="spell-settings">
+                <div v-for="(spell, index) in setSpells" :key="spell.slag" class="spells">
+                    <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
+                    <div class="enhance-area">
+                        <button @click="enhanceSpell(index, -1)">－</button>
+                        <span>{{ spell.enhance }}</span>
+                        <button @click="enhanceSpell(index, 1)">＋</button>
+                    </div>
+                </div>
+                <div class="output-area">
+                    <div>
+                        <label :for="'manual-input'">手動入力</label>
+                        <input type="text" :id="'manual-input'" :style="'margin: 0 8px;'" v-model="manualInput">
+                    </div>
+                    <div :style="'margin: 1em 0'">
+                        <button @click="convertToNovelAITags(setSpells)">呪文を生成</button>
+                        <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
+                            <span v-if="spellsNovelAI.value !== undifined">
+                                {{ spellsNovelAI.value + manualInput }}
+                            </span>
+                        </p>
+                        <button 
+                            @click="copyToClipboard(spellsNovelAI.value + manualInput)"
+                            :style="'display: block;'"
+                        >
+                            コピー
+                        </button>
+                        <span class="copy-alert">{{ copyAlert }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import tagsListQueue from './tagsList.js'
+import { ref } from 'vue'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+    components: {},
+    setup() {
+        // 表示するタグ一覧
+        const tagsList = ref(tagsListQueue)
+        // セットされているタグ(呪文)のキュー
+        const setSpells = ref([])
+        // 生成されたNovelAI形式の呪文
+        const spellsNovelAI = ref('')
+        // 呪文をコピーした際のアラート
+        const copyAlert = ref('')
+        // 年齢タグ用
+        const ageNum = ref(15)
+        // 手動入力内容
+        const manualInputText = ref('')
+
+        // タグのセットキューに挿入
+        const addSetSpells = (i, j, k, type = 'checkbox', age = 0) => { 
+            if (type === 'number') {
+                setSpells.value.map((spell, index) => {
+                    if(spell.tag.match(/years old/)) {
+                        setSpells.value.splice(index, 1)
+                    }
+                })
+                setSpells.value.push({
+                    tag: age + ' years old',
+                    jp: age + '歳',
+                    detail: '',
+                    parentTag: '年齢',
+                    enhance: 0
+                })
+                return
+            }
+            const queue = tagsList.value[i].content[j].content[k]
+            queue['parentTag'] = tagsList.value[i].content[j].jp
+
+            if (type === 'checkbox') {
+                if (!setSpells.value.includes(queue)) {
+                    setSpells.value.push(queue)
+                } else {
+                    const index = setSpells.value.indexOf(queue)
+                    setSpells.value.splice(index, 1)
+                }
+            } else if (type === 'radio' || type === 'select') { 
+                tagsList.value[i].content[j].content.map((_, l) => {
+                    const index = setSpells.value.indexOf(tagsList.value[i].content[j].content[l])
+                    if (index !== -1) {
+                        setSpells.value.splice(index, 1)
+                    }
+                })
+                setSpells.value.push(queue)
+            } 
+        }
+
+        // タグ(呪文)の強化
+        const enhanceSpell = (index, num) => {
+            setSpells.value[index].enhance += num
+        }
+        // 年齢の調整
+        const adjustAge = num => {
+            ageNum.value += num
+        }
+
+        // キューにセットされているタグをNovelAIで使える形に変換する
+        const convertToNovelAITags = (spells) => {
+            const text = ref('')
+            spells.map(spell => {
+                // タグの付与
+                // 強化値が0の場合そのまま追加
+                if (spell.enhance === 0) {
+                    text.value += spell.tag
+                } else if (spell.enhance > 0) {
+                    // 強化値が1以上の場合前後に{}を数値分追加
+                    text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
+                } else if (spell.enhance < 0) {
+                    // 強化値が-1以下の場合前後に[]を数値分追加
+                    const num = spell.enhance * -1
+                    text.value += '['.repeat(num) + spell.tag + ']'.repeat(num)
+                }
+                text.value += ', '
+            })
+            console.log(text.value)
+            
+            spellsNovelAI.value = text
+        }
+
+        
+        // 呪文をクリップボードにコピーする
+        const copyToClipboard = text => {
+            navigator.clipboard.writeText(text)
+            copyAlert.value = 'クリップボードにコピーしました。'
+        }
+        
+        // タグのセットキューが変化した際、呪文を生成する
+        // watchEffect(() => {
+        //     spellsNovelAI.value = convertToNovelAITags(setSpells.value).value
+        // })
+        
+        return {
+            tagsList,
+            setSpells,
+            spellsNovelAI,
+            copyAlert,
+            age: ageNum,
+            manualInput: manualInputText,
+            adjustAge,
+            addSetSpells,
+            enhanceSpell,
+            convertToNovelAITags,
+            copyToClipboard,
+        }
+    }
 }
 </script>
+<style lang="scss" scoped>
+.top-content {
+    font-family: 'Yu Gothic Medium';
+    max-width: 1520px;
+    margin: 0 auto;
+}
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+h1, h2, h3 {
+    margin: 8px;
+    padding: 0;
+}
+ul, p {
+    margin: 0;
+    padding: 0;
+}
+
+input {
+    padding: 4px;
+}
+input[type="checkbox"], input[type='radio'] {
+    transform: scale(1.1);
+}
+
+.content {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    > .main-content {
+        width: 70%;
+        border-right: 1px solid #888;
+    }
+    > .spell-settings {
+        width: 30%;
+    }
+}
+
+.tag-list {
+    display: flex;
+    justify-content: space-around;
+}
+
+.spell-list {
+    padding: 16px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px #888;
+    > div {
+        max-height: 180px;
+        overflow-y: auto;
+    }
+}
+
+.spell-settings {
+    margin: 0 8px;
+    position: sticky;
+    top: 50px;
+    height: 90vh;
+    > .spells {
+        margin: 4px auto;
+        display: flex;
+        justify-content: space-evenly;
+        > * {
+            width: 50%;
+        }
+        > .enhance-area span {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+        }
+    }
+    > .output-area {
+        position: absolute;
+        bottom: 0;
+        > p, button {
+            display: inline-block;
+        }
+        .copy-alert {
+            margin-left: 8px;
+        }
+    }
 }
 </style>
