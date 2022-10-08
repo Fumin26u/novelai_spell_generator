@@ -1,4 +1,6 @@
-# novelai_spell_generator2
+# novelai_spell_generator
+https://novelai.net/ のイラスト自動生成サービスのコマンド生成器です。
+製作期間1日の突貫工事なのでコードは環境汚染が発生しそうなレベルでゴミです。
 
 ## Project setup
 ```
