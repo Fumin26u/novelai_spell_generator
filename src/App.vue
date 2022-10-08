@@ -3,6 +3,11 @@
         <h1><a href="https://novelai.net/image">NovelAI</a> 呪文ジェネレーター</h1>
         <div class="content">
             <div class="main-content">
+                <section class="upload-prompt">
+                    <label :id="'upload-prompt'">呪文をアップロード</label>
+                    <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
+                    <button @click="uploadSpell(spellsByUser)">アップロード</button>
+                </section>
                 <section v-for="(tags, i) in tagsList" :key="tags.slag">
                     <h2>{{ tags.jp }}</h2>
                     <div class="tag-list">
@@ -52,12 +57,15 @@
                 </section>
             </div>
             <div class="spell-settings">
-                <div v-for="(spell, index) in setSpells" :key="spell.slag" class="spells">
-                    <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
-                    <div class="enhance-area">
-                        <button @click="enhanceSpell(index, -1)">－</button>
-                        <span>{{ spell.enhance }}</span>
-                        <button @click="enhanceSpell(index, 1)">＋</button>
+                <h2>設定呪文一覧</h2>
+                <div class="spells">
+                    <div v-for="(spell, index) in setSpells" :key="spell.slag">
+                        <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
+                        <div class="enhance-area">
+                            <button @click="enhanceSpell(index, -1)">－</button>
+                            <span>{{ spell.enhance }}</span>
+                            <button @click="enhanceSpell(index, 1)">＋</button>
+                        </div>
                     </div>
                 </div>
                 <div class="output-area">
@@ -105,6 +113,61 @@ export default {
         const ageNum = ref(15)
         // 手動入力内容
         const manualInputText = ref('')
+        // アップロード用呪文
+        const spellsByUserText = ref('')
+
+        // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
+        const searchTagsFromSpell = (word) => {
+            // console.log(word)
+            const retVal = ref([])
+            tagsList.value.map((tags, i) => {
+                tags.content.map((tag, j) => {
+                    tag.content.map((spell, k) => {
+                        if(spell.tag === word) {
+                            console.log(tagsList.value[i].content[j].content[k].jp)
+                            retVal.value.push(tagsList.value[i].content[j].jp)
+                            retVal.value.push(tagsList.value[i].content[j].content[k].jp)
+                        }
+                    })
+                })
+            })
+            return retVal.value
+        }
+
+        // 既存のタグがアップロードされた場合、セットキューに対象値を追加
+        const uploadSpell = (spell) => {
+            // タグごと配列の要素にする
+            const tagsQueue = spell.split(',')
+
+            const tags = tagsQueue.map(tag => tag.trim())
+
+            tags.map((tag, index) => {
+                if(tag.trim() === " " || tag.trim() === "") {
+                    tags.splice(index, 1)
+                } else {
+                    const spellQueue = {}                    
+                    // 文字の前後に{}または[]がある場合、その数分強化値を追加する
+                    const enhanceCount = ref(0)
+                    if (tag.match(/\{/g)) {
+                        enhanceCount.value = tag.match(/\{/g || []).length
+                    } else if (tag.match(/\[/g)) {
+                        enhanceCount.value = tag.match(/\[/g || []).length * -1 
+                    }
+                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/, "")
+
+                    // 親タグと日本語名を取得
+                    const [parentTag, tagjp] = searchTagsFromSpell(tagname)
+
+                    spellQueue['tag'] = tagname
+                    spellQueue['jp'] = tagjp
+                    spellQueue['detail'] = ''
+                    spellQueue['parentTag'] = parentTag
+                    spellQueue['enhance'] = enhanceCount.value
+
+                    setSpells.value.push(spellQueue)
+                }
+            })
+        }
 
         // タグのセットキューに挿入
         const addSetSpells = (i, j, k, type = 'checkbox', age = 0) => { 
@@ -127,11 +190,12 @@ export default {
             queue['parentTag'] = tagsList.value[i].content[j].jp
 
             if (type === 'checkbox') {
-                if (!setSpells.value.includes(queue)) {
-                    setSpells.value.push(queue)
-                } else {
+                console.log(setSpells.value.includes(queue))
+                if (setSpells.value.includes(queue)) {
                     const index = setSpells.value.indexOf(queue)
                     setSpells.value.splice(index, 1)
+                } else {
+                    setSpells.value.push(queue)
                 }
             } else if (type === 'radio' || type === 'select') { 
                 tagsList.value[i].content[j].content.map((_, l) => {
@@ -195,6 +259,8 @@ export default {
             copyAlert,
             age: ageNum,
             manualInput: manualInputText,
+            spellsByUser: spellsByUserText,
+            uploadSpell,
             adjustAge,
             addSetSpells,
             enhanceSpell,
@@ -240,6 +306,12 @@ input[type="checkbox"], input[type='radio'] {
     }
 }
 
+.upload-prompt > input {
+    width: 600px;
+    margin: 0 8px;
+    padding: 4px 0;
+}
+
 .tag-list {
     display: flex;
     justify-content: space-around;
@@ -262,16 +334,21 @@ input[type="checkbox"], input[type='radio'] {
     top: 50px;
     height: 90vh;
     > .spells {
-        margin: 4px auto;
-        display: flex;
-        justify-content: space-evenly;
-        > * {
-            width: 50%;
-        }
-        > .enhance-area span {
-            display: inline-block;
-            width: 40px;
-            text-align: center;
+        max-height: 480px;
+        overflow-y: scroll;
+        border-bottom: 1px solid #888;
+        > div {
+            margin: 4px auto;
+            display: flex;
+            justify-content: space-evenly;
+            > * {
+                width: 50%;
+            }
+            > .enhance-area span {
+                display: inline-block;
+                width: 40px;
+                text-align: center;
+            }
         }
     }
     > .output-area {
