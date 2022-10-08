@@ -278,7 +278,7 @@ export default {
 <style lang="scss" scoped>
 .top-content {
     font-family: 'Yu Gothic Medium';
-    max-width: 1520px;
+    max-width: 1560px;
     margin: 0 auto;
 }
 
@@ -286,6 +286,8 @@ h1, h2, h3 {
     margin: 8px;
     padding: 0;
 }
+h1 {font-size: 24px;}
+h2 {font-size: 22px;}
 ul, p {
     margin: 0;
     padding: 0;
@@ -336,11 +338,11 @@ input[type="checkbox"], input[type='radio'] {
     display: flex;
     justify-content: space-between;
     > .main-content {
-        width: 70%;
+        width: 72%;
         border-right: 1px solid #888;
     }
     > .spell-settings {
-        width: 30%;
+        width: 28%;
     }
 }
 
