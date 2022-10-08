@@ -1,10 +1,10 @@
 <template>
     <div class="top-content">
-        <h1><a href="https://novelai.net/image">NovelAI</a> 呪文ジェネレーター</h1>
+        <h1><a href="https://novelai.net/image">NovelAI</a> コマンドジェネレーター</h1>
         <div class="content">
             <div class="main-content">
                 <section class="upload-prompt">
-                    <label :id="'upload-prompt'">呪文をアップロード</label>
+                    <label :id="'upload-prompt'">コマンドをアップロード</label>
                     <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
                     <button @click="uploadSpell(spellsByUser)">アップロード</button>
                 </section>
@@ -18,7 +18,7 @@
                         >
                             <p :style="'font-weight:bold'">{{ tag.jp }}</p>
                             <div>
-                                <div v-if="tag.type === 'select'">
+                                <!-- <div v-if="tag.type === 'select'">
                                     <div v-for="(spells, k) in tag.content" :key="spells.slag">
                                         <input 
                                             type="radio" 
@@ -27,17 +27,14 @@
                                             @click="addSetSpells(i, j, k, tag.type)">
                                         <label :for="spells.slag">{{ spells.jp }}</label>
                                     </div>
+                                </div> -->
+                                <!-- <div v-if="tag.type === 'checkbox'"> -->
+                                <div v-for="(spells, k) in tag.content" :key="spells.slag">
+                                    <span>{{ spells.jp }}</span>
+                                    <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k, tag.type)">追加</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpells(i, j, k)">削除</button>
                                 </div>
-                                <div v-if="tag.type === 'checkbox'">
-                                    <div v-for="(spells, k) in tag.content" :key="spells.slag">
-                                        <input 
-                                            type="checkbox" 
-                                            :id="spells.slag" 
-                                            @click="addSetSpells(i, j, k)"
-                                        >
-                                        <label :for="spells.slag">{{ spells.jp }}</label>
-                                    </div>
-                                </div>
+                                <!-- </div> -->
                                 <div v-if="tag.type === 'number'">
                                     <button @click="adjustAge(-1)">－</button>
                                     <input 
@@ -57,24 +54,24 @@
                 </section>
             </div>
             <div class="spell-settings">
-                <h2>設定呪文一覧</h2>
+                <h2>設定コマンド一覧</h2>
                 <div class="spells">
                     <div v-for="(spell, index) in setSpells" :key="spell.slag">
                         <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
                         <div class="enhance-area">
-                            <button @click="enhanceSpell(index, -1)">－</button>
+                            <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
                             <span>{{ spell.enhance }}</span>
-                            <button @click="enhanceSpell(index, 1)">＋</button>
+                            <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                         </div>
                     </div>
                 </div>
                 <div class="output-area">
                     <div>
                         <label :for="'manual-input'">手動入力</label>
-                        <input type="text" :id="'manual-input'" :style="'margin: 0 8px;'" v-model="manualInput">
+                        <input type="text" :id="'manual-input'" :style="'margin: 0 8px; padding: 8px; width:320px;'" v-model="manualInput">
                     </div>
                     <div :style="'margin: 1em 0'">
-                        <button @click="convertToNovelAITags(setSpells)">呪文を生成</button>
+                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">コマンドを生成</button>
                         <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
                             <span v-if="spellsNovelAI.value !== undifined">
                                 {{ spellsNovelAI.value + manualInput }}
@@ -83,6 +80,7 @@
                         <button 
                             @click="copyToClipboard(spellsNovelAI.value + manualInput)"
                             :style="'display: block;'"
+                            class="btn-common copy"
                         >
                             コピー
                         </button>
@@ -103,30 +101,29 @@ export default {
     setup() {
         // 表示するタグ一覧
         const tagsList = ref(tagsListQueue)
-        // セットされているタグ(呪文)のキュー
+        // セットされているタグ(コマンド)のキュー
         const setSpells = ref([])
-        // 生成されたNovelAI形式の呪文
+        // 生成されたNovelAI形式のコマンド
         const spellsNovelAI = ref('')
-        // 呪文をコピーした際のアラート
+        // コマンドをコピーした際のアラート
         const copyAlert = ref('')
         // 年齢タグ用
         const ageNum = ref(15)
         // 手動入力内容
         const manualInputText = ref('')
-        // アップロード用呪文
+        // アップロード用コマンド
         const spellsByUserText = ref('')
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
-            // console.log(word)
             const retVal = ref([])
             tagsList.value.map((tags, i) => {
                 tags.content.map((tag, j) => {
                     tag.content.map((spell, k) => {
                         if(spell.tag === word) {
-                            console.log(tagsList.value[i].content[j].content[k].jp)
                             retVal.value.push(tagsList.value[i].content[j].jp)
                             retVal.value.push(tagsList.value[i].content[j].content[k].jp)
+                            tagsList.value[i].content[j].content[k].selected = true
                         }
                     })
                 })
@@ -161,6 +158,8 @@ export default {
                     spellQueue['tag'] = tagname
                     spellQueue['jp'] = tagjp
                     spellQueue['detail'] = ''
+                    spellQueue['slag'] = tagname.replace(' ', '_')
+                    spellQueue['selected'] = true
                     spellQueue['parentTag'] = parentTag
                     spellQueue['enhance'] = enhanceCount.value
 
@@ -187,28 +186,34 @@ export default {
                 return
             }
             const queue = tagsList.value[i].content[j].content[k]
-            queue['parentTag'] = tagsList.value[i].content[j].jp
 
-            if (type === 'checkbox') {
-                console.log(setSpells.value.includes(queue))
-                if (setSpells.value.includes(queue)) {
-                    const index = setSpells.value.indexOf(queue)
-                    setSpells.value.splice(index, 1)
-                } else {
-                    setSpells.value.push(queue)
-                }
-            } else if (type === 'radio' || type === 'select') { 
-                tagsList.value[i].content[j].content.map((_, l) => {
-                    const index = setSpells.value.indexOf(tagsList.value[i].content[j].content[l])
-                    if (index !== -1) {
-                        setSpells.value.splice(index, 1)
-                    }
-                })
+            if (!setSpells.value.includes(queue)) {
                 setSpells.value.push(queue)
-            } 
+                tagsList.value[i].content[j].content[k].selected = true
+            }
         }
 
-        // タグ(呪文)の強化
+        // タグの削除
+        const deleteSetSpells = (i, j, k) => {
+            console.log(i, j, k)
+            console.log(setSpells.value)
+            console.log(tagsList.value[i].content[j].content[k])
+            const queue = tagsList.value[i].content[j].content[k]
+            for (let index = 0; index < setSpells.value.length; index++) {
+                if (setSpells.value[index].tag === queue.tag) {
+                    setSpells.value.splice(index, 1)
+                    tagsList.value[i].content[j].content[k].selected = false
+                }
+            }
+            // if (setSpells.value.includes(queue)) {
+            //     console.log('aaa')
+            //     setSpells.value.splice(setSpells.value.indexOf(queue), 1)
+            //     tagsList.value[i].content[j].content[k].selected = false
+            // }
+        }
+
+
+        // タグ(コマンド)の強化
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
         }
@@ -235,19 +240,18 @@ export default {
                 }
                 text.value += ', '
             })
-            console.log(text.value)
             
             spellsNovelAI.value = text
         }
 
         
-        // 呪文をクリップボードにコピーする
+        // コマンドをクリップボードにコピーする
         const copyToClipboard = text => {
             navigator.clipboard.writeText(text)
             copyAlert.value = 'クリップボードにコピーしました。'
         }
         
-        // タグのセットキューが変化した際、呪文を生成する
+        // タグのセットキューが変化した際、コマンドを生成する
         // watchEffect(() => {
         //     spellsNovelAI.value = convertToNovelAITags(setSpells.value).value
         // })
@@ -264,6 +268,7 @@ export default {
             adjustAge,
             addSetSpells,
             enhanceSpell,
+            deleteSetSpells,
             convertToNovelAITags,
             copyToClipboard,
         }
@@ -291,6 +296,39 @@ input {
 }
 input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
+}
+
+.btn-common {
+    background-color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: all .1s;
+    cursor: pointer;
+}
+.btn-common.add {
+    border: 1.5px solid green;
+    color: green;
+    &:hover {
+        background-color: green;
+        color: white;
+    }
+}
+.btn-common.delete {
+    border: 1.5px solid red;
+    color: red;
+    &:hover {
+        background-color: red;
+        color: white;
+    }
+}
+.btn-common.copy {
+    border: 1.8px solid darkorange;
+    color: darkorange;
+    font-weight: bold;
+    &:hover {
+        background-color: darkorange;
+        color: white;
+    }
 }
 
 .content {
@@ -325,6 +363,16 @@ input[type="checkbox"], input[type='radio'] {
     > div {
         max-height: 180px;
         overflow-y: auto;
+        > div {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        > div span {
+            margin-right: 8px;
+            max-width: 120px;
+        }
     }
 }
 
@@ -341,8 +389,14 @@ input[type="checkbox"], input[type='radio'] {
             margin: 4px auto;
             display: flex;
             justify-content: space-evenly;
-            > * {
-                width: 50%;
+            > p {
+                width: 60%;
+            }
+            > div {
+                width: 30%;
+            }
+            > button {
+                width: 10%;
             }
             > .enhance-area span {
                 display: inline-block;
