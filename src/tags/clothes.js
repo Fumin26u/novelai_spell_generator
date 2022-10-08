@@ -29,6 +29,11 @@ const clothes = {
                     detail: '',
                 },
                 {
+                    tag: 'wedding dress',
+                    jp: 'ウエディングドレス',
+                    detail: '',
+                },
+                {
                     tag: 'babydoll',
                     jp: 'ベビードール, ランジェリー',
                     detail: '',

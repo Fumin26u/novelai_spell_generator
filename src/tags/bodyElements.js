@@ -6,6 +6,168 @@ const bodyElements = {
         {
             jp: '胸のサイズ',
             slag: 'breasts',
+            type: 'checkbox',
+            content: [
+                {
+                    tag: 'open mouth',
+                    jp: '口を開く',
+                    detail: '',
+                },
+                {
+                    tag: 'close mouth',
+                    jp: '口を閉じる',
+                    detail: '',
+                },
+                {
+                    tag: ':d',
+                    jp: '口を開ける笑顔',
+                    detail: '',
+                },
+                {
+                    tag: ':o',
+                    jp: '口を小さく開ける',
+                    detail: '',
+                },
+                {
+                    tag: 'light smile',
+                    jp: '軽い笑み',
+                    detail: '',
+                },
+                {
+                    tag: 'blush',
+                    jp: '頬を赤らめる',
+                    detail: '',
+                },
+                {
+                    tag: 'embarrassed',
+                    jp: '恥ずかしい',
+                    detail: '',
+                },
+                {
+                    tag: 'nervous',
+                    jp: '緊張',
+                    detail: '',
+                },
+                {
+                    tag: 'innocent',
+                    jp: 'あどけない',
+                    detail: '',
+                },
+                {
+                    tag: 'one_eye_closed',
+                    jp: 'ウインク',
+                    detail: '',
+                },
+                {
+                    tag: 'tears',
+                    jp: '涙',
+                    detail: '',
+                },
+                {
+                    tag: 'seductive_smile',
+                    jp: '口角上げ',
+                    detail: '',
+                },
+                {
+                    tag: 'defiant look',
+                    jp: '恥じらい',
+                    detail: '',
+                },
+                {
+                    tag: 'chestnut_mouth',
+                    jp: 'どんぐり口',
+                    detail: '',
+                },
+                {
+                    tag: 'half-closed eyes',
+                    jp: '半目',
+                    detail: '',
+                },
+                {
+                    tag: 'evil smile',
+                    jp: '色っぽい笑み',
+                    detail: '',
+                },
+                {
+                    tag: 'tongue_out',
+                    jp: '舌だし',
+                    detail: '',
+                },
+                {
+                    tag: 'looking_to_the_side',
+                    jp: '横を向く',
+                    detail: '',
+                },
+                {
+                    tag: 'skin fang',
+                    jp: '八重歯',
+                    detail: '',
+                },
+                {
+                    tag: 'jitome',
+                    jp: 'ジト目',
+                    detail: '',
+                },
+                {
+                    tag: 'tareme',
+                    jp: 'たれ目',
+                    detail: '',
+                },
+                {
+                    tag: 'tsurime',
+                    jp: 'つり目',
+                    detail: '',
+                },
+                {
+                    tag: 'salvia',
+                    jp: 'よだれ',
+                    detail: '',
+                },
+                {
+                    tag: 'scowl',
+                    jp: '睨む',
+                    detail: '',
+                },
+                {
+                    tag: 'screaming',
+                    jp: '怖くて叫ぶ',
+                    detail: '',
+                },
+                {
+                    tag: 'feared',
+                    jp: '恐れ目',
+                    detail: '',
+                },
+                {
+                    tag: 'expressionless',
+                    jp: '無表情',
+                    detail: '',
+                },
+                {
+                    tag: 'tearing up',
+                    jp: '泣き顔',
+                    detail: '',
+                },
+                {
+                    tag: 'ringed eyes',
+                    jp: 'ぐるぐる目',
+                    detail: '',
+                },
+                {
+                    tag: 'crying with eyes open',
+                    jp: '目を開けた泣き顔',
+                    detail: '',
+                },
+                {
+                    tag: 'teasing smile',
+                    jp: 'からかう笑み',
+                    detail: '',
+                },
+            ]
+        },
+        {
+            jp: '胸のサイズ',
+            slag: 'breasts',
             type: 'select',
             content: [
                 {
