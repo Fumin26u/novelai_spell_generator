@@ -19,9 +19,8 @@ tagsListQueue.map(tags => {
             tag.content.map(tagname => {
                 tagname['slag'] = tagname.tag.replace(' ', '_')
                 tagname['enhance'] = 0
-                if (tag.type === 'checkbox') {
-                    tagname['selected'] = false
-                }
+                tagname['selected'] = false
+                tagname['parentTag'] = tag.jp
             })
         }
     })

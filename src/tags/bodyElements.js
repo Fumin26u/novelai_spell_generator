@@ -4,7 +4,7 @@ const bodyElements = {
     type: '',
     content: [
         {
-            jp: '胸のサイズ',
+            jp: '表情',
             slag: 'breasts',
             type: 'checkbox',
             content: [
