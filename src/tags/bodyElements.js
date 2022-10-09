@@ -238,6 +238,11 @@ const bodyElements = {
                     detail: '',
                 },
                 {
+                    tag: 'covered nipples',
+                    jp: '透け乳首',
+                    detail: '',
+                },
+                {
                     tag: 'cleavage',
                     jp: '谷間',
                     detail: '',

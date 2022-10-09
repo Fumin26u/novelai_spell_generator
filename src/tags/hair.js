@@ -9,18 +9,8 @@ const hair = {
             type: 'select',
             content: [
                 {
-                    tag: 'aqua hair',
-                    jp: '水色 (アクア)',
-                    detail: ''
-                },
-                {
-                    tag: 'black hair',
-                    jp: '黒',
-                    detail: ''
-                },
-                {
-                    tag: 'blonde hair',
-                    jp: '金',
+                    tag: 'red hair',
+                    jp: '赤',
                     detail: ''
                 },
                 {
@@ -29,18 +19,13 @@ const hair = {
                     detail: ''
                 },
                 {
+                    tag: 'aqua hair',
+                    jp: '水色 (アクア)',
+                    detail: ''
+                },
+                {
                     tag: 'light blue hair',
                     jp: '水色 (ライトブルー)',
-                    detail: ''
-                },
-                {
-                    tag: 'dark blue hair',
-                    jp: '藍色',
-                    detail: ''
-                },
-                {
-                    tag: 'brown hair',
-                    jp: '茶色',
                     detail: ''
                 },
                 {
@@ -61,6 +46,26 @@ const hair = {
                 {
                     tag: 'light green hair',
                     jp: 'ライトグリーン',
+                    detail: ''
+                },
+                {
+                    tag: 'black hair',
+                    jp: '黒',
+                    detail: ''
+                },
+                {
+                    tag: 'blonde hair',
+                    jp: '金',
+                    detail: ''
+                },
+                {
+                    tag: 'dark blue hair',
+                    jp: '藍色',
+                    detail: ''
+                },
+                {
+                    tag: 'brown hair',
+                    jp: '茶色',
                     detail: ''
                 },
                 {
@@ -86,11 +91,6 @@ const hair = {
                 {
                     tag: 'light purple hair',
                     jp: '赤紫(ライトパープル)',
-                    detail: ''
-                },
-                {
-                    tag: 'red hair',
-                    jp: '赤',
                     detail: ''
                 },
                 {

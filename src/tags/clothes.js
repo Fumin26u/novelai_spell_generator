@@ -9,11 +9,6 @@ const clothes = {
             type: 'checkbox',
             content: [
                 {
-                    tag: 'playboy Bunny',
-                    jp: 'バニー',
-                    detail: '',
-                },
-                {
                     tag: 'school_swimsuit',
                     jp: 'スクール水着',
                     detail: '',
@@ -24,6 +19,11 @@ const clothes = {
                     detail: '',
                 },
                 {
+                    tag: 'white one-piece swimsuit',
+                    jp: '白水着',
+                    detail: '',
+                },
+                {
                     tag: 'school uniform',
                     jp: 'セーラー服',
                     detail: '',
@@ -31,6 +31,11 @@ const clothes = {
                 {
                     tag: 'wedding dress',
                     jp: 'ウエディングドレス',
+                    detail: '',
+                },
+                {
+                    tag: 'playboy Bunny',
+                    jp: 'バニー',
                     detail: '',
                 },
                 {
