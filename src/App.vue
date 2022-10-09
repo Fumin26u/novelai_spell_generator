@@ -150,7 +150,7 @@ export default {
                     } else if (tag.match(/\[/g)) {
                         enhanceCount.value = tag.match(/\[/g || []).length * -1 
                     }
-                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/, "")
+                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
                     // 親タグと日本語名を取得
                     const [parentTag, tagjp] = searchTagsFromSpell(tagname)
