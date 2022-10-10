@@ -413,6 +413,10 @@ input[type="checkbox"], input[type='radio'] {
         > p, button {
             display: inline-block;
         }
+        div p {
+            font-size: 13px;
+        }
+
         .copy-alert {
             margin-left: 8px;
         }
