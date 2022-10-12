@@ -126,7 +126,7 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
     <p><?= implode(', ', $message) ?></p>
     <h2>コマンド登録・編集</h2>
     <section class="spell-register">
-        <form action="<?= $form_action ?>" method="POST">
+        <form action="<?= $form_action ?>" method="POST" class="form-common">
             <dl>
                 <div>
                     <dt>コマンド</dt>
@@ -188,7 +188,7 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
                     <dt>その他</dt>
                     <dd><textarea name="others" cols="30" rows="10"><?= isset($presets['others']) ? h($presets['others']) : '' ?></textarea></dd>
                 </div>
-                <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-submit">
+                <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
             </dl>
         </form>
     </section>

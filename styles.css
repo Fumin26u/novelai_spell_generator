@@ -1,8 +1,13 @@
+/* --------------------
+
+    共通パーツ
+
+-------------------- */
 * {
     font-family: 'Yu Gothic Medium';
 }
 
-h1, h2, h3, p, ul, form, dl, dt, dd {
+h1, h2, h3, p, ul, .form-common, dl, dt, dd {
     margin: 0;
     padding: 0;
 }
@@ -30,23 +35,60 @@ a:hover {
     text-decoration: underline;
 }
 
-.btn-submit {
+main {
+    margin: 2em auto;
+}
+
+/* --------------------
+
+    共通ボタン
+
+-------------------- */
+.btn-common {
+    background-color: white;
+    font-weight: bold;
+    transition: all .1s;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-common.submit {
+    font-size: 16px;
     background-color: white;
     border: 1px solid green;
     color: green;
-    font-weight: bold;
-    transition: all .1s;
     width: 180px;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
     padding: 8px;
 }
-.btn-submit:hover {
+.btn-common.submit:hover {
     background-color: green;
     color: white;
 }
 
+.btn-common.red {
+    border: 1px solid rgb(200, 0, 0);
+    color: rgb(200, 0, 0);
+    width: 90px;
+}
+.btn-common.red:hover {
+    background-color: rgb(200, 0, 0);
+    color: white;
+}
+
+.btn-common.green {
+    border: 1px solid rgb(0, 200, 0);
+    color: rgb(0, 200, 0);
+    width: 90px;
+}
+.btn-common.green:hover {
+    background-color: rgb(0, 200, 0);
+    color: white;
+}
+
+/* --------------------
+
+    ヘッダー    
+
+-------------------- */
 header {
     display: flex;
     justify-content: space-between;
@@ -66,73 +108,12 @@ header .header-right a {
     margin: 0 1em;
 }
 
-main {
-    margin: 2em auto;
-}
+/* --------------------
 
-.spell-list > p {
-    font-size: 20px;
-    display: inline-block;
-}
-.spell-list > #copy-alert {
-    display: inline-block;
-    transition: all .2s;
-}
+    共通フォーム   
 
-table.spell-list {
-    display: block;
-    overflow-x: auto;
-}
-table tr th, table tr td {
-    display: inline-block;
-    overflow-y: auto;
-    padding: 4px 8px;
-    border: 1px solid #888;
-    border-right: none;
-}
-table tr th {
-    height: 26px;
-    background-color: rgb(200, 255, 255);
-}
-table tr td {
-    height: 54px;
-}
-
-table tr #description {
-    width: 19%;
-}
-table tr #commands {
-    width: 25%;
-}
-table tr #commands_ban {
-    width: 15%;
-}
-table tr #seed {
-    width: 6%;
-    text-align: center;
-}
-table tr #resolution {
-    width: 9%;
-    text-align: center;
-}
-table tr #others {
-    width: 15%;
-}
-table tr #edit {
-    text-align: center;
-    width: 2.5%;
-    border-right: 1px solid #888;
-}
-
-table td#commands, table td#commands_ban, table td#seed {
-    color: #cc8c00;
-    cursor: pointer;
-}
-table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
-    text-decoration: underline;
-}
-
-form {
+-------------------- */
+.form-common {
     text-align: center;
     max-width: 900px;
     margin: 1em auto;
@@ -141,7 +122,7 @@ form {
     border-radius: 16px;
 }
 
-form dl div {
+.form-common dl div {
     text-align: left;
     display: flex;
     justify-content: space-evenly;
@@ -152,21 +133,21 @@ form dl div {
     border-bottom: 1px solid #888;
 }
 
-form dl dt {
+.form-common dl dt {
     width: 16%;
     text-align: right;
 }
-form dl dd {
+.form-common dl dd {
     width: 78%;
     text-align: left;
 }
 
-form dd input, form dd select, form dd textarea {
+.form-common dd input, .form-common dd select, .form-common dd textarea {
     padding: 4px 8px;
     width: 100%;
     font-size: 16px;
 }
-form dd textarea {
+.form-common dd textarea {
     height: 80px;
 }
 

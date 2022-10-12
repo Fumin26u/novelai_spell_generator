@@ -53,7 +53,7 @@ $title = 'アカウント登録 | NovelAI コマンド登録機';
     <div>
         <p><?= implode(', ', $message) ?></p>
         <h2>ユーザー新規登録</h2>
-        <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
+        <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST" class="form-common">
             <dl>
                 <div>
                     <dt>ユーザーID</dt>
@@ -64,7 +64,7 @@ $title = 'アカウント登録 | NovelAI コマンド登録機';
                     <dd><input type="password" id="password" name="password" required></dd>
                 </div>
             </dl>
-            <input type="submit" value="登録" class="btn-submit">
+            <input type="submit" value="登録" class="btn-common submit">
         </form>
     </div>
 </main>
