@@ -29,7 +29,7 @@ if (isset($_GET['preset_id'])) {
 
         $rows = $st->fetch(PDO::FETCH_ASSOC);
         if (empty($rows)) {
-            header('location: ./', true, 303);
+            header('location: ./index.php', true, 303);
             exit;
         }
         $pdo->commit();
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
         $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
         $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
-        $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_INT);
+        $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
         $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
         $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
 

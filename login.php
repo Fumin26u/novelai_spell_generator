@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($err)) {
             session_start();
             $_SESSION['user_id'] = $rows['user_id'];
-            header('location: ./', true, 303);
+            header('location: ./index.php', true, 303);
             exit;
         }
 

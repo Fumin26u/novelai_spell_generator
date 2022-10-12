@@ -4,6 +4,7 @@ require_once($home . 'database/commonlib.php');
 
 $user_id = isset($_SESSION['user_id']) ? h($_SESSION['user_id']) : ''; 
 
+$presets = [];
 if (isset($_SESSION['user_id'])) {
     try {
         $pdo = dbConnect();
@@ -14,10 +15,6 @@ if (isset($_SESSION['user_id'])) {
         $st->execute();
 
         $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        if (empty($rows)) {
-            header('location: ./', true, 303);
-            exit;
-        }
         $pdo->commit();
         
         $presets = $rows;
@@ -42,6 +39,12 @@ $title = 'NovelAI コマンド登録機';
     <?php if (isset($_SESSION['user_id'])) { ?>
     <section class="spell-list">
         <p><?= $_SESSION['user_id'] ?>の登録コマンド一覧</p>
+        <?php if (empty($presets)) { ?>
+            <div class="no-presets">
+                <p>まだコマンドが登録されていません。</p>
+                <a href="<?= $home ?>commands.php">新規登録</a>
+            </div>
+        <?php } else { ?>
         <span id="copy-alert" style="padding-left:2em;"></span>
         <p style="display: block; font-size: 16px;"><span style="color: #cc8c00; font-weight: bold;">オレンジ色</span>の項目をクリックするとデータをコピーできます。</p>
         <table class="command-table">
@@ -70,6 +73,7 @@ $title = 'NovelAI コマンド登録機';
                 <?php } ?>
             </tbody>
         </table>
+        <?php } ?>
     </section>
     <?php } ?>
 </main>
