@@ -1,4 +1,4 @@
-<form action="<?= $_SERVER['PHP_SELF'] ?>" method="GET" id="search-form" style="display:block;">
+<form action="<?= $_SERVER['PHP_SELF'] ?>" method="GET" id="search-form" style="display:none;">
     <dl>
         <div>
             <dt>年齢制限</dt>
@@ -9,6 +9,7 @@
                 <label for="nolimit">全年齢のみ</label>
                 <input type="radio" name="age" value="nsfw" id="nsfw" <?= isset($_GET['age']) && $_GET['age'] === 'nsfw' ? ' checked' : '' ?>>
                 <label for="nsfw">R-18のみ</label>
+                <small>※コマンド内に「nsfw」ワードが存在する場合R-18、しない場合全年齢として扱う</small>
             </dd>
         </div>
         <div>
@@ -17,14 +18,12 @@
                 <div>
                     <label>検索項目:</label>
                     <input 
-                        type="checkbox" 
-                        name="search_item[]" 
-                        value="allitem" 
+                        type="checkbox"
                         id="allitem" 
                         onclick="checkAllBox()" 
                         <?= !isset($_GET['search_item']) || array_search('allitem', $_GET['search_item']) !== false ? ' checked' : '' ?>
                     >
-                    <label for="allitem">全て</label>
+                    <label for="allitem">全て選択</label>
                     <input 
                         type="checkbox" 
                         name="search_item[]" 
@@ -84,13 +83,13 @@
             <dt>ソート</dt>
             <dd>
                 <div>
-                    <input type="radio" name="sort" value="description" id="sort_description" <?= !isset($_GET['sort']) || $_GET['sort'] === 'description' ? ' checked' : '' ?>>
+                    <input type="radio" name="sort" value="description" id="sort_description" <?= isset($_GET['sort']) && $_GET['sort'] === 'description' ? ' checked' : '' ?>>
                     <label for="sort_description">説明</label>
                     <input type="radio" name="sort" value="seed" id="sort_seed" <?= isset($_GET['sort']) && $_GET['sort'] === 'seed' ? ' checked' : '' ?>>
                     <label for="sort_seed">シード値</label>
                     <input type="radio" name="sort" value="resolution" id="sort_resolution" <?= isset($_GET['sort']) && $_GET['sort'] === 'resolution' ? ' checked' : '' ?>>
                     <label for="sort_resolution">解像度</label>
-                    <input type="radio" name="sort" value="updated_at" id="updated_at" <?= isset($_GET['sort']) && $_GET['sort'] === 'updated_at' ? ' checked' : '' ?>>
+                    <input type="radio" name="sort" value="updated_at" id="updated_at" <?= !isset($_GET['sort']) || $_GET['sort'] === 'updated_at' ? ' checked' : '' ?>>
                     <label for="updated_at">日付</label>
                 </div>
                 <div>

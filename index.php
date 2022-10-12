@@ -11,7 +11,6 @@ if (isset($_SESSION['user_id'])) {
         $pdo = dbConnect();
         $pdo->beginTransaction();
 
-        
         if (!isset($_GET['order'])) {
             $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id');
             $st->bindValue(':user_id', $user_id, PDO::PARAM_STR);
@@ -21,15 +20,37 @@ if (isset($_SESSION['user_id'])) {
             $pdo->commit();
             $presets = $rows;
         } else {
-            $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id');
+            // 更に、検索ボックスで検索された場合内容に沿ってコマンドを絞り込む
+            $search_age = '';
+            // 年齢制限項目
+            if ($_GET['age'] === 'nolimit') {
+                $search_age .= "commands NOT LIKE '%nsfw%'";
+            } else if ($_GET['age'] === 'nsfw') {
+                $search_age .= "commands LIKE '%nsfw%'";
+            }
+
+            // ワード検索項目
+            $search_words = [];
+            if ($_GET['search_word'] !== '' && isset($_GET['search_item']) && !empty($_GET['search_item'])) {
+                foreach ($_GET['search_item'] as $item) {
+                    $search_words[] = $item . " LIKE '%" . h($_GET['search_word']) . "%'";
+                }
+            }
+            // ソート項目
+            $order = " ORDER BY " . $_GET['sort'] . " " . $_GET['order'];
+            // 配列にまとめた検索文字列を整形
+            $search_str = $search_age === '' ? '' : ' AND ' . $search_age ;
+            $search_str .= empty($search_words) ? '' : ' AND (' . implode(' OR ', $search_words) . ')';
+            $search_str .= $order;
+
+            // DBから検索文字列に該当する値のみを取得
+            $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id' . $search_str);
             $st->bindValue(':user_id', $user_id, PDO::PARAM_STR);
             $st->execute();
     
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
             $pdo->commit();
             $presets = $rows;
-            // 更に、検索ボックスで検索された場合内容に沿ってコマンドを絞り込む
-            // 年齢制限項目
         }
         
     } catch (PDOException $e) {
@@ -55,12 +76,6 @@ $title = 'NovelAI コマンド登録機';
     <?php if (isset($_SESSION['user_id'])) { ?>
     <section class="spell-list">
         <h2><?= $_SESSION['user_id'] ?>の登録コマンド一覧</h2>
-        <?php if (empty($presets)) { ?>
-            <div class="no-presets">
-                <p>まだコマンドが登録されていません。</p>
-                <a href="<?= $home ?>commands.php">新規登録</a>
-            </div>
-        <?php } else { ?>
         <div class="search-area">
             <div class="open-searchbox">
                 <p>検索ボックス</p>
@@ -73,6 +88,10 @@ $title = 'NovelAI コマンド登録機';
             <p><span>オレンジ色</span>の項目をクリックするとデータをコピーできます。</p>
             <span id="copy-alert"></span>
         </div>
+        <?php if (isset($_GET['order'])) { ?>
+            <p>該当のデータが<?= count($presets) ?>件存在します。</p>
+        <?php } ?> 
+        <?php if (!empty($presets)) { ?>
         <table class="command-table">
             <thead>
                 <tr>
@@ -128,17 +147,30 @@ $title = 'NovelAI コマンド登録機';
     }
 
     function checkAllBox() {
+        const ai = document.getElementById('allitem');
         const si = document.getElementsByName('search_item[]');
-        if (si[0].checked) {
-            for (let i = 1; i < si.length; i++) {
-                si[i].disabled = true;
+        if (ai.checked) {
+            for (let i = 0; i < si.length; i++) {
+                si[i].checked = true;
             }
         } else {
-            for (let i = 1; i < si.length; i++) {
-                si[i].disabled = false;
+            for (let i = 0; i < si.length; i++) {
+                si[i].checked = false;
             }
         }
     }
+
+    // データ検索がされていない場合検索ボックスの再リロードを行う
+    <?php if(!isset($_GET['order'])) { ?>
+    window.onload = () => {
+        checkAllBox();
+    }
+    <?php } else { ?>
+    // データ検索がされている場合初期状態で検索ボックスを表示
+    window.onload = () => {
+        openMenu();
+    }
+    <?php } ?>
 }
 </script>
 </html>

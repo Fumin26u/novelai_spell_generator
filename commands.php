@@ -62,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $sql = <<<SQL
             INSERT INTO preset 
-            (user_id, commands, commands_ban, description, seed, resolution, others, created_at)
+            (user_id, commands, commands_ban, description, seed, resolution, others, created_at, updated_at)
             VALUES 
-            (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW())
+            (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW(), NOW())
             SQL;
         }
         $st = $pdo->prepare($sql);
