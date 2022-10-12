@@ -1,6 +1,6 @@
 <header>
     <div class="header-left">
-        <h1>NovelAI コマンド登録機</h1>
+        <h1><a href="https://novelai.net/">NovelAI</a> コマンド登録機</h1>
     </div>
     <div class="header-right">
         <?php if (!isset($_SESSION['user_id'])) { ?>

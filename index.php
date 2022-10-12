@@ -32,6 +32,8 @@ $title = 'NovelAI コマンド登録機';
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="<?= $home ?>styles.css">
 <title><?= $title ?></title>
 </head>
 <body>
@@ -40,30 +42,30 @@ $title = 'NovelAI コマンド登録機';
     <?php if (isset($_SESSION['user_id'])) { ?>
     <section class="spell-list">
         <p><?= $_SESSION['user_id'] ?>の登録コマンド一覧</p>
-        <table>
+        <span id="copy-alert" style="padding-left:2em;"></span>
+        <p style="display: block; font-size: 16px;"><span style="color: #cc8c00; font-weight: bold;">オレンジ色</span>の項目をクリックするとデータをコピーできます。</p>
+        <table class="command-table">
             <thead>
                 <tr>
-                    <th>内容</th>
-                    <th>コマンド</th>
-                    <th>コマンドBAN</th>
-                    <th>シード値</th>
-                    <th>解像度</th>
-                    <th>備考</th>
-                    <th>更新日付</th>
-                    <th>編集</th>
+                    <th id="description">内容</th>
+                    <th id="commands">コマンド</th>
+                    <th id="commands_ban">BANコマンド</th>
+                    <th id="seed">シード値</th>
+                    <th id="resolution">解像度</th>
+                    <th id="others">備考</th>
+                    <th id="edit">編集</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($presets as $preset) { ?>
                     <tr>
-                        <td><?= $preset['description'] ?></td>
-                        <td><?= substr($preset['commands'], 0, 20) . '...' ?></td>
-                        <td><?= substr($preset['commands_ban'], 0, 20) . '...' ?></td>
-                        <td><?= $preset['seed'] ?></td>
-                        <td><?= $preset['resolution'] ?></td>
-                        <td><?= $preset['others'] ?></td>
-                        <td><?= $preset['updated_at'] === NULL ? $preset['created_at'] : $preset['updated_at'] ?></td>
-                        <td><a href="<?= $home ?>commands.php?preset_id=<?= $preset['preset_id'] ?>">編集</a></td>
+                        <td id="description"><?= $preset['description'] ?></td>
+                        <td id="commands" onclick="copyPreset('<?= $preset['commands'] ?>', '<?= $preset['description'] . 'のコマンド' ?>')"><?= $preset['commands'] ?></td>
+                        <td id="commands_ban" onclick="copyPreset('<?= $preset['commands_ban'] ?>', '<?= $preset['description'] . 'のBANコマンド' ?>')"><?= $preset['commands_ban'] ?></td>
+                        <td id="seed" onclick="copyPreset('<?= $preset['seed'] ?>', '<?= $preset['description'] . 'のシード値' ?>')"><?= $preset['seed'] ?></td>
+                        <td id="resolution"><?= $preset['resolution'] ?></td>
+                        <td id="others"><?= $preset['others'] ?></td>
+                        <td id="edit"><a href="<?= $home ?>commands.php?preset_id=<?= $preset['preset_id'] ?>">編集</a></td>
                     </tr>
                 <?php } ?>
             </tbody>
@@ -72,4 +74,13 @@ $title = 'NovelAI コマンド登録機';
     <?php } ?>
 </main>
 </body>
+<script lang="js">
+{
+    function copyPreset(command, title) {
+        navigator.clipboard.writeText(command);
+        const copyAlert = document.getElementById('copy-alert');
+        copyAlert.innerHTML = title + 'をコピーしました。'
+    };
+}
+</script>
 </html>

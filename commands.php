@@ -50,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_GET['preset_id'])) {
             $sql = <<<SQL
                 UPDATE preset SET
-                commands = :commands
-                commands_ban = :commands_ban
-                description = :description
-                seed = :seed  
-                resolution = :resolution
-                others = :others
+                commands = :commands,
+                commands_ban = :commands_ban,
+                description = :description,
+                seed = :seed,
+                resolution = :resolution,
+                others = :others,
                 updated_at = NOW()
                 WHERE preset_id = :preset_id AND user_id = :user_id
             SQL;
@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             SQL;
         }
         $st = $pdo->prepare($sql);
+        if (isset($_GET['preset_id'])) $st->bindValue(':preset_id', h($_GET['preset_id']), PDO::PARAM_INT); 
         $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
         $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
         $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
@@ -115,12 +116,15 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="<?= $home ?>styles.css">
 <title><?= $title ?></title>
 </head>
 <body>
 <?php include($home . 'header.php') ?>
 <main>
     <p><?= implode(', ', $message) ?></p>
+    <h2>コマンド登録・編集</h2>
     <section class="spell-register">
         <form action="<?= $form_action ?>" method="POST">
             <dl>
@@ -182,9 +186,9 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
                 </div>
                 <div>
                     <dt>その他</dt>
-                    <dd><textarea name="others" cols="30" rows="10"><?= isset($presets['otehrs']) ? nl2br(h($presets['others'])) : '' ?></textarea></dd>
+                    <dd><textarea name="others" cols="30" rows="10"><?= isset($presets['others']) ? h($presets['others']) : '' ?></textarea></dd>
                 </div>
-                <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>">
+                <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-submit">
             </dl>
         </form>
     </section>

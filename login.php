@@ -46,6 +46,8 @@ $title = 'ログイン | NovelAI コマンド登録機';
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="<?= $home ?>styles.css">
 <title><?= $title ?></title>
 </head>
 <body>
@@ -53,12 +55,19 @@ $title = 'ログイン | NovelAI コマンド登録機';
 <main>
     <div>
         <p><?= implode(', ', $message) ?></p>
+        <h2>ユーザーログイン</h2>
         <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
-            <label for="user_id">ユーザーID</label>
-            <input type="text" id="user_id" name="user_id" required>
-            <label for="password">パスワード</label>
-            <input type="password" id="password" name="password" required>
-            <button>ログイン</button>
+            <dl>
+                <div>
+                    <dt>ユーザーID</dt>
+                    <dd><input type="text" id="user_id" name="user_id" required></dd>
+                </div>
+                <div>
+                    <dt>パスワード</dt>
+                    <dd><input type="password" id="password" name="password" required></dd>
+                </div>
+                <input type="submit" value="ログイン" class="btn-submit">
+            </dl>           
         </form>
     </div>
 </main>
