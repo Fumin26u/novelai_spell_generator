@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
             $pdo->commit();
             header('location: ./login.php', true, 303);
+            exit;
         }
 
         $message += $err;
@@ -48,7 +49,7 @@ $title = 'アカウント登録 | NovelAI コマンド登録機';
 <?php include($home . 'header.php') ?>
 <main>
     <div>
-        <p><?php implode(', ', $message) ?></p>
+        <p><?= implode(', ', $message) ?></p>
         <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
             <label for="user_id">ユーザーID</label>
             <input type="text" id="user_id" name="user_id" required>
