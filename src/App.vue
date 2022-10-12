@@ -1,6 +1,7 @@
 <template>
     <div class="top-content">
-        <h1><a href="https://novelai.net/image">NovelAI</a> コマンドジェネレーター</h1>
+        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> コマンドジェネレーター</h1>
+        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">コマンド登録</a>
         <div class="content">
             <div class="main-content">
                 <section class="upload-prompt">
