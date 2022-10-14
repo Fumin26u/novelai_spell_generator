@@ -1,8 +1,8 @@
-import hair from './tags/hair.js'
-import baseSpells from './tags/baseSpells.js'
-import bodyElements from './tags/bodyElements.js'
-import clothes from './tags/clothes.js'
-import overall from './tags/overall.js'
+import hair from './hair.js'
+import baseSpells from './baseSpells.js'
+import bodyElements from './bodyElements.js'
+import clothes from './clothes.js'
+import overall from './overall.js'
 
 const tagsListQueue = [
     baseSpells,

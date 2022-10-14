@@ -19,35 +19,10 @@
                         >
                             <p :style="'font-weight:bold'">{{ tag.jp }}</p>
                             <div>
-                                <!-- <div v-if="tag.type === 'select'">
-                                    <div v-for="(spells, k) in tag.content" :key="spells.slag">
-                                        <input 
-                                            type="radio" 
-                                            :id="spells.slag"
-                                            :name="tag.slag"
-                                            @click="addSetSpells(i, j, k, tag.type)">
-                                        <label :for="spells.slag">{{ spells.jp }}</label>
-                                    </div>
-                                </div> -->
-                                <!-- <div v-if="tag.type === 'checkbox'"> -->
                                 <div v-for="(spells, k) in tag.content" :key="spells.slag">
                                     <span>{{ spells.jp }}</span>
-                                    <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k, tag.type)">追加</button>
+                                    <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k)">追加</button>
                                     <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpells(i, j, k)">削除</button>
-                                </div>
-                                <!-- </div> -->
-                                <div v-if="tag.type === 'number'">
-                                    <button @click="adjustAge(-1)">－</button>
-                                    <input 
-                                        v-model.number="age"
-                                        :id="tag.slag"
-                                        min="0"
-                                        :style="'width: 32px;'"
-                                    >
-                                    <label>歳</label>
-                                    <button @click="adjustAge(1)">＋</button>
-                                    <br>
-                                    <button @click="addSetSpells(i, j, 0, tag.type, age)">追加</button>
                                 </div>
                             </div>
                         </div>
@@ -94,26 +69,63 @@
 </template>
 
 <script>
-import tagsListQueue from './tagsList.js'
+import master_data from './master_data.js'
 import { ref } from 'vue'
 
 export default {
     components: {},
     setup() {
         // 表示するタグ一覧
-        const tagsList = ref(tagsListQueue)
+        const tagsList = ref([])
         // セットされているタグ(コマンド)のキュー
         const setSpells = ref([])
         // 生成されたNovelAI形式のコマンド
         const spellsNovelAI = ref('')
         // コマンドをコピーした際のアラート
         const copyAlert = ref('')
-        // 年齢タグ用
-        const ageNum = ref(15)
         // 手動入力内容
         const manualInputText = ref('')
         // アップロード用コマンド
         const spellsByUserText = ref('')
+
+        // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
+        const convertJsonToTagList = (json) => {
+            const jsonObj = JSON.parse(json)
+            const commandList = []
+            Object.keys(jsonObj).map(index => commandList.push(jsonObj[index]))
+
+            // 内部のオブジェクトとなっているコンテンツを配列に変換
+            commandList.map(category => {
+                const categoryContent = []
+                Object.keys(category.content).map(i => {
+                    const genreContent = []
+                    Object.keys(category.content[i].content).map(j => {
+                        genreContent.push(category.content[i].content[j])
+                    })
+
+                    category.content[i].content = genreContent
+                    categoryContent.push(category.content[i])
+                })
+                category.content = categoryContent
+            })
+
+            // 配列に表示に必要なデータを挿入
+            commandList.map(category => {
+                category.content.map(genre => {
+                    genre['display'] = false 
+                    genre.content.map(tag => {
+                        tag['slag'] = tag.tag.replace(' ', '_')
+                        tag['enhance'] = 0
+                        tag['selected'] = false
+                        tag['parentTag'] = genre.jp
+                    })              
+                })
+            })
+
+            return commandList
+        }
+        tagsList.value = convertJsonToTagList(master_data)
+        console.log(tagsList.value)
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
@@ -170,22 +182,7 @@ export default {
         }
 
         // タグのセットキューに挿入
-        const addSetSpells = (i, j, k, type = 'checkbox', age = 0) => { 
-            if (type === 'number') {
-                setSpells.value.map((spell, index) => {
-                    if(spell.tag.match(/years old/)) {
-                        setSpells.value.splice(index, 1)
-                    }
-                })
-                setSpells.value.push({
-                    tag: age + ' years old',
-                    jp: age + '歳',
-                    detail: '',
-                    parentTag: '年齢',
-                    enhance: 0
-                })
-                return
-            }
+        const addSetSpells = (i, j, k) => { 
             const queue = tagsList.value[i].content[j].content[k]
 
             if (!setSpells.value.includes(queue)) {
@@ -196,9 +193,6 @@ export default {
 
         // タグの削除
         const deleteSetSpells = (i, j, k) => {
-            console.log(i, j, k)
-            console.log(setSpells.value)
-            console.log(tagsList.value[i].content[j].content[k])
             const queue = tagsList.value[i].content[j].content[k]
             for (let index = 0; index < setSpells.value.length; index++) {
                 if (setSpells.value[index].tag === queue.tag) {
@@ -206,21 +200,12 @@ export default {
                     tagsList.value[i].content[j].content[k].selected = false
                 }
             }
-            // if (setSpells.value.includes(queue)) {
-            //     console.log('aaa')
-            //     setSpells.value.splice(setSpells.value.indexOf(queue), 1)
-            //     tagsList.value[i].content[j].content[k].selected = false
-            // }
         }
 
 
         // タグ(コマンド)の強化
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
-        }
-        // 年齢の調整
-        const adjustAge = num => {
-            ageNum.value += num
         }
 
         // キューにセットされているタグをNovelAIで使える形に変換する
@@ -252,21 +237,14 @@ export default {
             copyAlert.value = 'クリップボードにコピーしました。'
         }
         
-        // タグのセットキューが変化した際、コマンドを生成する
-        // watchEffect(() => {
-        //     spellsNovelAI.value = convertToNovelAITags(setSpells.value).value
-        // })
-        
         return {
             tagsList,
             setSpells,
             spellsNovelAI,
             copyAlert,
-            age: ageNum,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             uploadSpell,
-            adjustAge,
             addSetSpells,
             enhanceSpell,
             deleteSetSpells,
