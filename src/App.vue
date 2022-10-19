@@ -39,6 +39,10 @@
                             <span>{{ spell.enhance }}</span>
                             <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                         </div>
+                        <div class="setOrder-area">
+                            <button @click="setSpellOrder(index, -1)" class="btn-common order">▲</button>
+                            <button @click="setSpellOrder(index, 1)" class="btn-common order">▼</button>
+                        </div>
                     </div>
                 </div>
                 <div class="output-area">
@@ -202,10 +206,19 @@ export default {
             }
         }
 
-
         // タグ(コマンド)の強化
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
+        }
+        // タグの順序変更
+        const setSpellOrder = (index, direction) => {
+            if (!((index === 0 && direction === -1) || (index === setSpells.value.length - 1 && direction === 1))) {
+                if (direction === -1) {
+                    setSpells.value.splice(index - 1, 2, setSpells.value[index], setSpells.value[index - 1])
+                } else if (direction === 1) {
+                    setSpells.value.splice(index, 2, setSpells.value[index + 1], setSpells.value[index])
+                }
+            }
         }
 
         // キューにセットされているタグをNovelAIで使える形に変換する
@@ -247,6 +260,7 @@ export default {
             uploadSpell,
             addSetSpells,
             enhanceSpell,
+            setSpellOrder,
             deleteSetSpells,
             convertToNovelAITags,
             copyToClipboard,
@@ -311,6 +325,16 @@ input[type="checkbox"], input[type='radio'] {
         color: white;
     }
 }
+.btn-common.order {
+    border: 1px solid darkblue;
+    color: darkblue;
+    font-size: 12px;
+    padding: 2px 8px;
+    &:hover {
+        background-color: darkblue;
+        color: white;
+    }
+}
 
 .content {
     position: relative;
@@ -370,6 +394,7 @@ input[type="checkbox"], input[type='radio'] {
             margin: 4px auto;
             display: flex;
             justify-content: space-evenly;
+            align-items: center;
             > p {
                 width: 60%;
             }
@@ -379,10 +404,19 @@ input[type="checkbox"], input[type='radio'] {
             > button {
                 width: 10%;
             }
+            > .enhance-area {
+                width: 30%;
+            }
             > .enhance-area span {
                 display: inline-block;
-                width: 40px;
+                width: 33%;    
                 text-align: center;
+            }
+            > .setOrder-area {
+                width: 10%;
+            }
+            > .setOrder-area button {
+                display: block;
             }
         }
     }
