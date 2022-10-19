@@ -40,8 +40,14 @@
                             <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                         </div>
                         <div class="setOrder-area">
-                            <button @click="setSpellOrder(index, -1)" class="btn-common order">▲</button>
-                            <button @click="setSpellOrder(index, 1)" class="btn-common order">▼</button>
+                            <div>
+                                <button @click="setSpellOrder(index, index-1, 'up')" class="btn-common order">▲</button>
+                                <button @click="setSpellOrder(index, index+1, 'down')" class="btn-common order">▼</button>
+                            </div>
+                            <div>
+                                <button @click="setSpellOrder(index, 0, 'top')" class="btn-common order">top</button>
+                                <button @click="setSpellOrder(index, setSpells.length-1, 'bottom')" class="btn-common order">bottom</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,13 +217,14 @@ export default {
             setSpells.value[index].enhance += num
         }
         // タグの順序変更
-        const setSpellOrder = (index, direction) => {
-            if (!((index === 0 && direction === -1) || (index === setSpells.value.length - 1 && direction === 1))) {
-                if (direction === -1) {
-                    setSpells.value.splice(index - 1, 2, setSpells.value[index], setSpells.value[index - 1])
-                } else if (direction === 1) {
-                    setSpells.value.splice(index, 2, setSpells.value[index + 1], setSpells.value[index])
-                }
+        const setSpellOrder = (index, order, method) => {
+            if (((index === 0 && order === -1) || (index === setSpells.value.length - 1 && order === 1))) return
+            if (method === 'up' || method === 'down') {
+                [setSpells.value[index], setSpells.value[order]] = [setSpells.value[order], setSpells.value[index]]
+            } else if (method === 'top' || method === 'bottom') {
+                const obj = setSpells.value.splice(index, 1)
+                if (method === 'top') setSpells.value.unshift(obj[0])
+                if (method === 'bottom') setSpells.value.push(obj[0])
             }
         }
 
@@ -341,11 +348,11 @@ input[type="checkbox"], input[type='radio'] {
     display: flex;
     justify-content: space-between;
     > .main-content {
-        width: 72%;
+        width: 68%;
         border-right: 1px solid #888;
     }
     > .spell-settings {
-        width: 28%;
+        width: 32%;
     }
 }
 
@@ -396,16 +403,10 @@ input[type="checkbox"], input[type='radio'] {
             justify-content: space-evenly;
             align-items: center;
             > p {
-                width: 60%;
-            }
-            > div {
-                width: 30%;
-            }
-            > button {
-                width: 10%;
+                width: 55%;
             }
             > .enhance-area {
-                width: 30%;
+                width: 25%;
             }
             > .enhance-area span {
                 display: inline-block;
@@ -413,10 +414,16 @@ input[type="checkbox"], input[type='radio'] {
                 text-align: center;
             }
             > .setOrder-area {
-                width: 10%;
+                width: 20%;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
             }
             > .setOrder-area button {
                 display: block;
+            }
+            > .setOrder-area div:nth-child(2) button {
+                width: 55px;
             }
         }
     }
