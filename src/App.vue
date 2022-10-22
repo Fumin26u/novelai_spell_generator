@@ -218,7 +218,7 @@ export default {
         }
         // タグの順序変更
         const setSpellOrder = (index, order, method) => {
-            if (((index === 0 && order === -1) || (index === setSpells.value.length - 1 && order === 1))) return
+            if (((index === 0 && method === 'up') || (index === setSpells.value.length - 1 && order === 'down'))) return
             if (method === 'up' || method === 'down') {
                 [setSpells.value[index], setSpells.value[order]] = [setSpells.value[order], setSpells.value[index]]
             } else if (method === 'top' || method === 'bottom') {
