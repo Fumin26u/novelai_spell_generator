@@ -234,16 +234,16 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                         <input 
                             type="number"
                             name="id"
+                            id="command_id"
                             value="<?= isset($prompt_info['command_id']) ? h($prompt_info['command_id']) : '' ?>"
-                            <?= isset($prompt_info['command_id']) ? ' readonly' : '' ?>
                             required
                         >
                     </dd>
                 </div>
                 <div>
-                    <dt>カテゴリ</dt>
+                    <dt>ジャンル</dt>
                     <dd>
-                        <select name="parent_group">
+                        <select name="parent_group" oninput="changeCommandID(event)" id="genre_list">
                             <?php foreach($select_list as $option) { ?>
                                 <option 
                                     value="<?= $option['genre_id'] ?>" 
@@ -294,5 +294,19 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
     </div>
 </main>
 </body>
-<script></script>
+<script lang="js">
+{
+    function changeCommandID(event) {
+        const ci = document.getElementById('command_id');
+        ci.value = event.target.value + '0000'
+    }
+
+    <?php if ($content === 'command') { ?>
+        window.onload = () => {
+            const gl = document.getElementById('genre_list');
+            gl.addEventListener('input', changeCommandID);
+        }
+    <?php } ?>
+}
+</script>
 </html>
