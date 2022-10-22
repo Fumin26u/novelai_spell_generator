@@ -3,6 +3,12 @@ $home = '../';
 require_once($home . 'database/commonlib.php');
 
 $message = [];
+// ログインユーザーが自分以外の場合トップページにリダイレクト
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] !== 'Fumiya0719') {
+    header('location: ../', true, 303);
+    exit;
+}
+ 
 // URL引数が設定されていない場合、マスタデータトップにリダイレクト
 if (!isset($_GET['genre_id']) && !isset($_GET['command_id'])) {
     header('location: ./', true, 303);
