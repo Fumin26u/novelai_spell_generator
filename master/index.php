@@ -1,6 +1,11 @@
 <?php
 $home = '../';
 require_once($home . 'database/commonlib.php');
+// ログインユーザーが自分以外の場合トップページにリダイレクト
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] !== 'Fumiya0719') {
+    header('location: ../', true, 303);
+    exit;
+}
 
 // データベースから全マスタデータを取得
 function getMasterData() {

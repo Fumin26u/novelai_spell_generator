@@ -3,6 +3,12 @@ $home = '../';
 require_once($home . 'database/commonlib.php');
 
 $message = [];
+// ログインユーザーが自分以外の場合トップページにリダイレクト
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] !== 'Fumiya0719') {
+    header('location: ../', true, 303);
+    exit;
+}
+ 
 // URL引数が設定されていない場合、マスタデータトップにリダイレクト
 if (!isset($_GET['genre_id']) && !isset($_GET['command_id'])) {
     header('location: ./', true, 303);
@@ -30,7 +36,7 @@ try {
     if (isset($_GET['command_id'])) { 
         $content = 'command';         
         // セレクトボックス用のジャンル一覧を取得
-        $st = $pdo->query('SELECT genre_id, genre_jp FROM genre');
+        $st = $pdo->query('SELECT genre_id, genre_jp, category_jp FROM genre INNER JOIN category ON genre.category_id = category.category_id');
         $select_list = $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -234,22 +240,22 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                         <input 
                             type="number"
                             name="id"
+                            id="command_id"
                             value="<?= isset($prompt_info['command_id']) ? h($prompt_info['command_id']) : '' ?>"
-                            <?= isset($prompt_info['command_id']) ? ' readonly' : '' ?>
                             required
                         >
                     </dd>
                 </div>
                 <div>
-                    <dt>カテゴリ</dt>
+                    <dt>ジャンル</dt>
                     <dd>
-                        <select name="parent_group">
+                        <select name="parent_group" oninput="changeCommandID(event)" id="genre_list">
                             <?php foreach($select_list as $option) { ?>
                                 <option 
                                     value="<?= $option['genre_id'] ?>" 
                                     <?= isset($prompt_info['genre_id']) && $option['genre_id'] === $prompt_info['genre_id'] ? ' selected' : '' ?>
                                 >
-                                    <?= $option['genre_jp'] ?>
+                                    <?= $option['category_jp'] . ' - ' .  $option['genre_jp'] ?>
                                 </option>
                             <?php } ?>
                         </select>
@@ -294,5 +300,19 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
     </div>
 </main>
 </body>
-<script></script>
+<script lang="js">
+{
+    function changeCommandID(event) {
+        const ci = document.getElementById('command_id');
+        ci.value = event.target.value + '0000'
+    }
+
+    <?php if ($content === 'command') { ?>
+        window.onload = () => {
+            const gl = document.getElementById('genre_list');
+            gl.addEventListener('input', changeCommandID);
+        }
+    <?php } ?>
+}
+</script>
 </html>
