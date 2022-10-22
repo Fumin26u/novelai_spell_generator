@@ -36,7 +36,7 @@ try {
     if (isset($_GET['command_id'])) { 
         $content = 'command';         
         // セレクトボックス用のジャンル一覧を取得
-        $st = $pdo->query('SELECT genre_id, genre_jp FROM genre');
+        $st = $pdo->query('SELECT genre_id, genre_jp, category_jp FROM genre INNER JOIN category ON genre.category_id = category.category_id');
         $select_list = $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -255,7 +255,7 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                                     value="<?= $option['genre_id'] ?>" 
                                     <?= isset($prompt_info['genre_id']) && $option['genre_id'] === $prompt_info['genre_id'] ? ' selected' : '' ?>
                                 >
-                                    <?= $option['genre_jp'] ?>
+                                    <?= $option['category_jp'] . ' - ' .  $option['genre_jp'] ?>
                                 </option>
                             <?php } ?>
                         </select>
