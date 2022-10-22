@@ -9,7 +9,7 @@ function getMasterData() {
         $pdo->beginTransaction();
     
         $sql = <<<SQL
-        SELECT command_name, command_jp, command.detail, command.genre_id, genre.category_id FROM command 
+        SELECT command_id, command_name, command_jp, command.detail, command.genre_id, genre.category_id FROM command 
         INNER JOIN genre ON command.genre_id = genre.genre_id
         SQL;
         $st = $pdo->query($sql);
@@ -29,8 +29,8 @@ function getMasterData() {
     }
 }
 
-// マスタデータをJsonに変換
-function convertMasterDataToJson($categories, $genres, $commands) {
+// マスタデータを1つの連想配列に成形
+function shapeMasterData($categories, $genres, $commands) {
     $shapedMasterData = [];
     foreach ($categories as $category) {
         $shapedMasterData[$category['category_id']] = [
@@ -53,20 +53,30 @@ function convertMasterDataToJson($categories, $genres, $commands) {
 
     foreach ($commands as $command) {
         $shapedMasterData[$command['category_id']]['content'][$command['genre_id']]['content'][] = [
+            'id' => $command['command_id'],
             'tag' => $command['command_name'],
             'jp' => $command['command_jp'],
             'detail' => $command['detail'],
         ];
     }
 
-    $json = json_encode($shapedMasterData, JSON_UNESCAPED_UNICODE);
+    return $shapedMasterData;
+}
+
+// 整形したマスタデータをJsonに変換
+function convertMasterDataToJson($masterData) {
+    $json = json_encode($masterData, JSON_UNESCAPED_UNICODE);
+    $json = "const master_data = `" . $json . "`\nexport default master_data";
     return $json;
 } 
 
+// コマンド一覧の読み込み
+$masterData = getMasterData();
+$shapedMasterData = shapeMasterData($masterData[2], $masterData[1], $masterData[0]);
 
+// [jsonをダウンロード]ボタンが押された場合、json文字列が定数に格納されたjsファイルをダウンロード
 if (isset($_POST['dl_json'])) {
-    $masterData = getMasterData();
-    $json = "const master_data = `" . convertMasterDataToJson($masterData[2], $masterData[1], $masterData[0]) . "`\nexport default master_data";
+    $json = convertMasterDataToJson($shapedMasterData);
 
     $fileName = 'master_data.js';
     file_put_contents($fileName, $json);
@@ -78,7 +88,7 @@ if (isset($_POST['dl_json'])) {
 }
 
 // echo '<pre>';
-// v($json);
+// v($shapedMasterData);
 // echo '</pre>';
 
 $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
@@ -93,10 +103,71 @@ $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
 <body>
 <?php include($home . 'header.php') ?>
 <main>
-    <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
-        <input type="submit" name="dl_json" value="jsonをダウンロード" class="btn-common submit">
-    </form>
+    <section class="link-area">
+        <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
+            <input type="submit" name="dl_json" value="jsonをダウンロード" class="btn-common submit">
+        </form>
+        <div>
+            <a href="./register.php?genre_id=">ジャンル新規登録</a>
+            <a href="./register.php?command_id=">コマンド新規登録</a>
+        </div>
+    </section>
+    <section class="masterData-list">
+        <?php foreach($shapedMasterData as $i => $categories) { ?>
+        <div>
+            <h2><?= $categories['jp'] ?></h2>
+            <table class="command-table">
+                <thead>
+                    <tr>
+                        <th id="id">ID</th>
+                        <th id="jp">日本語名</th>
+                        <th id="slag">スラッグ・コマンド名</th>
+                        <th id="detail">説明</th>
+                        <th id="edit">編集</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($categories['content'] as $j => $genres) { ?>
+                        <tr class="genre" onclick="displayCommands(<?= $j ?>)">
+                            <td id="id"><?= $j ?></td>
+                            <td id="jp"><?= $genres['jp'] ?></td>
+                            <td id="slag"><?= $genres['slag'] ?></td>
+                            <td id="detail"><?= $genres['detail'] ?></td>
+                            <td id="edit">
+                                <a href="./register.php?genre_id=<?= $j ?>">編集</a>
+                            </td>
+                        </tr>
+                        <?php foreach($genres['content'] as $commands) { ?>
+                            <tr 
+                                class="command <?= 'command_' . $j ?>" 
+                                style="display: none;"
+                            >
+                                <td id="id"><?= $commands['id'] ?></td>
+                                <td id="jp"><?= $commands['jp'] ?></td>
+                                <td id="slag"><?= $commands['tag'] ?></td>
+                                <td id="detail"><?= $commands['detail'] ?></td>
+                                <td id="edit">
+                                    <a href="./register.php?command_id=<?= $commands['id'] ?>&genre_id=<?= $j ?>">編集</a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+        <?php } ?>
+    </section>
 </main>
 </body>
-<script></script>
+<script lang="js">
+{
+    function displayCommands(id) {
+        const command_id = 'command_' + id;
+        const tr = document.getElementsByClassName(command_id);
+        for (let i = 0; i < tr.length; i++) {
+            tr[i].style.display = tr[i].style.display === 'table-row' ? 'none' : 'table-row';
+        }
+    }
+}
+</script>
 </html>

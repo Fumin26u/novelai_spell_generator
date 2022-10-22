@@ -7,6 +7,7 @@
             <a href="<?= $home ?>login.php">ログイン</a>
             <a href="<?= $home ?>register.php">アカウント登録</a>
         <?php } else { ?>
+            <a href="<?= $home ?>/master">マスタデータ一覧</a>
             <a href="<?= $home ?>">登録コマンド一覧</a>
             <a href="<?= $home ?>commands.php">コマンド登録</a>
             <a href="<?= $home ?>?logout">ログアウト</a>
