@@ -1,12 +1,24 @@
 @import url('../styles.css');
+.link-area {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em auto;
+}
+.link-area a {
+    font-size: 18px;
+    margin: 0 1em;
+}
+
 .masterData-list {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
+   
 }
 
 .masterData-list > div {
     width: 48%;
+    margin: 1em auto;
 }
 
 .masterData-list > div > table {
@@ -25,6 +37,9 @@ table tr th {
     background-color: rgb(200, 255, 255);
 }
 
+table tr {
+    user-select: none;
+}
 table tr.genre {
     cursor: pointer;
 }
@@ -33,18 +48,19 @@ table tr.genre td {
 }
 
 table tr #id {
-    width: 10%;
+    width: 8%;
 }
 table tr #jp {
     width: 30%;
 }
 table tr #slag {
-    width: 30%;
+    width: 32%;
 }
 table tr #detail {
     width: 12%;
 }
 table tr #edit {
+    text-align: center;
     width: 6%;
     border-right: 1px solid #888;
 }

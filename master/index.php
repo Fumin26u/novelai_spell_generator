@@ -103,9 +103,15 @@ $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
 <body>
 <?php include($home . 'header.php') ?>
 <main>
-    <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
-        <input type="submit" name="dl_json" value="jsonをダウンロード" class="btn-common submit">
-    </form>
+    <section class="link-area">
+        <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
+            <input type="submit" name="dl_json" value="jsonをダウンロード" class="btn-common submit">
+        </form>
+        <div>
+            <a href="./register.php?genre_id=">ジャンル新規登録</a>
+            <a href="./register.php?command_id=">コマンド新規登録</a>
+        </div>
+    </section>
     <section class="masterData-list">
         <?php foreach($shapedMasterData as $i => $categories) { ?>
         <div>
@@ -128,17 +134,20 @@ $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
                             <td id="slag"><?= $genres['slag'] ?></td>
                             <td id="detail"><?= $genres['detail'] ?></td>
                             <td id="edit">
-                                <a href="./register.php">編集</a>
+                                <a href="./register.php?genre_id=<?= $j ?>">編集</a>
                             </td>
                         </tr>
                         <?php foreach($genres['content'] as $commands) { ?>
-                            <tr class="command <?= 'command_' . $j ?>" style="display: none;">
+                            <tr 
+                                class="command <?= 'command_' . $j ?>" 
+                                style="display: none;"
+                            >
                                 <td id="id"><?= $commands['id'] ?></td>
                                 <td id="jp"><?= $commands['jp'] ?></td>
                                 <td id="slag"><?= $commands['tag'] ?></td>
                                 <td id="detail"><?= $commands['detail'] ?></td>
                                 <td id="edit">
-                                    <a href="./register.php">編集</a>
+                                    <a href="./register.php?command_id=<?= $commands['id'] ?>&genre_id=<?= $j ?>">編集</a>
                                 </td>
                             </tr>
                         <?php } ?>
