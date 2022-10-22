@@ -222,7 +222,6 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                             type="text" 
                             name="detail" 
                             value="<?= isset($prompt_info['detail']) ? h($prompt_info['detail']) : '' ?>" 
-                            required
                         >
                     </dd>
                 </div>
@@ -285,7 +284,6 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                             type="text" 
                             name="detail" 
                             value="<?= isset($prompt_info['detail']) ? h($prompt_info['detail']) : '' ?>" 
-                            required
                         >
                     </dd>
                 </div>
