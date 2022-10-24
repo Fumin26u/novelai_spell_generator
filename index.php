@@ -5,7 +5,7 @@ require_once($home . 'database/commonlib.php');
 $user_id = isset($_SESSION['user_id']) ? h($_SESSION['user_id']) : ''; 
 
 $presets = [];
-// ログインしている場合、ログインユーザーの登録コマンド一覧を取得
+// ログインしている場合、ログインユーザーの登録プロンプト一覧を取得
 if (isset($_SESSION['user_id'])) {
     try {
         $pdo = dbConnect();
@@ -20,7 +20,7 @@ if (isset($_SESSION['user_id'])) {
             $pdo->commit();
             $presets = $rows;
         } else {
-            // 更に、検索ボックスで検索された場合内容に沿ってコマンドを絞り込む
+            // 更に、検索ボックスで検索された場合内容に沿ってプロンプトを絞り込む
             $search_age = '';
             // 年齢制限項目
             if ($_GET['age'] === 'nolimit') {
@@ -61,7 +61,7 @@ if (isset($_SESSION['user_id'])) {
     
 }
 
-$title = 'NovelAI コマンド登録機';
+$title = 'NovelAI プロンプトセーバー';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -75,7 +75,7 @@ $title = 'NovelAI コマンド登録機';
 <main>
     <?php if (isset($_SESSION['user_id'])) { ?>
     <section class="spell-list">
-        <h2><?= $_SESSION['user_id'] ?>の登録コマンド一覧</h2>
+        <h2><?= $_SESSION['user_id'] ?>の登録プロンプト一覧</h2>
         <div class="search-area">
             <div class="open-searchbox">
                 <p>検索ボックス</p>
@@ -96,8 +96,8 @@ $title = 'NovelAI コマンド登録機';
             <thead>
                 <tr>
                     <th id="description">説明</th>
-                    <th id="commands">コマンド</th>
-                    <th id="commands_ban">BANコマンド</th>
+                    <th id="commands">プロンプト</th>
+                    <th id="commands_ban">BANプロンプト</th>
                     <th id="seed">シード値</th>
                     <th id="resolution">解像度</th>
                     <th id="others">備考</th>
@@ -108,8 +108,8 @@ $title = 'NovelAI コマンド登録機';
                 <?php foreach ($presets as $preset) { ?>
                     <tr>
                         <td id="description"><?= $preset['description'] ?></td>
-                        <td id="commands" onclick="copyPreset('<?= $preset['commands'] ?>', '<?= $preset['description'] . 'のコマンド' ?>')"><?= $preset['commands'] ?></td>
-                        <td id="commands_ban" onclick="copyPreset('<?= $preset['commands_ban'] ?>', '<?= $preset['description'] . 'のBANコマンド' ?>')"><?= $preset['commands_ban'] ?></td>
+                        <td id="commands" onclick="copyPreset('<?= $preset['commands'] ?>', '<?= $preset['description'] . 'のプロンプト' ?>')"><?= $preset['commands'] ?></td>
+                        <td id="commands_ban" onclick="copyPreset('<?= $preset['commands_ban'] ?>', '<?= $preset['description'] . 'のBANプロンプト' ?>')"><?= $preset['commands_ban'] ?></td>
                         <td id="seed" onclick="copyPreset('<?= $preset['seed'] ?>', '<?= $preset['description'] . 'のシード値' ?>')"><?= $preset['seed'] ?></td>
                         <td id="resolution"><?= $preset['resolution'] ?></td>
                         <td id="others"><?= $preset['others'] ?></td>

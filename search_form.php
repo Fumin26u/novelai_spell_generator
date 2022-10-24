@@ -9,7 +9,7 @@
                 <label for="nolimit">全年齢のみ</label>
                 <input type="radio" name="age" value="nsfw" id="nsfw" <?= isset($_GET['age']) && $_GET['age'] === 'nsfw' ? ' checked' : '' ?>>
                 <label for="nsfw">R-18のみ</label>
-                <small>※コマンド内に「nsfw」ワードが存在する場合R-18、しない場合全年齢として扱う</small>
+                <small>※プロンプト内に「nsfw」ワードが存在する場合R-18、しない場合全年齢として扱う</small>
             </dd>
         </div>
         <div>
@@ -39,7 +39,7 @@
                         id="commands" 
                         <?= isset($_GET['search_item']) && array_search('commands', $_GET['search_item']) !== false ? ' checked' : '' ?>
                     >
-                    <label for="commands">コマンド</label>
+                    <label for="commands">プロンプト</label>
                     <input 
                         type="checkbox" 
                         name="search_item[]" 
@@ -47,7 +47,7 @@
                         id="commands_ban" 
                         <?= isset($_GET['search_item']) && array_search('commands_ban', $_GET['search_item']) !== false ? ' checked' : '' ?>
                     >
-                    <label for="commands_ban">BANコマンド</label>
+                    <label for="commands_ban">BANプロンプト</label>
                     <input 
                         type="checkbox" 
                         name="search_item[]" 

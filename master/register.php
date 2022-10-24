@@ -65,7 +65,7 @@ try {
             }
         } else if ($content === 'command') {
             if ($_GET['command_id'] === '') {
-                // 設定されたコマンドIDが既存の場合エラー
+                // 設定されたプロンプトIDが既存の場合エラー
                 $st = $pdo->prepare('SELECT * FROM command WHERE command_id = :command_id');
                 $st->bindValue(':command_id', h($_POST['id']), PDO::PARAM_INT);
                 $st->execute();
@@ -154,8 +154,8 @@ try {
     if (DEBUG) echo $e;
 }
 
-$title = 'マスタデータ登録・編集 | NovelAI コマンド登録機';
-$h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャンル登録・編集';
+$title = 'マスタデータ登録・編集 | NovelAI プロンプト登録機';
+$h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャンル登録・編集';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -262,7 +262,7 @@ $h2_title = $content === 'command' ? 'コマンド登録・編集' : 'ジャン�
                     </dd>
                 </div>
                 <div>
-                    <dt>コマンド名</dt>
+                    <dt>プロンプト名</dt>
                     <dd>
                         <input 
                             type="text" 

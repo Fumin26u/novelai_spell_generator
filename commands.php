@@ -111,7 +111,7 @@ $resolutions = [
 ];
 
 $form_action = isset($_GET['preset_id']) ? $_SERVER['PHP_SELF'] . '?preset_id=' . h($_GET['preset_id']) : $_SERVER['PHP_SELF'];
-$title = 'コマンド登録 | NovelAI コマンド登録機';
+$title = 'プロンプト登録 | NovelAI プロンプト登録機';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -124,12 +124,12 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
 <?php include($home . 'header.php') ?>
 <main>
     <p><?= implode(', ', $message) ?></p>
-    <h2>コマンド登録・編集</h2>
+    <h2>プロンプト登録・編集</h2>
     <section class="spell-register">
         <form action="<?= $form_action ?>" method="POST" class="form-common">
             <dl>
                 <div>
-                    <dt>コマンド</dt>
+                    <dt>プロンプト</dt>
                     <dd>
                         <input 
                             type="text" 
@@ -140,7 +140,7 @@ $title = 'コマンド登録 | NovelAI コマンド登録機';
                     </dd>
                 </div>
                 <div>
-                    <dt>BANコマンド</dt>
+                    <dt>BANプロンプト</dt>
                     <dd>
                         <input 
                             type="text" 

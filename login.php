@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$title = 'ログイン | NovelAI コマンド登録機';
+$title = 'ログイン | NovelAI プロンプトセーバー';
 ?>
 <!DOCTYPE html>
 <html lang="ja">

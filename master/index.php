@@ -75,7 +75,7 @@ function convertMasterDataToJson($masterData) {
     return $json;
 } 
 
-// コマンド一覧の読み込み
+// プロンプト一覧の読み込み
 $masterData = getMasterData();
 $shapedMasterData = shapeMasterData($masterData[2], $masterData[1], $masterData[0]);
 
@@ -96,7 +96,7 @@ if (isset($_POST['dl_json'])) {
 // v($shapedMasterData);
 // echo '</pre>';
 
-$title = 'マスタデータ一覧 | NovelAI コマンド登録機';
+$title = 'マスタデータ一覧 | NovelAI プロンプト登録機';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -114,7 +114,7 @@ $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
         </form>
         <div>
             <a href="./register.php?genre_id=">ジャンル新規登録</a>
-            <a href="./register.php?command_id=">コマンド新規登録</a>
+            <a href="./register.php?command_id=">プロンプト新規登録</a>
         </div>
     </section>
     <section class="masterData-list">
@@ -126,7 +126,7 @@ $title = 'マスタデータ一覧 | NovelAI コマンド登録機';
                     <tr>
                         <th id="id">ID</th>
                         <th id="jp">日本語名</th>
-                        <th id="slag">スラッグ・コマンド名</th>
+                        <th id="slag">スラッグ・プロンプト名</th>
                         <th id="detail">説明</th>
                         <th id="edit">編集</th>
                     </tr>
