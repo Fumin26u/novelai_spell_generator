@@ -31,29 +31,25 @@
             </div>
             <div class="spell-settings">
                 <h2>設定コマンド一覧</h2>
-                <div class="spells">
-                    <div v-for="(spell, index) in setSpells" :key="spell.slag">
-                        <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
-                        <div class="enhance-area">
-                            <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
-                            <span>{{ spell.enhance }}</span>
-                            <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
-                        </div>
-                        <div class="setOrder-area">
-                            <div>
-                                <button @click="setSpellOrder(index, index-1, 'up')" class="btn-common order">▲</button>
-                                <button @click="setSpellOrder(index, index+1, 'down')" class="btn-common order">▼</button>
+                <draggable 
+                    class="spells" 
+                    v-model="setSpells"
+                    @end="displaySetSpells()"
+                >
+                    <template #item="{element, index}">
+                        <div>
+                            <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
+                            <div class="enhance-area">
+                                <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
+                                <span>{{ element.enhance }}</span>
+                                <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                             </div>
-                            <div>
-                                <button @click="setSpellOrder(index, 0, 'top')" class="btn-common order">top</button>
-                                <button @click="setSpellOrder(index, setSpells.length-1, 'bottom')" class="btn-common order">bottom</button>
+                            <div class="delete-area">
+                                <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
                             </div>
                         </div>
-                        <div class="delete-area">
-                            <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
-                        </div>
-                    </div>
-                </div>
+                    </template>
+                </draggable>
                 <div class="output-area">
                     <div>
                         <label :for="'manual-input'">手動入力</label>
@@ -84,9 +80,10 @@
 <script>
 import master_data from './master_data.js'
 import { ref } from 'vue'
+import draggable from 'vuedraggable'
 
 export default {
-    components: {},
+    components: { draggable },
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
@@ -100,6 +97,10 @@ export default {
         const manualInputText = ref('')
         // アップロード用コマンド
         const spellsByUserText = ref('')
+
+        const displaySetSpells = () => {
+            console.log(setSpells.value)
+        }
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
@@ -231,17 +232,6 @@ export default {
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
         }
-        // タグの順序変更
-        const setSpellOrder = (index, order, method) => {
-            if (((index === 0 && method === 'up') || (index === setSpells.value.length - 1 && order === 'down'))) return
-            if (method === 'up' || method === 'down') {
-                [setSpells.value[index], setSpells.value[order]] = [setSpells.value[order], setSpells.value[index]]
-            } else if (method === 'top' || method === 'bottom') {
-                const obj = setSpells.value.splice(index, 1)
-                if (method === 'top') setSpells.value.unshift(obj[0])
-                if (method === 'bottom') setSpells.value.push(obj[0])
-            }
-        }
 
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = (spells) => {
@@ -275,14 +265,17 @@ export default {
         return {
             tagsList,
             setSpells,
+            options: {
+                animation: 200
+            },
             spellsNovelAI,
             copyAlert,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
+            displaySetSpells,
             uploadSpell,
             addSetSpells,
             enhanceSpell,
-            setSpellOrder,
             deleteSetSpellsFromMaster,
             deleteSetSpellsFromList,
             convertToNovelAITags,
@@ -408,38 +401,39 @@ input[type="checkbox"], input[type='radio'] {
     margin: 0 8px;
     position: sticky;
     top: 50px;
-    height: 90vh;
+    height: 96vh;
     > .spells {
-        max-height: 480px;
+        max-height: 540px;
         overflow-y: scroll;
         border-bottom: 1px solid #888;
         > div {
-            margin: 4px auto;
+            margin: 8px auto;
             display: flex;
             justify-content: space-evenly;
             align-items: center;
             > p {
-                width: 50%;
+                width: 65%;
+                &::before {
+                    content: '';
+                    margin-right: 8px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 18px;
+                    height: 18px;
+                    cursor: pointer;
+                    background-image: url('./dnd.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
             }
             > .enhance-area {
-                width: 20%;
+                width: 25%;
             }
             > .enhance-area span {
                 display: inline-block;
                 width: 33%;    
                 text-align: center;
-            }
-            > .setOrder-area {
-                width: 20%;
-                display: flex;
-                align-items: center;
-                justify-content: space-around;
-            }
-            > .setOrder-area button {
-                display: block;
-            }
-            > .setOrder-area div:nth-child(2) button {
-                width: 55px;
             }
             > .delete-area {
                 width: 10%;
