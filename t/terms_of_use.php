@@ -2,14 +2,14 @@
 $home = '../';
 require_once($home . '../commonlib.php');
 
-$title = '利用規約 | LikedImageDLer';
+$title = '利用規約 | NovelAI プロンプトセーバー';
 
 // デスクリプション
-$description = "Twitterで自分が「いいね」をした画像を一括ダウンロードできるツールです。ユーザー登録を行うことにより、更に手軽にダウンロードを行うことができます。";
+$description = "";
 
-$keywords = "Twitter,いいね,ダウンロード,画像,保存,一括";
+$keywords = "";
 
-$canonical = "https://imagedler.com/t/terms_of_use.php";
+$canonical = "";
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -23,7 +23,7 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
 <meta property="og:description" content="<?= $description ?>">
 <meta name="keywords" content="<?= $keywords ?>">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="TwimageDLer">
+<meta property="og:site_name" content="">
 <meta property="og:url" content="<?= $canonical ?>">
 <meta property="og:title" content="<?= $title ?>">
 <meta property="og:image" content="<?= $home ?>ogpimage.png">
@@ -32,7 +32,7 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
 <?php include_once($home . '../header.php') ?>
 <main>
 <h2>利用規約</h2>
-<p>この利用規約（以下、「本規約」といいます。）は、TwimageDLerの管理人がこのウェブサイト上で提供するサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下、「ユーザー」といいます。）には、本規約に従って、本サービスをご利用いただきます。</p>
+<p>この利用規約（以下、「本規約」といいます。）は、本ウェブサイトの管理人がこのウェブサイト上で提供するサービスであるプロンプトジェネレーター及びプロンプトセーバー（以下、「本サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下、「ユーザー」といいます。）には、本規約に従って、本サービスをご利用いただきます。</p>
 <div class="tou_content">
     <div>
         <h3>第1条（適用）</h3>
@@ -46,7 +46,8 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
         <h3>第2条（利用および登録）</h3>
         <ol>
             <li>ユーザーは、本サービスを利用またはユーザー登録をした時点で、本規約およびプライバシーポリシーに同意したとみなします。</li>
-            <li>本サービスにおいては、登録希望者が本規約に同意の上、管理人の定める方法によってユーザー登録を申請し、本サービスが示す手順で登録を行うことで、ユーザー登録が完了するものとします。</li>
+            <li>プロンプトセーバーにおいては、登録希望者が本規約に同意の上、管理人の定める方法、また本サービスが示す手順で登録を行うことで、ユーザー登録が完了するものとします。</li>
+            <li>プロンプトジェネレーターについてはユーザー登録の可否に関わらず利用可能です。ただし、上記の通りサービスを利用した時点で、本規約およびプライバシーポリシーに同意したとみなします。</li>
         </ol>
     </div>
     <div>
@@ -98,7 +99,6 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
             <li>管理人は、ユーザーが以下のいずれかに該当する場合には、事前の通知なく、ユーザーに対して、本サービスの全部もしくは一部の利用を制限し、またはユーザーとしての登録を抹消することができるものとします。</li>
             <ol>
                 <li>本規約のいずれかの条項に違反した場合</li>
-                <li>管理人からの連絡に対し、一定期間返答がない場合</li>
                 <li>その他、管理人が本サービスの利用を適当でないと判断した場合</li>
             </ol>
             <li>管理人は、本条に基づき管理人が行った行為によりユーザーに生じた損害について、一切の責任を負いません。</li>
@@ -106,7 +106,7 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
     </div>
     <div>
         <h3>第8条（退会）</h3>
-        <p>ユーザーは、管理人の定める退会手続により、本サービスから退会できるものとします。</p>
+        <p>ユーザーは、管理人のEmailを通じて、本サービスから退会できるものとします。tosufumiya0719〇gmail.com (〇を@に変更)に連絡をお願いします。</p>
     </div>
     <div>
         <h3>第9条（保証の否認および免責事項）</h3>
@@ -138,7 +138,7 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
     </div>
     <div>
         <h3>第13条（通知または連絡）</h3>
-        <p>ユーザーと管理人との間の通知または連絡は、ユーザーが登録の際に設定したメールアドレスによって行うものとします。管理人は,ユーザーから,管理人が別途定める方式に従った変更届け出がない限り,現在登録されている連絡先が有効なものとみなして当該連絡先へ通知または連絡を行い,これらは,発信時にユーザーへ到達したものとみなします。</p>
+        <p>ユーザーと管理人との間の通知または連絡については、管理人からユーザーに通知または連絡することは一切ありません。ユーザーが管理人に連絡を行いたい場合、管理人のEmailであるtosufumiya0719〇gmail.com (〇を@に変更)に連絡をするものとします。管理人は,ユーザーから,管理人が別途定める方式に従った変更届け出がない限り,連絡または通知に利用した連絡先が有効なものとみなして当該連絡先へ通知または連絡を行い,これらは,発信時にユーザーへ到達したものとみなします。</p>
     </div>
     <div>
         <h3>第14条（権利義務の譲渡の禁止）</h3>
@@ -153,6 +153,5 @@ $canonical = "https://imagedler.com/t/terms_of_use.php";
     </div>
 </div>
 </main>
-<?php include_once($home . '../footer.php') ?>
 </body>
 </html>

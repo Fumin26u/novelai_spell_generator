@@ -2,14 +2,14 @@
 $home = '../';
 require_once($home . '../commonlib.php');
 
-$title = 'プライバシーポリシー | LikedImageDLer';
+$title = 'プライバシーポリシー | NovelAI プロンプトセーバー';
 
 // デスクリプション
-$description = "Twitterで自分が「いいね」をした画像を一括ダウンロードできるツールです。ユーザー登録を行うことにより、更に手軽にダウンロードを行うことができます。";
+$description = "";
 
-$keywords = "Twitter,いいね,ダウンロード,画像,保存,一括";
+$keywords = "";
 
-$canonical = "https://imagedler.com/t/privacy_policy.php";
+$canonical = "";
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -23,7 +23,7 @@ $canonical = "https://imagedler.com/t/privacy_policy.php";
 <meta property="og:description" content="<?= $description ?>">
 <meta name="keywords" content="<?= $keywords ?>">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="TwimageDLer">
+<meta property="og:site_name" content="">
 <meta property="og:url" content="<?= $canonical ?>">
 <meta property="og:title" content="<?= $title ?>">
 <meta property="og:image" content="<?= $home ?>ogpimage.png">
@@ -32,7 +32,7 @@ $canonical = "https://imagedler.com/t/privacy_policy.php";
 <?php include_once($home . '../header.php') ?>
 <main>
 <h2>プライバシーポリシー</h2>
-<p>TwimageDLerの管理人（以下、「管理人」といいます。）は、本ウェブサイト上で提供するサービス（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。</p>
+<p>本ウェブサイトの管理人（以下、「管理人」といいます。）は、本ウェブサイトの管理人がこのウェブサイト上で提供するサービスであるプロンプトジェネレーター及びプロンプトセーバー（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。</p>
 <div class="tou_content">
     <div>
         <h3>第1条（個人情報）</h3>
@@ -125,10 +125,9 @@ $canonical = "https://imagedler.com/t/privacy_policy.php";
     </div>
     <div>
         <h3>第10条（お問い合わせフォーム）</h3>
-        <p>本ポリシーに関するお問い合わせは、<a href="<?= $home ?>mail/">メールフォーム</a>までお願いいたします。</p>
+        <p>本ポリシーに関するお問い合わせは、tosufumiya0719〇gmail.com (〇を@に変更)までお願いいたします。</p>
     </div>
 </div>
 </main>
-<?php include_once($home . '../footer.php') ?>
 </body>
 </html>
