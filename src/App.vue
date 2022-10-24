@@ -22,7 +22,7 @@
                                 <div v-for="(spells, k) in tag.content" :key="spells.slag">
                                     <span>{{ spells.jp }}</span>
                                     <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpells(i, j, k)">削除</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpellsFromMaster(i, j, k)">削除</button>
                                 </div>
                             </div>
                         </div>
@@ -48,6 +48,9 @@
                                 <button @click="setSpellOrder(index, 0, 'top')" class="btn-common order">top</button>
                                 <button @click="setSpellOrder(index, setSpells.length-1, 'bottom')" class="btn-common order">bottom</button>
                             </div>
+                        </div>
+                        <div class="delete-area">
+                            <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
                         </div>
                     </div>
                 </div>
@@ -120,14 +123,15 @@ export default {
             })
 
             // 配列に表示に必要なデータを挿入
-            commandList.map(category => {
-                category.content.map(genre => {
+            commandList.map((category, i) => {
+                category.content.map((genre, j) => {
                     genre['display'] = false 
-                    genre.content.map(tag => {
+                    genre.content.map((tag, k) => {
                         tag['slag'] = tag.tag.replace(' ', '_')
                         tag['enhance'] = 0
                         tag['selected'] = false
                         tag['parentTag'] = genre.jp
+                        tag['index'] = i + ',' + j + ',' + k
                     })              
                 })
             })
@@ -202,7 +206,7 @@ export default {
         }
 
         // タグの削除
-        const deleteSetSpells = (i, j, k) => {
+        const deleteSetSpellsFromMaster = (i, j, k) => {
             const queue = tagsList.value[i].content[j].content[k]
             for (let index = 0; index < setSpells.value.length; index++) {
                 if (setSpells.value[index].tag === queue.tag) {
@@ -210,6 +214,16 @@ export default {
                     tagsList.value[i].content[j].content[k].selected = false
                 }
             }
+        }
+
+        const deleteSetSpellsFromList = (index) => {
+            const tagsIndexList = setSpells.value[index].index.split(',')
+            const i = parseInt(tagsIndexList[0])
+            const j = parseInt(tagsIndexList[1])
+            const k = parseInt(tagsIndexList[2])
+            
+            tagsList.value[i].content[j].content[k].selected = false
+            setSpells.value.splice(index, 1)
         }
 
         // タグ(コマンド)の強化
@@ -268,7 +282,8 @@ export default {
             addSetSpells,
             enhanceSpell,
             setSpellOrder,
-            deleteSetSpells,
+            deleteSetSpellsFromMaster,
+            deleteSetSpellsFromList,
             convertToNovelAITags,
             copyToClipboard,
         }
