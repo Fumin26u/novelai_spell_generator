@@ -139,7 +139,6 @@ export default {
             return commandList
         }
         tagsList.value = convertJsonToTagList(master_data)
-        console.log(tagsList.value)
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
@@ -418,10 +417,10 @@ input[type="checkbox"], input[type='radio'] {
             justify-content: space-evenly;
             align-items: center;
             > p {
-                width: 55%;
+                width: 50%;
             }
             > .enhance-area {
-                width: 25%;
+                width: 20%;
             }
             > .enhance-area span {
                 display: inline-block;
@@ -439,6 +438,9 @@ input[type="checkbox"], input[type='radio'] {
             }
             > .setOrder-area div:nth-child(2) button {
                 width: 55px;
+            }
+            > .delete-area {
+                width: 10%;
             }
         }
     }
