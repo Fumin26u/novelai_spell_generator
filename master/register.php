@@ -154,7 +154,7 @@ try {
     if (DEBUG) echo $e;
 }
 
-$title = 'マスタデータ登録・編集 | NovelAI プロンプト登録機';
+$title = 'マスタデータ登録・編集 | NovelAI プロンプトセーバー';
 $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャンル登録・編集';
 ?>
 <!DOCTYPE html>

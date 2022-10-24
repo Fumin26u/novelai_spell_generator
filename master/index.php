@@ -96,7 +96,7 @@ if (isset($_POST['dl_json'])) {
 // v($shapedMasterData);
 // echo '</pre>';
 
-$title = 'マスタデータ一覧 | NovelAI プロンプト登録機';
+$title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
 ?>
 <!DOCTYPE html>
 <html lang="ja">

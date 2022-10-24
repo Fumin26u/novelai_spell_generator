@@ -111,7 +111,7 @@ $resolutions = [
 ];
 
 $form_action = isset($_GET['preset_id']) ? $_SERVER['PHP_SELF'] . '?preset_id=' . h($_GET['preset_id']) : $_SERVER['PHP_SELF'];
-$title = 'プロンプト登録 | NovelAI プロンプト登録機';
+$title = 'プロンプト登録 | NovelAI プロンプトセーバー';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
