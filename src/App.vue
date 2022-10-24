@@ -149,6 +149,7 @@ export default {
                         if(spell.tag === word) {
                             retVal.value.push(tagsList.value[i].content[j].jp)
                             retVal.value.push(tagsList.value[i].content[j].content[k].jp)
+                            retVal.value.push(i + ',' + j + ',' + k)
                             tagsList.value[i].content[j].content[k].selected = true
                         }
                     })
@@ -179,7 +180,7 @@ export default {
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
                     // 親タグと日本語名を取得
-                    const [parentTag, tagjp] = searchTagsFromSpell(tagname)
+                    const [parentTag, tagjp, index] = searchTagsFromSpell(tagname)
 
                     spellQueue['tag'] = tagname
                     spellQueue['jp'] = tagjp
@@ -188,6 +189,7 @@ export default {
                     spellQueue['selected'] = true
                     spellQueue['parentTag'] = parentTag
                     spellQueue['enhance'] = enhanceCount.value
+                    spellQueue['index'] = index
 
                     setSpells.value.push(spellQueue)
                 }
