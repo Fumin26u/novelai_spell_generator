@@ -1,11 +1,11 @@
 <template>
     <div class="top-content">
-        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> コマンドジェネレーター</h1>
-        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">コマンド登録</a>
+        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
+        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">プロンプト登録</a>
         <div class="content">
             <div class="main-content">
                 <section class="upload-prompt">
-                    <label :id="'upload-prompt'">コマンドをアップロード</label>
+                    <label :id="'upload-prompt'">プロンプトをアップロード</label>
                     <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
                     <button @click="uploadSpell(spellsByUser)">アップロード</button>
                 </section>
@@ -22,7 +22,7 @@
                                 <div v-for="(spells, k) in tag.content" :key="spells.slag">
                                     <span>{{ spells.jp }}</span>
                                     <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpells(i, j, k)">削除</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpellsFromMaster(i, j, k)">削除</button>
                                 </div>
                             </div>
                         </div>
@@ -30,34 +30,33 @@
                 </section>
             </div>
             <div class="spell-settings">
-                <h2>設定コマンド一覧</h2>
-                <div class="spells">
-                    <div v-for="(spell, index) in setSpells" :key="spell.slag">
-                        <p><span :style="'font-weight:bold; margin-right:8px'">{{ spell.parentTag }}</span>{{ spell.jp }}</p>
-                        <div class="enhance-area">
-                            <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
-                            <span>{{ spell.enhance }}</span>
-                            <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
-                        </div>
-                        <div class="setOrder-area">
-                            <div>
-                                <button @click="setSpellOrder(index, index-1, 'up')" class="btn-common order">▲</button>
-                                <button @click="setSpellOrder(index, index+1, 'down')" class="btn-common order">▼</button>
+                <h2>設定プロンプト一覧</h2>
+                <draggable 
+                    class="spells" 
+                    v-model="setSpells"
+                    @end="displaySetSpells()"
+                >
+                    <template #item="{element, index}">
+                        <div>
+                            <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
+                            <div class="enhance-area">
+                                <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
+                                <span>{{ element.enhance }}</span>
+                                <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                             </div>
-                            <div>
-                                <button @click="setSpellOrder(index, 0, 'top')" class="btn-common order">top</button>
-                                <button @click="setSpellOrder(index, setSpells.length-1, 'bottom')" class="btn-common order">bottom</button>
+                            <div class="delete-area">
+                                <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </template>
+                </draggable>
                 <div class="output-area">
                     <div>
                         <label :for="'manual-input'">手動入力</label>
                         <input type="text" :id="'manual-input'" :style="'margin: 0 8px; padding: 8px; width:320px;'" v-model="manualInput">
                     </div>
                     <div :style="'margin: 1em 0'">
-                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">コマンドを生成</button>
+                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
                         <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
                             <span v-if="spellsNovelAI.value !== undifined">
                                 {{ spellsNovelAI.value + manualInput }}
@@ -81,22 +80,27 @@
 <script>
 import master_data from './master_data.js'
 import { ref } from 'vue'
+import draggable from 'vuedraggable'
 
 export default {
-    components: {},
+    components: { draggable },
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
-        // セットされているタグ(コマンド)のキュー
+        // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
-        // 生成されたNovelAI形式のコマンド
+        // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
-        // コマンドをコピーした際のアラート
+        // プロンプトをコピーした際のアラート
         const copyAlert = ref('')
         // 手動入力内容
         const manualInputText = ref('')
-        // アップロード用コマンド
+        // アップロード用プロンプト
         const spellsByUserText = ref('')
+
+        const displaySetSpells = () => {
+            console.log(setSpells.value)
+        }
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
@@ -120,14 +124,15 @@ export default {
             })
 
             // 配列に表示に必要なデータを挿入
-            commandList.map(category => {
-                category.content.map(genre => {
+            commandList.map((category, i) => {
+                category.content.map((genre, j) => {
                     genre['display'] = false 
-                    genre.content.map(tag => {
+                    genre.content.map((tag, k) => {
                         tag['slag'] = tag.tag.replace(' ', '_')
                         tag['enhance'] = 0
                         tag['selected'] = false
                         tag['parentTag'] = genre.jp
+                        tag['index'] = i + ',' + j + ',' + k
                     })              
                 })
             })
@@ -135,7 +140,6 @@ export default {
             return commandList
         }
         tagsList.value = convertJsonToTagList(master_data)
-        console.log(tagsList.value)
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
@@ -146,6 +150,7 @@ export default {
                         if(spell.tag === word) {
                             retVal.value.push(tagsList.value[i].content[j].jp)
                             retVal.value.push(tagsList.value[i].content[j].content[k].jp)
+                            retVal.value.push(i + ',' + j + ',' + k)
                             tagsList.value[i].content[j].content[k].selected = true
                         }
                     })
@@ -156,6 +161,10 @@ export default {
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
         const uploadSpell = (spell) => {
+            // 既存の設定プロンプトリストと手動入力欄をリセット
+            setSpells.value = []
+            manualInputText.value = ''
+
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
 
@@ -175,18 +184,23 @@ export default {
                     }
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
-                    // 親タグと日本語名を取得
-                    const [parentTag, tagjp] = searchTagsFromSpell(tagname)
-
-                    spellQueue['tag'] = tagname
-                    spellQueue['jp'] = tagjp
-                    spellQueue['detail'] = ''
-                    spellQueue['slag'] = tagname.replace(' ', '_')
-                    spellQueue['selected'] = true
-                    spellQueue['parentTag'] = parentTag
-                    spellQueue['enhance'] = enhanceCount.value
-
-                    setSpells.value.push(spellQueue)
+                    // 親タグ、日本語名、各インデックスを取得
+                    const [parentTag, tagjp, index] = searchTagsFromSpell(tagname)
+                    // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
+                    if (parentTag === undefined || tagjp === undefined || index === undefined) {
+                        manualInputText.value += tag + ', '
+                    } else {
+                        spellQueue['tag'] = tagname
+                        spellQueue['jp'] = tagjp
+                        spellQueue['detail'] = ''
+                        spellQueue['slag'] = tagname.replace(' ', '_')
+                        spellQueue['selected'] = true
+                        spellQueue['parentTag'] = parentTag
+                        spellQueue['enhance'] = enhanceCount.value
+                        spellQueue['index'] = index
+    
+                        setSpells.value.push(spellQueue)
+                    }
                 }
             })
         }
@@ -202,7 +216,7 @@ export default {
         }
 
         // タグの削除
-        const deleteSetSpells = (i, j, k) => {
+        const deleteSetSpellsFromMaster = (i, j, k) => {
             const queue = tagsList.value[i].content[j].content[k]
             for (let index = 0; index < setSpells.value.length; index++) {
                 if (setSpells.value[index].tag === queue.tag) {
@@ -212,20 +226,19 @@ export default {
             }
         }
 
-        // タグ(コマンド)の強化
+        const deleteSetSpellsFromList = (index) => {
+            const tagsIndexList = setSpells.value[index].index.split(',')
+            const i = parseInt(tagsIndexList[0])
+            const j = parseInt(tagsIndexList[1])
+            const k = parseInt(tagsIndexList[2])
+            
+            tagsList.value[i].content[j].content[k].selected = false
+            setSpells.value.splice(index, 1)
+        }
+
+        // タグ(プロンプト)の強化
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
-        }
-        // タグの順序変更
-        const setSpellOrder = (index, order, method) => {
-            if (((index === 0 && method === 'up') || (index === setSpells.value.length - 1 && order === 'down'))) return
-            if (method === 'up' || method === 'down') {
-                [setSpells.value[index], setSpells.value[order]] = [setSpells.value[order], setSpells.value[index]]
-            } else if (method === 'top' || method === 'bottom') {
-                const obj = setSpells.value.splice(index, 1)
-                if (method === 'top') setSpells.value.unshift(obj[0])
-                if (method === 'bottom') setSpells.value.push(obj[0])
-            }
         }
 
         // キューにセットされているタグをNovelAIで使える形に変換する
@@ -251,7 +264,7 @@ export default {
         }
 
         
-        // コマンドをクリップボードにコピーする
+        // プロンプトをクリップボードにコピーする
         const copyToClipboard = text => {
             navigator.clipboard.writeText(text)
             copyAlert.value = 'クリップボードにコピーしました。'
@@ -260,15 +273,19 @@ export default {
         return {
             tagsList,
             setSpells,
+            options: {
+                animation: 200
+            },
             spellsNovelAI,
             copyAlert,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
+            displaySetSpells,
             uploadSpell,
             addSetSpells,
             enhanceSpell,
-            setSpellOrder,
-            deleteSetSpells,
+            deleteSetSpellsFromMaster,
+            deleteSetSpellsFromList,
             convertToNovelAITags,
             copyToClipboard,
         }
@@ -392,18 +409,31 @@ input[type="checkbox"], input[type='radio'] {
     margin: 0 8px;
     position: sticky;
     top: 50px;
-    height: 90vh;
+    height: 96vh;
     > .spells {
-        max-height: 480px;
+        max-height: 540px;
         overflow-y: scroll;
         border-bottom: 1px solid #888;
         > div {
-            margin: 4px auto;
+            margin: 8px auto;
             display: flex;
             justify-content: space-evenly;
             align-items: center;
             > p {
-                width: 55%;
+                width: 65%;
+                &::before {
+                    content: '';
+                    margin-right: 8px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 18px;
+                    height: 18px;
+                    cursor: pointer;
+                    background-image: url('./dnd.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
             }
             > .enhance-area {
                 width: 25%;
@@ -413,17 +443,8 @@ input[type="checkbox"], input[type='radio'] {
                 width: 33%;    
                 text-align: center;
             }
-            > .setOrder-area {
-                width: 20%;
-                display: flex;
-                align-items: center;
-                justify-content: space-around;
-            }
-            > .setOrder-area button {
-                display: block;
-            }
-            > .setOrder-area div:nth-child(2) button {
-                width: 55px;
+            > .delete-area {
+                width: 10%;
             }
         }
     }
