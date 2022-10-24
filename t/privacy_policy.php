@@ -1,6 +1,6 @@
 <?php
 $home = '../';
-require_once($home . '../commonlib.php');
+require_once($home . 'database/commonlib.php');
 
 $title = 'プライバシーポリシー | NovelAI プロンプトセーバー';
 
@@ -16,7 +16,7 @@ $canonical = "";
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= $title ?></title>
-<?php include_once $home . '../gtag.inc'; ?>
+<?php // include_once $home . '../gtag.inc'; ?>
 <link rel="stylesheet" href="t.css">
 <link rel="icon" href="<?= $home ?>favicon.png">
 <link rel="canonical" href="<?= $canonical ?>">
@@ -29,7 +29,7 @@ $canonical = "";
 <meta property="og:image" content="<?= $home ?>ogpimage.png">
 </head>
 <body>
-<?php include_once($home . '../header.php') ?>
+<?php include_once($home . 'header.php') ?>
 <main>
 <h2>プライバシーポリシー</h2>
 <p>本ウェブサイトの管理人（以下、「管理人」といいます。）は、本ウェブサイトの管理人がこのウェブサイト上で提供するサービスであるプロンプトジェネレーター及びプロンプトセーバー（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。</p>

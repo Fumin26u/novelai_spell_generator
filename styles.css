@@ -97,15 +97,22 @@ header {
     border-bottom: 2px dashed #888;
 }
 header .header-left {
-    width: 30%;
+    width: 20%;
+}
+header .tou-area {
+    width: 20%;
+    text-align: center;
+}
+header .tou-area a {
+    margin: 0 8px;
 }
 header .header-right {
-    width: 70%;
+    width: 60%;
     text-align: right;
 }
 header .header-right a {
     font-size: 18px;
-    margin: 0 1em;
+    margin: 0 8px;
 }
 
 /* --------------------
