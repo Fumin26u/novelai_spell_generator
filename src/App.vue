@@ -161,6 +161,10 @@ export default {
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
         const uploadSpell = (spell) => {
+            // 既存の設定コマンドリストと手動入力欄をリセット
+            setSpells.value = []
+            manualInputText.value = ''
+            
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
 
@@ -180,19 +184,23 @@ export default {
                     }
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
-                    // 親タグと日本語名を取得
+                    // 親タグ、日本語名、各インデックスを取得
                     const [parentTag, tagjp, index] = searchTagsFromSpell(tagname)
-
-                    spellQueue['tag'] = tagname
-                    spellQueue['jp'] = tagjp
-                    spellQueue['detail'] = ''
-                    spellQueue['slag'] = tagname.replace(' ', '_')
-                    spellQueue['selected'] = true
-                    spellQueue['parentTag'] = parentTag
-                    spellQueue['enhance'] = enhanceCount.value
-                    spellQueue['index'] = index
-
-                    setSpells.value.push(spellQueue)
+                    // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
+                    if (parentTag === undefined || tagjp === undefined || index === undefined) {
+                        manualInputText.value += tag + ', '
+                    } else {
+                        spellQueue['tag'] = tagname
+                        spellQueue['jp'] = tagjp
+                        spellQueue['detail'] = ''
+                        spellQueue['slag'] = tagname.replace(' ', '_')
+                        spellQueue['selected'] = true
+                        spellQueue['parentTag'] = parentTag
+                        spellQueue['enhance'] = enhanceCount.value
+                        spellQueue['index'] = index
+    
+                        setSpells.value.push(spellQueue)
+                    }
                 }
             })
         }
