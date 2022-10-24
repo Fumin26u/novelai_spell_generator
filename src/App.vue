@@ -1,7 +1,13 @@
 <template>
     <div class="top-content">
-        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
-        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">プロンプト登録</a>
+        <div class="title-area">
+            <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
+            <div class="link-area">
+                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
+                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/t/terms_of_use.php" target="_blank">利用規約</a>
+                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
+            </div>
+        </div>
         <div class="content">
             <div class="main-content">
                 <section class="upload-prompt">
@@ -297,10 +303,18 @@ export default {
     font-family: 'Yu Gothic Medium';
     max-width: 1560px;
     margin: 0 auto;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 h1, h2, h3 {
-    margin: 8px;
+    margin: 8px 0;
     padding: 0;
 }
 h1 {font-size: 24px;}
@@ -360,6 +374,24 @@ input[type="checkbox"], input[type='radio'] {
     }
 }
 
+.title-area {
+    border-bottom: 2px dashed #888;
+    padding: 0.5em 0;
+    margin: 0 0 1em;
+}
+.title-area > h1, .title-area > .link-area {
+    display: inline-block;
+    vertical-align: center;
+    margin-right: 3em;
+}
+.title-area > .link-area > a {
+    margin: 0 1em;
+}
+.title-area > .link-area .prompt-saver {
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .content {
     position: relative;
     display: flex;
@@ -381,16 +413,17 @@ input[type="checkbox"], input[type='radio'] {
 
 .tag-list {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    margin-right: 0.5em;
 }
 
 .spell-list {
-    padding: 16px;
-    border: 1px solid #888;
-    border-radius: 8px;
-    box-shadow: 2px 2px 8px #888;
+    padding: 16px 16px 8px;
+    border: 1px dashed #888;
+    /* border-radius: 8px; */
+    box-shadow: 0 2px 2px #aaa;
     > div {
-        max-height: 180px;
+        max-height: 240px;
         overflow-y: auto;
         > div {
             margin: 8px 0;
