@@ -1,11 +1,11 @@
 <template>
     <div class="top-content">
-        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> コマンドジェネレーター</h1>
-        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">コマンド登録</a>
+        <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
+        <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" :style="'font-weight:bold; font-size: 18px;'">プロンプト登録</a>
         <div class="content">
             <div class="main-content">
                 <section class="upload-prompt">
-                    <label :id="'upload-prompt'">コマンドをアップロード</label>
+                    <label :id="'upload-prompt'">プロンプトをアップロード</label>
                     <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
                     <button @click="uploadSpell(spellsByUser)">アップロード</button>
                 </section>
@@ -30,7 +30,7 @@
                 </section>
             </div>
             <div class="spell-settings">
-                <h2>設定コマンド一覧</h2>
+                <h2>設定プロンプト一覧</h2>
                 <draggable 
                     class="spells" 
                     v-model="setSpells"
@@ -56,7 +56,7 @@
                         <input type="text" :id="'manual-input'" :style="'margin: 0 8px; padding: 8px; width:320px;'" v-model="manualInput">
                     </div>
                     <div :style="'margin: 1em 0'">
-                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">コマンドを生成</button>
+                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
                         <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
                             <span v-if="spellsNovelAI.value !== undifined">
                                 {{ spellsNovelAI.value + manualInput }}
@@ -87,15 +87,15 @@ export default {
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
-        // セットされているタグ(コマンド)のキュー
+        // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
-        // 生成されたNovelAI形式のコマンド
+        // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
-        // コマンドをコピーした際のアラート
+        // プロンプトをコピーした際のアラート
         const copyAlert = ref('')
         // 手動入力内容
         const manualInputText = ref('')
-        // アップロード用コマンド
+        // アップロード用プロンプト
         const spellsByUserText = ref('')
 
         const displaySetSpells = () => {
@@ -161,10 +161,10 @@ export default {
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
         const uploadSpell = (spell) => {
-            // 既存の設定コマンドリストと手動入力欄をリセット
+            // 既存の設定プロンプトリストと手動入力欄をリセット
             setSpells.value = []
             manualInputText.value = ''
-            
+
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
 
@@ -236,7 +236,7 @@ export default {
             setSpells.value.splice(index, 1)
         }
 
-        // タグ(コマンド)の強化
+        // タグ(プロンプト)の強化
         const enhanceSpell = (index, num) => {
             setSpells.value[index].enhance += num
         }
@@ -264,7 +264,7 @@ export default {
         }
 
         
-        // コマンドをクリップボードにコピーする
+        // プロンプトをクリップボードにコピーする
         const copyToClipboard = text => {
             navigator.clipboard.writeText(text)
             copyAlert.value = 'クリップボードにコピーしました。'
