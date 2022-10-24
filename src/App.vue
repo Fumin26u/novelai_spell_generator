@@ -13,7 +13,7 @@
                 <section class="upload-prompt">
                     <label :id="'upload-prompt'">プロンプトをアップロード</label>
                     <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
-                    <button @click="uploadSpell(spellsByUser)">アップロード</button>
+                    <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
                 </section>
                 <section v-for="(tags, i) in tagsList" :key="tags.slag">
                     <h2>{{ tags.jp }}</h2>
@@ -59,7 +59,7 @@
                 <div class="output-area">
                     <div>
                         <label :for="'manual-input'">手動入力</label>
-                        <input type="text" :id="'manual-input'" :style="'margin: 0 8px; padding: 8px; width:320px;'" v-model="manualInput">
+                        <input type="text" :id="'manual-input'" v-model="manualInput">
                     </div>
                     <div :style="'margin: 1em 0'">
                         <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
@@ -331,6 +331,9 @@ input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
 }
 
+button {
+    cursor: pointer;
+}
 .btn-common {
     background-color: white;
     border-radius: 4px;
@@ -405,10 +408,15 @@ input[type="checkbox"], input[type='radio'] {
     }
 }
 
+.upload-prompt > * {
+    display: inline-block;
+    vertical-align: middle;
+}
 .upload-prompt > input {
     width: 600px;
     margin: 0 8px;
     padding: 4px 0;
+    font-size: 16px;
 }
 
 .tag-list {
@@ -489,6 +497,12 @@ input[type="checkbox"], input[type='radio'] {
         }
         div p {
             font-size: 13px;
+        }
+        #manual-input {
+            margin: 0 8px; 
+            padding: 8px; 
+            width: 380px;
+            font-size: 15px;
         }
 
         .copy-alert {
