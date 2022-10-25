@@ -3,9 +3,9 @@
         <div class="title-area">
             <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
             <div class="link-area">
-                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
-                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/t/terms_of_use.php" target="_blank">利用規約</a>
-                <a href="https://fuminsv.sakura.ne.jp/spellGenerator/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
+                <a href="http://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
+                <a href="http://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
+                <a href="http://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
             </div>
         </div>
         <div class="content">
@@ -25,10 +25,11 @@
                         >
                             <p :style="'font-weight:bold'">{{ tag.jp }}</p>
                             <div>
-                                <div v-for="(spells, k) in tag.content" :key="spells.slag">
-                                    <span>{{ spells.jp }}</span>
-                                    <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpellsFromMaster(i, j, k)">削除</button>
+                                <div v-for="(spell, k) in tag.content" :key="spell.slag">
+                                    <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
+                                    <!-- <span>{{ spells.jp }}</span>
+                                    <button class="btn-common add" v-if="!spells.selected" @click="toggleSetPromptList(i, j, k)">追加</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="toggleSetPromptList(i, j, k)">削除</button> -->
                                 </div>
                             </div>
                         </div>
@@ -51,7 +52,7 @@
                                 <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                             </div>
                             <div class="delete-area">
-                                <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
+                                <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
                             </div>
                         </div>
                     </template>
@@ -212,27 +213,26 @@ export default {
         }
 
         // タグのセットキューに挿入
-        const addSetSpells = (i, j, k) => { 
+        const toggleSetPromptList = (i, j, k) => { 
             const queue = tagsList.value[i].content[j].content[k]
+            const selected = tagsList.value[i].content[j].content[k].selected
 
-            if (!setSpells.value.includes(queue)) {
-                setSpells.value.push(queue)
-                tagsList.value[i].content[j].content[k].selected = true
-            }
-        }
-
-        // タグの削除
-        const deleteSetSpellsFromMaster = (i, j, k) => {
-            const queue = tagsList.value[i].content[j].content[k]
-            for (let index = 0; index < setSpells.value.length; index++) {
-                if (setSpells.value[index].tag === queue.tag) {
-                    setSpells.value.splice(index, 1)
-                    tagsList.value[i].content[j].content[k].selected = false
+            if (!selected) {
+                if (!setSpells.value.includes(queue)) {
+                    setSpells.value.push(queue)
+                    tagsList.value[i].content[j].content[k].selected = true
+                }
+            } else {
+                for (let index = 0; index < setSpells.value.length; index++) {
+                    if (setSpells.value[index].tag === queue.tag) {
+                        setSpells.value.splice(index, 1)
+                        tagsList.value[i].content[j].content[k].selected = false
+                    }
                 }
             }
         }
 
-        const deleteSetSpellsFromList = (index) => {
+        const deleteSetPromptList = (index) => {
             const tagsIndexList = setSpells.value[index].index.split(',')
             const i = parseInt(tagsIndexList[0])
             const j = parseInt(tagsIndexList[1])
@@ -288,10 +288,9 @@ export default {
             spellsByUser: spellsByUserText,
             displaySetSpells,
             uploadSpell,
-            addSetSpells,
+            toggleSetPromptList,
             enhanceSpell,
-            deleteSetSpellsFromMaster,
-            deleteSetSpellsFromList,
+            deleteSetPromptList,
             convertToNovelAITags,
             copyToClipboard,
         }
@@ -331,7 +330,7 @@ input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
 }
 
-button {
+button, input[type="submit"] {
     cursor: pointer;
 }
 .btn-common {
@@ -375,6 +374,29 @@ button {
         background-color: darkblue;
         color: white;
     }
+}
+
+.btn-toggle {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    border: none;
+    outline: none;
+    width: 144px;
+    font-size: 16px;
+    padding: 4px;
+    margin: 2px 6px 2px 0;
+    background: hsl(196, 61%, 88%);
+    color: hsl(196, 100%, 10%);
+    box-shadow: 2px 2px hsl(196, 100%, 40%);
+    transition: all 0.03s;
+}
+.btn-toggle.selected {
+    /* border-bottom: 3px solid white; */
+    padding: 4px 8px;
+    background: hsl(196, 100%, 15%);
+    color: white;
+    box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
+    border: none;
+    transform: translate(2px, 2px);
 }
 
 .title-area {
