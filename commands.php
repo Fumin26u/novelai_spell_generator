@@ -47,6 +47,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $message[] = '不正なアクセスが行われました';
 
+    } else if (isset($_POST['delete'])) {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+            
+            $st = $pdo->prepare('DELETE FROM preset WHERE preset_id = :preset_id AND user_id = :user_id');
+            $st->bindValue(':preset_id', h($_POST['preset_id']), PDO::PARAM_INT);
+            $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
+            $st->execute();
+
+            $pdo->commit();
+            header('location: ./', true, 303);
+            exit;
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
     } else {
         try {
             $pdo = dbConnect();
@@ -135,6 +152,12 @@ $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
     <h2>プロンプト登録・編集</h2>
     <section class="spell-register">
         <form action="<?= $form_action ?>" method="POST" class="form-common">
+            <?php if (isset($_GET['preset_id'])) { ?>
+            <div class="delete-area">
+                <input type="hidden" name="preset_id" value="<?= h($_GET['preset_id']) ?>">
+                <input type="submit" name="delete" value="削除" class="btn-common red" onclick="return alertDeleteMessage()">
+            </div>
+            <?php } ?>
             <dl>
                 <div>
                     <dt>プロンプト</dt>
@@ -203,4 +226,11 @@ $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
     </section>
 </main>
 </body>
+<script lang="js">
+{
+    function alertDeleteMessage() {
+        return window.confirm("本当に削除しますか?") ? true : false;
+    }
+}
+</script>
 </html>
