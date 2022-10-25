@@ -137,7 +137,17 @@ $canonical = "https://nai-pg.com/register/";
 <script lang="js">
 {
     function copyPreset(command, title) {
-        navigator.clipboard.writeText(command);
+        const href = location.href.substr(0,5);
+        if (href === 'https') {
+            navigator.clipboard.writeText(command);
+        } else if (href === 'http:') {
+            const input = document.createElement('input');
+            document.body.appendChild(input);
+            input.value = command;
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+        }
         const copyAlert = document.getElementById('copy-alert');
         copyAlert.innerHTML = title + 'をコピーしました。'
     };
