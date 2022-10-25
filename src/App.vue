@@ -3,9 +3,9 @@
         <div class="title-area">
             <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
             <div class="link-area">
-                <a href="http://nai-pg.com/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
-                <a href="http://nai-pg.com/t/terms_of_use.php" target="_blank">利用規約</a>
-                <a href="http://nai-pg.com/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
+                <a href="http://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
+                <a href="http://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
+                <a href="http://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
             </div>
         </div>
         <div class="content">
