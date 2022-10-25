@@ -25,10 +25,11 @@
                         >
                             <p :style="'font-weight:bold'">{{ tag.jp }}</p>
                             <div>
-                                <div v-for="(spells, k) in tag.content" :key="spells.slag">
-                                    <span>{{ spells.jp }}</span>
+                                <div v-for="(spell, k) in tag.content" :key="spell.slag">
+                                    <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
+                                    <!-- <span>{{ spells.jp }}</span>
                                     <button class="btn-common add" v-if="!spells.selected" @click="toggleSetPromptList(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="toggleSetPromptList(i, j, k)">削除</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="toggleSetPromptList(i, j, k)">削除</button> -->
                                 </div>
                             </div>
                         </div>
@@ -329,7 +330,7 @@ input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
 }
 
-button {
+button, input[type="submit"] {
     cursor: pointer;
 }
 .btn-common {
@@ -373,6 +374,29 @@ button {
         background-color: darkblue;
         color: white;
     }
+}
+
+.btn-toggle {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    border: none;
+    outline: none;
+    width: 144px;
+    font-size: 16px;
+    padding: 4px;
+    margin: 2px 6px 2px 0;
+    background: hsl(196, 61%, 88%);
+    color: hsl(196, 100%, 10%);
+    box-shadow: 2px 2px hsl(196, 100%, 40%);
+    transition: all 0.03s;
+}
+.btn-toggle.selected {
+    /* border-bottom: 3px solid white; */
+    padding: 4px 8px;
+    background: hsl(196, 100%, 15%);
+    color: white;
+    box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
+    border: none;
+    transform: translate(2px, 2px);
 }
 
 .title-area {
