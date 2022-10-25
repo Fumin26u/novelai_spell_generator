@@ -27,8 +27,8 @@
                             <div>
                                 <div v-for="(spells, k) in tag.content" :key="spells.slag">
                                     <span>{{ spells.jp }}</span>
-                                    <button class="btn-common add" v-if="!spells.selected" @click="addSetSpells(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="deleteSetSpellsFromMaster(i, j, k)">削除</button>
+                                    <button class="btn-common add" v-if="!spells.selected" @click="toggleSetPromptList(i, j, k)">追加</button>
+                                    <button class="btn-common delete" v-if="spells.selected" @click="toggleSetPromptList(i, j, k)">削除</button>
                                 </div>
                             </div>
                         </div>
@@ -51,7 +51,7 @@
                                 <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
                             </div>
                             <div class="delete-area">
-                                <button @click="deleteSetSpellsFromList(index)" class="btn-common delete">削除</button>
+                                <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
                             </div>
                         </div>
                     </template>
@@ -212,27 +212,26 @@ export default {
         }
 
         // タグのセットキューに挿入
-        const addSetSpells = (i, j, k) => { 
+        const toggleSetPromptList = (i, j, k) => { 
             const queue = tagsList.value[i].content[j].content[k]
+            const selected = tagsList.value[i].content[j].content[k].selected
 
-            if (!setSpells.value.includes(queue)) {
-                setSpells.value.push(queue)
-                tagsList.value[i].content[j].content[k].selected = true
-            }
-        }
-
-        // タグの削除
-        const deleteSetSpellsFromMaster = (i, j, k) => {
-            const queue = tagsList.value[i].content[j].content[k]
-            for (let index = 0; index < setSpells.value.length; index++) {
-                if (setSpells.value[index].tag === queue.tag) {
-                    setSpells.value.splice(index, 1)
-                    tagsList.value[i].content[j].content[k].selected = false
+            if (!selected) {
+                if (!setSpells.value.includes(queue)) {
+                    setSpells.value.push(queue)
+                    tagsList.value[i].content[j].content[k].selected = true
+                }
+            } else {
+                for (let index = 0; index < setSpells.value.length; index++) {
+                    if (setSpells.value[index].tag === queue.tag) {
+                        setSpells.value.splice(index, 1)
+                        tagsList.value[i].content[j].content[k].selected = false
+                    }
                 }
             }
         }
 
-        const deleteSetSpellsFromList = (index) => {
+        const deleteSetPromptList = (index) => {
             const tagsIndexList = setSpells.value[index].index.split(',')
             const i = parseInt(tagsIndexList[0])
             const j = parseInt(tagsIndexList[1])
@@ -288,10 +287,9 @@ export default {
             spellsByUser: spellsByUserText,
             displaySetSpells,
             uploadSpell,
-            addSetSpells,
+            toggleSetPromptList,
             enhanceSpell,
-            deleteSetSpellsFromMaster,
-            deleteSetSpellsFromList,
+            deleteSetPromptList,
             convertToNovelAITags,
             copyToClipboard,
         }
