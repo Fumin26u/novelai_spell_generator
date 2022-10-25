@@ -5,38 +5,47 @@ require_once($home . 'database/commonlib.php');
 $message = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $err = [];
-        $pdo = dbConnect();
-    
-        $st = $pdo->prepare('SELECT user_id FROM users WHERE user_id = :user_id');
-        $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
-        $st->execute();
-        
-        $rows = $st->fetch(PDO::FETCH_ASSOC);
-        
-        if (!empty($rows)) {
-            $err[] = '既に使用されているユーザーIDです。';
-        } else {
-            $pdo->beginTransaction();
+    if ($_SESSION['cToken'] !== $_POST['cToken']) {
 
-            $st = $pdo->prepare('INSERT INTO users (user_id, password) VALUES (:user_id, :password)');
+        $message[] = '不正なアクセスが行われました';
+
+    } else {
+        try {
+            $err = [];
+            $pdo = dbConnect();
+        
+            $st = $pdo->prepare('SELECT user_id FROM users WHERE user_id = :user_id');
             $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
-            $st->bindValue(':password', password_hash(h($_POST['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
             $st->execute();
-    
-            $pdo->commit();
-            header('location: ./login.php', true, 303);
-            exit;
-        }
+            
+            $rows = $st->fetch(PDO::FETCH_ASSOC);
+            
+            if (!empty($rows)) {
+                $err[] = '既に使用されているユーザーIDです。';
+            } else {
+                $pdo->beginTransaction();
 
-        $message += $err;
+                $st = $pdo->prepare('INSERT INTO users (user_id, password) VALUES (:user_id, :password)');
+                $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
+                $st->bindValue(':password', password_hash(h($_POST['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
+                $st->execute();
         
-    } catch (PDOException $e) {
-        echo 'データベース接続に失敗しました。';
-        if (DEBUG) echo $e;
+                $pdo->commit();
+                header('location: ./login.php', true, 303);
+                exit;
+            }
+
+            $message += $err;
+            
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
     }
 }
+
+$cToken = bin2hex(random_bytes(32));
+$_SESSION['cToken'] = $cToken;
 
 $title = 'アカウント登録 | NovelAI プロンプトセーバー';
 ?>
@@ -64,6 +73,7 @@ $title = 'アカウント登録 | NovelAI プロンプトセーバー';
                     <dd><input type="password" id="password" name="password" required></dd>
                 </div>
             </dl>
+            <input type="hidden" name="cToken" value="<?= $cToken ?>">
             <input type="submit" value="登録" class="btn-common submit">
         </form>
     </div>

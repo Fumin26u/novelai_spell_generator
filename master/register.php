@@ -42,87 +42,93 @@ try {
 
     // データ登録処理
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $err = [];
-        $pdo->beginTransaction();
+        if ($_SESSION['cToken'] !== $_POST['cToken']) {
 
-        if ($content === 'genre') {
-            if ($_GET['genre_id'] === '') {
-                $sql = <<<SQL
-                INSERT INTO genre 
-                (genre_id, genre_slag, genre_jp, category_id, detail) 
-                VALUES
-                (:id, :slag, :jp, :parent_group, :detail)
-                SQL;
-            } else {
-                $sql = <<<SQL
-                UPDATE genre SET
-                genre_slag = :slag,
-                genre_jp = :jp,
-                category_id = :parent_group,
-                detail = :detail
-                WHERE genre_id = :id
-                SQL;
+            $message[] = '不正なアクセスが行われました';
+    
+        } else {
+            $err = [];
+            $pdo->beginTransaction();
+
+            if ($content === 'genre') {
+                if ($_GET['genre_id'] === '') {
+                    $sql = <<<SQL
+                    INSERT INTO genre 
+                    (genre_id, genre_slag, genre_jp, category_id, detail) 
+                    VALUES
+                    (:id, :slag, :jp, :parent_group, :detail)
+                    SQL;
+                } else {
+                    $sql = <<<SQL
+                    UPDATE genre SET
+                    genre_slag = :slag,
+                    genre_jp = :jp,
+                    category_id = :parent_group,
+                    detail = :detail
+                    WHERE genre_id = :id
+                    SQL;
+                }
+            } else if ($content === 'command') {
+                if ($_GET['command_id'] === '') {
+                    // 設定されたプロンプトIDが既存の場合エラー
+                    $st = $pdo->prepare('SELECT * FROM command WHERE command_id = :command_id');
+                    $st->bindValue(':command_id', h($_POST['id']), PDO::PARAM_INT);
+                    $st->execute();
+
+                    $row = $st->fetch(PDO::FETCH_ASSOC);
+                    if (!empty($row)) $err[] = '既に存在するIDです。';
+
+                    $sql = <<<SQL
+                    INSERT INTO command 
+                    (command_id, command_name, command_jp, genre_id, detail) 
+                    VALUES
+                    (:id, :slag, :jp, :parent_group, :detail)
+                    SQL;
+                } else {
+                    $sql = <<<SQL
+                    UPDATE command SET
+                    command_name = :slag,
+                    command_jp = :jp,
+                    genre_id = :parent_group,
+                    detail = :detail
+                    WHERE command_id = :id
+                    SQL;
+                }
             }
-        } else if ($content === 'command') {
-            if ($_GET['command_id'] === '') {
-                // 設定されたプロンプトIDが既存の場合エラー
-                $st = $pdo->prepare('SELECT * FROM command WHERE command_id = :command_id');
-                $st->bindValue(':command_id', h($_POST['id']), PDO::PARAM_INT);
+
+            if (empty($err)) {
+                $st = $pdo->prepare($sql);
+                $st->bindValue(':id', h($_POST['id']), PDO::PARAM_INT);
+                $st->bindValue(':slag', h($_POST['slag']), PDO::PARAM_STR);
+                $st->bindValue(':jp', h($_POST['jp']), PDO::PARAM_STR);
+                $st->bindValue(':parent_group', h($_POST['parent_group']), PDO::PARAM_INT);
+                $st->bindValue(':detail', isset($_POST['detail']) ? h($_POST['detail']) : null, PDO::PARAM_STR);
                 $st->execute();
 
-                $row = $st->fetch(PDO::FETCH_ASSOC);
-                if (!empty($row)) $err[] = '既に存在するIDです。';
-
-                $sql = <<<SQL
-                INSERT INTO command 
-                (command_id, command_name, command_jp, genre_id, detail) 
-                VALUES
-                (:id, :slag, :jp, :parent_group, :detail)
-                SQL;
-            } else {
-                $sql = <<<SQL
-                UPDATE command SET
-                command_name = :slag,
-                command_jp = :jp,
-                genre_id = :parent_group,
-                detail = :detail
-                WHERE command_id = :id
-                SQL;
+                $message[] = '登録しました。';
+                
+                // 入力データを画面に反映
+                if ($content === 'genre') {
+                    $prompt_info = [
+                        'genre_id' => h($_POST['id']),
+                        'genre_slag' => h($_POST['slag']),
+                        'genre_jp' => h($_POST['jp']),
+                        'category_id' => h($_POST['parent_group']),
+                        'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
+                    ];
+                } else if ($content === 'command') {
+                    $prompt_info = [
+                        'command_id' => h($_POST['id']),
+                        'command_name' => h($_POST['slag']),
+                        'command_jp' => h($_POST['jp']),
+                        'genre_id' => h($_POST['parent_group']),
+                        'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
+                    ];
+                }
             }
+            $pdo->commit();
+            $message += $err;
         }
-
-        if (empty($err)) {
-            $st = $pdo->prepare($sql);
-            $st->bindValue(':id', h($_POST['id']), PDO::PARAM_INT);
-            $st->bindValue(':slag', h($_POST['slag']), PDO::PARAM_STR);
-            $st->bindValue(':jp', h($_POST['jp']), PDO::PARAM_STR);
-            $st->bindValue(':parent_group', h($_POST['parent_group']), PDO::PARAM_INT);
-            $st->bindValue(':detail', isset($_POST['detail']) ? h($_POST['detail']) : null, PDO::PARAM_STR);
-            $st->execute();
-
-            $message[] = '登録しました。';
-            
-            // 入力データを画面に反映
-            if ($content === 'genre') {
-                $prompt_info = [
-                    'genre_id' => h($_POST['id']),
-                    'genre_slag' => h($_POST['slag']),
-                    'genre_jp' => h($_POST['jp']),
-                    'category_id' => h($_POST['parent_group']),
-                    'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
-                ];
-            } else if ($content === 'command') {
-                $prompt_info = [
-                    'command_id' => h($_POST['id']),
-                    'command_name' => h($_POST['slag']),
-                    'command_jp' => h($_POST['jp']),
-                    'genre_id' => h($_POST['parent_group']),
-                    'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
-                ];
-            }
-        }
-        $pdo->commit();
-        $message += $err;
     }
     
     // URL引数にパラメータが設定されている場合、該当IDのデータをデータベースから取得
@@ -153,6 +159,9 @@ try {
     echo 'データベース接続に失敗しました。';
     if (DEBUG) echo $e;
 }
+
+$cToken = bin2hex(random_bytes(32));
+$_SESSION['cToken'] = $cToken;
 
 $title = 'マスタデータ登録・編集 | NovelAI プロンプトセーバー';
 $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャンル登録・編集';
@@ -295,6 +304,7 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                 </div>
             </dl>
             <?php } ?>
+            <input type="hidden" name="cToken" value="<?= $cToken ?>">
             <input type="submit" value="登録" class="btn-common submit">
         </form>
     </div>

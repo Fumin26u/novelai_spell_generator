@@ -43,58 +43,63 @@ if (isset($_GET['preset_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
+    if ($_SESSION['cToken'] !== $_POST['cToken']) {
 
-        $pdo = dbConnect();
-        $pdo->beginTransaction();
-        if (isset($_GET['preset_id'])) {
-            $sql = <<<SQL
-                UPDATE preset SET
-                commands = :commands,
-                commands_ban = :commands_ban,
-                description = :description,
-                seed = :seed,
-                resolution = :resolution,
-                others = :others,
-                updated_at = NOW()
-                WHERE preset_id = :preset_id AND user_id = :user_id
-            SQL;
-        } else {
-            $sql = <<<SQL
-            INSERT INTO preset 
-            (user_id, commands, commands_ban, description, seed, resolution, others, created_at, updated_at)
-            VALUES 
-            (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW(), NOW())
-            SQL;
+        $message[] = '不正なアクセスが行われました';
+
+    } else {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+            if (isset($_GET['preset_id'])) {
+                $sql = <<<SQL
+                    UPDATE preset SET
+                    commands = :commands,
+                    commands_ban = :commands_ban,
+                    description = :description,
+                    seed = :seed,
+                    resolution = :resolution,
+                    others = :others,
+                    updated_at = NOW()
+                    WHERE preset_id = :preset_id AND user_id = :user_id
+                SQL;
+            } else {
+                $sql = <<<SQL
+                INSERT INTO preset 
+                (user_id, commands, commands_ban, description, seed, resolution, others, created_at, updated_at)
+                VALUES 
+                (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW(), NOW())
+                SQL;
+            }
+            $st = $pdo->prepare($sql);
+            if (isset($_GET['preset_id'])) $st->bindValue(':preset_id', h($_GET['preset_id']), PDO::PARAM_INT); 
+            $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
+            $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
+            $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
+            $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
+            $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
+            $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
+            $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
+
+            $st->execute();
+            $pdo->commit();
+
+            $message[] = isset($_GET['preset_id']) ? '更新しました' : '登録しました';
+
+            $presets = [
+                'user_id' => h($_SESSION['user_id']),
+                'commands' => h($_POST['commands']),
+                'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
+                'description' => isset($_POST['description']) ? h($_POST['description']) : '',
+                'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
+                'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
+                'others' => isset($_POST['others']) ? h($_POST['others']) : '',
+            ];
+
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
         }
-        $st = $pdo->prepare($sql);
-        if (isset($_GET['preset_id'])) $st->bindValue(':preset_id', h($_GET['preset_id']), PDO::PARAM_INT); 
-        $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
-        $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
-        $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
-        $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
-        $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
-        $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
-        $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
-
-        $st->execute();
-        $pdo->commit();
-
-        $message[] = isset($_GET['preset_id']) ? '更新しました' : '登録しました';
-
-        $presets = [
-            'user_id' => h($_SESSION['user_id']),
-            'commands' => h($_POST['commands']),
-            'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
-            'description' => isset($_POST['description']) ? h($_POST['description']) : '',
-            'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
-            'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
-            'others' => isset($_POST['others']) ? h($_POST['others']) : '',
-        ];
-
-    } catch (PDOException $e) {
-        echo 'データベース接続に失敗しました。';
-        if (DEBUG) echo $e;
     }
 }
 
@@ -111,6 +116,9 @@ $resolutions = [
 ];
 
 $form_action = isset($_GET['preset_id']) ? $_SERVER['PHP_SELF'] . '?preset_id=' . h($_GET['preset_id']) : $_SERVER['PHP_SELF'];
+$cToken = bin2hex(random_bytes(32));
+$_SESSION['cToken'] = $cToken;
+
 $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
 ?>
 <!DOCTYPE html>
@@ -188,6 +196,7 @@ $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
                     <dt>その他</dt>
                     <dd><textarea name="others" cols="30" rows="10"><?= isset($presets['others']) ? h($presets['others']) : '' ?></textarea></dd>
                 </div>
+                <input type="hidden" name="cToken" value="<?= $cToken ?>">
                 <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
             </dl>
         </form>

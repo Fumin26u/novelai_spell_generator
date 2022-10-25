@@ -7,6 +7,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] !== 'Fumiya0719') {
     exit;
 }
 
+$message = [];
+
 // データベースから全マスタデータを取得
 function getMasterData() {
     try {
@@ -81,20 +83,25 @@ $shapedMasterData = shapeMasterData($masterData[2], $masterData[1], $masterData[
 
 // [jsonをダウンロード]ボタンが押された場合、json文字列が定数に格納されたjsファイルをダウンロード
 if (isset($_POST['dl_json'])) {
-    $json = convertMasterDataToJson($shapedMasterData);
+    if ($_SESSION['cToken'] !== $_POST['cToken']) {
 
-    $fileName = 'master_data.js';
-    file_put_contents($fileName, $json);
-    header('Content-Type: text/plain');
-    header('Content-Disposition: attachment; filename=' . $fileName);
+        $message[] = '不正なアクセスが行われました';
 
-    readfile($fileName);
-    exit;
+    } else {
+        $json = convertMasterDataToJson($shapedMasterData);
+
+        $fileName = 'master_data.js';
+        file_put_contents($fileName, $json);
+        header('Content-Type: text/plain');
+        header('Content-Disposition: attachment; filename=' . $fileName);
+
+        readfile($fileName);
+        exit;
+    }
 }
 
-// echo '<pre>';
-// v($shapedMasterData);
-// echo '</pre>';
+$cToken = bin2hex(random_bytes(32));
+$_SESSION['cToken'] = $cToken;
 
 $title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
 ?>
@@ -108,8 +115,10 @@ $title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
 <body>
 <?php include($home . 'header.php') ?>
 <main>
+    <p><?= implode(', ', $message) ?></p>
     <section class="link-area">
         <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST">
+            <input type="hidden" name="cToken" value="<?= $cToken ?>">
             <input type="submit" name="dl_json" value="jsonをダウンロード" class="btn-common submit">
         </form>
         <div>
