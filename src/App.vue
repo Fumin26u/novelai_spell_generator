@@ -27,9 +27,6 @@
                             <div>
                                 <div v-for="(spell, k) in tag.content" :key="spell.slag">
                                     <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
-                                    <!-- <span>{{ spells.jp }}</span>
-                                    <button class="btn-common add" v-if="!spells.selected" @click="toggleSetPromptList(i, j, k)">追加</button>
-                                    <button class="btn-common delete" v-if="spells.selected" @click="toggleSetPromptList(i, j, k)">削除</button> -->
                                 </div>
                             </div>
                         </div>
@@ -41,6 +38,7 @@
                 <draggable 
                     class="spells" 
                     v-model="setSpells"
+                    item-key="index"
                     @end="displaySetSpells()"
                 >
                     <template #item="{element, index}">
@@ -154,12 +152,12 @@ export default {
             tagsList.value.map((tags, i) => {
                 tags.content.map((tag, j) => {
                     tag.content.map((spell, k) => {
-                        if(spell.tag === word) {
+                        if (spell.tag === word) {
                             retVal.value.push(tagsList.value[i].content[j].jp)
                             retVal.value.push(tagsList.value[i].content[j].content[k].jp)
                             retVal.value.push(i + ',' + j + ',' + k)
                             tagsList.value[i].content[j].content[k].selected = true
-                        }
+                        } 
                     })
                 })
             })
@@ -171,6 +169,13 @@ export default {
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setSpells.value = []
             manualInputText.value = ''
+            tagsList.value.map((tags, i) => {
+                tags.content.map((tag, j) => {
+                    tag.content.map((spell, k) => {
+                        tagsList.value[i].content[j].content[k].selected = false
+                    })
+                })
+            })
 
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
