@@ -137,6 +137,10 @@ $cToken = bin2hex(random_bytes(32));
 $_SESSION['cToken'] = $cToken;
 
 $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
+// デスクリプション
+$description = "AIによるイラスト自動生成サービスである「NovelAI」の呪文(プロンプト)の生成・管理を補助するサービスです。マウスクリックによる簡単操作で呪文を生成することや、お気に入りの画像を生成する呪文を保存することが可能です。";
+$keywords = "NovelAI,NAI,プロンプト,登録,セーブ,保存,生成,自動";
+$canonical = "https://nai-pg.com/register/";
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -144,6 +148,13 @@ $title = 'プロンプト登録 | NovelAI プロンプトセーバー';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="<?= $home ?>styles.css">
 <title><?= $title ?></title>
+<link rel="canonical" href="<?= $canonical ?>">
+<meta property="og:description" content="<?= $description ?>">
+<meta name="keywords" content="<?= $keywords ?>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NovelAI プロンプトセーバー">
+<meta property="og:url" content="<?= $canonical ?>">
+<meta property="og:title" content="<?= $title ?>">
 </head>
 <body>
 <?php include($home . 'header.php') ?>

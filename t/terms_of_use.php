@@ -5,11 +5,9 @@ require_once($home . 'database/commonlib.php');
 $title = '利用規約 | NovelAI プロンプトセーバー';
 
 // デスクリプション
-$description = "";
-
-$keywords = "";
-
-$canonical = "";
+$description = "AIによるイラスト自動生成サービスである「NovelAI」の呪文(プロンプト)の生成・管理を補助するサービスです。マウスクリックによる簡単操作で呪文を生成することや、お気に入りの画像を生成する呪文を保存することが可能です。";
+$keywords = "NovelAI,NAI,プロンプト,登録,セーブ,保存,生成,自動";
+$canonical = "https://nai-pg.com/register/";
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -18,7 +16,6 @@ $canonical = "";
 <title><?= $title ?></title>
 <?php // include_once $home . '../gtag.inc'; ?>
 <link rel="stylesheet" href="t.css">
-<link rel="icon" href="<?= $home ?>favicon.png">
 <link rel="canonical" href="<?= $canonical ?>">
 <meta property="og:description" content="<?= $description ?>">
 <meta name="keywords" content="<?= $keywords ?>">
@@ -26,7 +23,6 @@ $canonical = "";
 <meta property="og:site_name" content="">
 <meta property="og:url" content="<?= $canonical ?>">
 <meta property="og:title" content="<?= $title ?>">
-<meta property="og:image" content="<?= $home ?>ogpimage.png">
 </head>
 <body>
 <?php include_once($home . 'header.php') ?>
