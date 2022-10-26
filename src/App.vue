@@ -171,7 +171,7 @@ export default {
             manualInputText.value = ''
             tagsList.value.map((tags, i) => {
                 tags.content.map((tag, j) => {
-                    tag.content.map((spell, k) => {
+                    tag.content.map((_, k) => {
                         tagsList.value[i].content[j].content[k].selected = false
                     })
                 })
