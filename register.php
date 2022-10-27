@@ -52,7 +52,7 @@ $title = 'アカウント登録 | NovelAI プロンプトセーバー';
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<?php include_once $home . '../gtag.inc'; ?>
+<?php include_once $home . './gtag.inc'; ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="<?= $home ?>styles.css">
 <title><?= $title ?></title>

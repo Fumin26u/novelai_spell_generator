@@ -12,7 +12,7 @@ $canonical = "https://nai-pg.com/register/";
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<?php include_once $home . '../gtag.inc'; ?>
+<?php include_once $home . './gtag.inc'; ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= $title ?></title>
 <link rel="stylesheet" href="t.css">
