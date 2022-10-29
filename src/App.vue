@@ -426,6 +426,7 @@ export default {
     > .main {
         max-width: 1560px;
         margin: 0 auto;
+        padding: 0 0 2em;
     }
 }
 
@@ -679,7 +680,7 @@ button, input[type="submit"] {
     bottom: 0;
 }
 .modal-window {
-    position: absolute;
+    position: fixed;
     top: 200px;
     left: 50%;
     transform: translateX(-50%);
