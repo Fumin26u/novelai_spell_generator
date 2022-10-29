@@ -1,83 +1,133 @@
 <template>
     <div class="top-content">
-        <div class="title-area">
-            <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
-            <div class="link-area">
-                <a href="https://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
-                <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
-                <a href="https://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
+        <div class="main">
+            <div class="title-area">
+                <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
+                <div class="link-area">
+                    <a href="https://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
+                    <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
+                    <a href="https://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
+                </div>
             </div>
-        </div>
-        <div class="content">
-            <div class="main-content">
-                <section class="upload-prompt">
-                    <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                    <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
-                    <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
-                </section>
-                <section v-for="(tags, i) in tagsList" :key="tags.slag">
-                    <h2>{{ tags.jp }}</h2>
-                    <div class="tag-list">
-                        <div 
-                            class="spell-list"
-                            v-for="(tag, j) in tags.content"
-                            :key="tag.slag"
-                        >
-                            <p :style="'font-weight:bold'">{{ tag.jp }}</p>
-                            <div>
-                                <div v-for="(spell, k) in tag.content" :key="spell.slag">
-                                    <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
+            <div class="content">
+                <div class="main-content">
+                    <section class="upload-prompt">
+                        <label :id="'upload-prompt'">プロンプトをアップロード</label>
+                        <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
+                        <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
+                    </section>
+                    <section v-for="(tags, i) in tagsList" :key="tags.slag">
+                        <h2>{{ tags.jp }}</h2>
+                        <div class="tag-list">
+                            <div 
+                                class="spell-list"
+                                v-for="(tag, j) in tags.content"
+                                :key="tag.slag"
+                            >
+                                <p :style="'font-weight:bold'">{{ tag.jp }}</p>
+                                <div>
+                                    <div v-for="(spell, k) in tag.content" :key="spell.slag">
+                                        <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            </div>
-            <div class="spell-settings">
-                <h2>設定プロンプト一覧</h2>
-                <draggable 
-                    class="spells" 
-                    v-model="setSpells"
-                    item-key="index"
-                    @end="displaySetSpells()"
-                >
-                    <template #item="{element, index}">
+                    </section>
+                </div>
+                <div class="spell-settings">
+                    <h2>設定プロンプト一覧</h2>
+                    <draggable 
+                        class="spells" 
+                        v-model="setSpells"
+                        item-key="index"
+                        @end="displaySetSpells()"
+                    >
+                        <template #item="{element, index}">
+                            <div>
+                                <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
+                                <div class="enhance-area">
+                                    <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
+                                    <span>{{ element.enhance }}</span>
+                                    <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
+                                </div>
+                                <div class="delete-area">
+                                    <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
+                                </div>
+                            </div>
+                        </template>
+                    </draggable>
+                    <div class="output-area">
                         <div>
-                            <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
-                            <div class="enhance-area">
-                                <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
-                                <span>{{ element.enhance }}</span>
-                                <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
-                            </div>
-                            <div class="delete-area">
-                                <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
-                            </div>
+                            <label :for="'manual-input'">手動入力</label>
+                            <input type="text" :id="'manual-input'" v-model="manualInput">
                         </div>
-                    </template>
-                </draggable>
-                <div class="output-area">
-                    <div>
-                        <label :for="'manual-input'">手動入力</label>
-                        <input type="text" :id="'manual-input'" v-model="manualInput">
-                    </div>
-                    <div :style="'margin: 1em 0'">
-                        <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
-                        <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
-                            <span v-if="spellsNovelAI.value !== undifined">
-                                {{ spellsNovelAI.value + manualInput }}
-                            </span>
-                        </p>
-                        <button 
-                            @click="copyToClipboard(spellsNovelAI.value + manualInput)"
-                            :style="'display: block;'"
-                            class="btn-common copy"
-                        >
-                            コピー
-                        </button>
-                        <span class="copy-alert">{{ copyAlert }}</span>
+                        <div :style="'margin: 1em 0'">
+                            <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
+                            <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
+                                <span v-if="spellsNovelAI.value !== undifined">
+                                    {{ spellsNovelAI.value + manualInput }}
+                                </span>
+                            </p>
+                            <div>
+                                <button 
+                                    @click="copyToClipboard(spellsNovelAI.value + manualInput)"
+                                    :style="'display: inline-block;'"
+                                    class="btn-common copy"
+                                >
+                                    コピー
+                                </button>
+                                <button 
+                                    @click="openSaveModal(setSpells), isOpenSaveModal = true" 
+                                    class="btn-common blue" 
+                                    :style="'display: inline-block; margin-left: 8px;'"
+                                >
+                                    保存
+                                </button>
+                            </div>
+                            <span class="copy-alert">{{ copyAlert }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="modal-cover" :style="[isOpenSaveModal ? 'display: block' : 'display: none']" @click="isOpenSaveModal = false"></div>
+        <div class="modal-window" :style="[isOpenSaveModal ? 'display: block' : 'display: none']">
+            <h3>データをDBに登録</h3>
+            <div class="close-modal">
+                <span @click="isOpenSaveModal = false" class="btn-close"></span>
+            </div>
+            <dl class="db-form">
+                <div>
+                    <dt>プロンプト</dt>
+                    <dd><input type="text" v-model="promptForDB.commands"></dd>
+                </div>
+                <div>
+                    <dt>BANプロンプト</dt>
+                    <dd><input type="text" v-model="promptForDB.commands_ban"></dd>
+                </div>
+                <div>
+                    <dt>説明</dt>
+                    <dd><input type="text" v-model="promptForDB.description"></dd>
+                </div>
+                <div>
+                    <dt>シード値</dt>
+                    <dd><input type="text" v-model="promptForDB.seed"></dd>
+                </div>
+                <div>
+                    <dt>解像度</dt>
+                    <dd>
+                        <select v-model="promptForDB.resolution">
+                            <option disabled value="">以下の項目から選択</option>
+                            <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
+                        </select>
+                    </dd>
+                </div>
+                <div>
+                    <dt>その他</dt>
+                    <dd><textarea v-model="promptForDB.others"></textarea></dd>
+                </div>
+                <button @click="savePrompt(promptForDB)" class="btn-common add">登録</button>
+            </dl>
         </div>
     </div>
 </template>
@@ -86,6 +136,8 @@
 import master_data from './master_data.js'
 import { ref } from 'vue'
 import draggable from 'vuedraggable'
+import axios from 'axios'
+// import VueAxios from 'vue-axios'
 
 export default {
     components: { draggable },
@@ -102,6 +154,17 @@ export default {
         const manualInputText = ref('')
         // アップロード用プロンプト
         const spellsByUserText = ref('')
+        // DB保存モーダルの表示可否
+        const isOpenSaveModal = ref(false)
+        // DB保存用のデータ
+        const promptForDB = ref({
+            commands: '',
+            commands_ban: '',
+            description: '',
+            seed: '',
+            resolution: '',
+            others: '',
+        })
 
         const displaySetSpells = () => {
             console.log(setSpells.value)
@@ -274,11 +337,30 @@ export default {
             spellsNovelAI.value = text
         }
 
+        // DB保存用のモーダルを開く
+        const openSaveModal = (setSpells) => {
+            convertToNovelAITags(setSpells)
+            promptForDB.value.commands = spellsNovelAI.value
+        }
         
         // プロンプトをクリップボードにコピーする
         const copyToClipboard = text => {
             navigator.clipboard.writeText(text)
             copyAlert.value = 'クリップボードにコピーしました。'
+        }
+
+        // プロンプトをDBに保存する
+        const savePrompt = (promptForDB) => {
+            const result = ref('')
+            console.log(promptForDB)
+            const url = 'http://localhost/novelai_spell_register/api.php'
+            axios.post(url, promptForDB).then(response => {
+                const result = JSON.parse(response.data)
+                console.log(result)
+            }).catch(error => {
+                console.log(error)
+            })
+            console.log(result)
         }
         
         return {
@@ -291,13 +373,29 @@ export default {
             copyAlert,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
+            isOpenSaveModal,
+            promptForDB: promptForDB,
+            resolution: 'Portrait (Normal) 512x768',
+            resolutionList: [
+                'Portrait (Normal) 512x768',
+                'LandScape (Normal) 768x512',
+                'Square (Normal) 640x640',
+                'Portrait (Small) 384x640',
+                'LandScape (Small) 640x384',
+                'Square (Small) 512x512',
+                'Portrait (Large) 512x1024',
+                'LandScape (Large) 1024x512',
+                'Square (Large) 1024x1024',
+            ],
             displaySetSpells,
             uploadSpell,
             toggleSetPromptList,
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
+            openSaveModal,
             copyToClipboard,
+            savePrompt,
         }
     }
 }
@@ -305,9 +403,12 @@ export default {
 <style lang="scss" scoped>
 .top-content {
     font-family: 'Yu Gothic Medium';
-    max-width: 1560px;
-    margin: 0 auto;
     box-sizing: border-box;
+    position: relative;
+    > .main {
+        max-width: 1560px;
+        margin: 0 auto;
+    }
 }
 
 a {
@@ -370,11 +471,10 @@ button, input[type="submit"] {
         color: white;
     }
 }
-.btn-common.order {
-    border: 1px solid darkblue;
+.btn-common.blue {
+    border: 1.8px solid darkblue;
     color: darkblue;
-    font-size: 12px;
-    padding: 2px 8px;
+    font-weight: bold;
     &:hover {
         background-color: darkblue;
         color: white;
@@ -479,7 +579,7 @@ button, input[type="submit"] {
     top: 50px;
     height: 96vh;
     > .spells {
-        max-height: 540px;
+        max-height: 520px;
         overflow-y: scroll;
         border-bottom: 1px solid #888;
         > div {
@@ -518,7 +618,7 @@ button, input[type="submit"] {
     }
     > .output-area {
         position: absolute;
-        bottom: 0;
+        bottom: 20px;
         > p, button {
             display: inline-block;
         }
@@ -535,6 +635,102 @@ button, input[type="submit"] {
         .copy-alert {
             margin-left: 8px;
         }
+    }
+}
+
+.modal-cover {
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 90;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+.modal-window {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 900px;
+    width: 70%;
+    height: 540px;
+    background: white;
+    z-index: 99;
+    box-sizing: border-box;
+    > h3 { 
+        margin: 8px;
+    }
+}
+.btn-close {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: #dedede;
+    border-radius: 24px;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transition: all .1s;
+    &:hover {
+        background: #ccc;
+    }
+    &:before, &:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 3px;
+        height: 30px;
+        background: #666;
+    }
+    &:before {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &:after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+    }
+}
+
+.db-form {
+    margin: 8px;
+    display: block;
+    text-align: center;
+    > div {
+        margin: 8px;
+        padding: 8px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        font-size: 18px;
+        border-bottom: 1px solid #888;
+        dt {
+            width: 16%;
+            text-align: right;
+        }
+        dd {
+            width: 78%;
+            text-align: left;
+            margin: 0;
+        }
+    }
+    input, select, textarea {
+        padding: 4px 8px;
+        width: 94%;
+        font-size: 16px;
+        font-family: 'Yu Gothic Medium';
+    }
+    textarea {
+        height: 80px;
+    }
+    > button {
+        width: 180px;
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-family: 'Yu Gothic Medium';
     }
 }
 </style>
