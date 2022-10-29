@@ -26,8 +26,15 @@
                             >
                                 <p :style="'font-weight:bold'">{{ tag.jp }}</p>
                                 <div>
-                                    <div v-for="(spell, k) in tag.content" :key="spell.slag">
-                                        <button :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" @click="toggleSetPromptList(i, j, k)">{{ spell.jp }}</button>
+                                    <div v-for="(spell, k) in tag.content" :key="spell.slag" :style="'position: relative;'">
+                                        <button 
+                                            :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" 
+                                            @click="toggleSetPromptList(i, j, k)"
+                                            @mouseover="hoverPromptName = spell.tag"
+                                            @mouseleave="hoverPromptName = ''"
+                                        >
+                                        {{ spell.jp }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -35,6 +42,7 @@
                     </section>
                 </div>
                 <div class="spell-settings">
+                    <p>選択中のプロンプト：{{hoverPromptName}}</p>
                     <h2>設定プロンプト一覧</h2>
                     <draggable 
                         class="spells" 
@@ -92,7 +100,10 @@
         </div>
         <div class="modal-cover" :style="[isOpenSaveModal ? 'display: block' : 'display: none']" @click="isOpenSaveModal = false"></div>
         <div class="modal-window" :style="[isOpenSaveModal ? 'display: block' : 'display: none']">
-            <h3>データをDBに登録</h3>
+            <div>
+                <h3>データをDBに登録</h3>
+                <small>※<a href="https://nai-pg.com/register/" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。非ログイン時は登録ボタンを押しても登録されません。</small>
+            </div>
             <div class="close-modal">
                 <span @click="isOpenSaveModal = false" class="btn-close"></span>
             </div>
@@ -137,13 +148,14 @@ import master_data from './master_data.js'
 import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import axios from 'axios'
-// import VueAxios from 'vue-axios'
 
 export default {
     components: { draggable },
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
+        // Hover中のタグ
+        const hoverPromptName = ref('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
         // 生成されたNovelAI形式のプロンプト
@@ -365,15 +377,16 @@ export default {
         
         return {
             tagsList,
+            hoverPromptName,
             setSpells,
             options: {
                 animation: 200
             },
             spellsNovelAI,
             copyAlert,
+            isOpenSaveModal,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
-            isOpenSaveModal,
             promptForDB: promptForDB,
             resolution: 'Portrait (Normal) 512x768',
             resolutionList: [
@@ -495,13 +508,21 @@ button, input[type="submit"] {
     transition: all 0.03s;
 }
 .btn-toggle.selected {
-    /* border-bottom: 3px solid white; */
     padding: 4px 8px;
     background: hsl(196, 100%, 15%);
     color: white;
     box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
     border: none;
     transform: translate(2px, 2px);
+}
+.display-prompt-name {
+    display: block;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: -100%;
+    background-color: #00ffff;
+    z-index: 100;
 }
 
 .title-area {
@@ -618,7 +639,7 @@ button, input[type="submit"] {
     }
     > .output-area {
         position: absolute;
-        bottom: 20px;
+        bottom: 40px;
         > p, button {
             display: inline-block;
         }
@@ -657,8 +678,16 @@ button, input[type="submit"] {
     background: white;
     z-index: 99;
     box-sizing: border-box;
-    > h3 { 
-        margin: 8px;
+    > div {
+        h3 { 
+            margin: 8px;
+            display: inline-block;
+        }
+        p {
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: bottom;
+        }
     }
 }
 .btn-close {
