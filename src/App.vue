@@ -365,7 +365,7 @@ export default {
         const savePrompt = (promptForDB) => {
             const result = ref('')
             console.log(promptForDB)
-            const url = 'http://localhost/novelai_spell_register/api.php'
+            const url = 'https://nai-pg.com/register/api.php'
             axios.post(url, promptForDB).then(response => {
                 const result = JSON.parse(response.data)
                 console.log(result)
