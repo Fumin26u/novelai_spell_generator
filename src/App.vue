@@ -363,16 +363,21 @@ export default {
 
         // プロンプトをDBに保存する
         const savePrompt = (promptForDB) => {
-            const result = ref('')
-            console.log(promptForDB)
+            if (promptForDB.commands === '') {
+                copyAlert.value = 'コマンドが入力されていません。'
+                isOpenSaveModal.value = false
+                return
+            }
+            if (typeof promptForDB.seed === 'number') {
+                copyAlert.value = 'Seed値が数値で入力されていません。'
+                isOpenSaveModal.value = false
+                return
+            }
+
             const url = 'https://nai-pg.com/register/api.php'
-            axios.post(url, promptForDB).then(response => {
-                const result = JSON.parse(response.data)
-                console.log(result)
-            }).catch(error => {
-                console.log(error)
-            })
-            console.log(result)
+            axios.post(url, promptForDB).catch(error => console.log(error))
+            copyAlert.value = 'プロンプトをデータベースに登録しました。'
+            isOpenSaveModal.value = false
         }
         
         return {
