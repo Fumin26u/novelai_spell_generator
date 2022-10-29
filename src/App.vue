@@ -127,8 +127,8 @@
                 <div>
                     <dt>解像度</dt>
                     <dd>
-                        <select v-model="promptForDB.resolution">
-                            <option disabled value="">以下の項目から選択</option>
+                        <select v-model="resolution">
+                            <!-- <option disabled value="">以下の項目から選択</option> -->
                             <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
                         </select>
                     </dd>
