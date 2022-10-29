@@ -30,27 +30,29 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            </div>
-            <div class="spell-settings">
-                <h2>設定プロンプト一覧</h2>
-                <draggable 
-                    class="spells" 
-                    v-model="setSpells"
-                    item-key="index"
-                    @end="displaySetSpells()"
-                >
-                    <template #item="{element, index}">
-                        <div>
-                            <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
-                            <div class="enhance-area">
-                                <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
-                                <span>{{ element.enhance }}</span>
-                                <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
-                            </div>
-                            <div class="delete-area">
-                                <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
+                        <div :style="'margin: 1em 0'">
+                            <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
+                            <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
+                                <span v-if="spellsNovelAI.value !== undifined">
+                                    {{ spellsNovelAI.value + manualInput }}
+                                </span>
+                            </p>
+                            <div>
+                                <button 
+                                    @click="copyToClipboard(spellsNovelAI.value + manualInput)"
+                                    :style="'display: inline-block;'"
+                                    class="btn-common copy"
+                                >
+                                    コピー
+                                </button>
+                                <button 
+                                    @click="openSaveModal(setSpells), isOpenSaveModal = true" 
+                                    class="btn-common blue" 
+                                    :style="'display: inline-block; margin-left: 8px;'"
+                                >
+                                    保存
+                                </button>
+                                <span class="copy-alert">{{ copyAlert }}</span>
                             </div>
                         </div>
                     </template>
@@ -478,6 +480,12 @@ button, input[type="submit"] {
     position: sticky;
     top: 50px;
     height: 96vh;
+    > h2 {
+        margin: 0;
+    }
+    > p {
+        font-size: 14px;
+    }
     > .spells {
         max-height: 540px;
         overflow-y: scroll;
