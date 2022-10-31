@@ -177,15 +177,6 @@ export default {
             resolution: '',
             others: '',
         })
-        // セーバーの正規URL
-        const registerPath = ref('')
-        if (location.href.match(/localhost:8080/)) {
-            registerPath.value = 'http://localhost/novelai_spell_generator/register/'
-        } else if (location.href.match(/nai-pg.com/)) {
-            registerPath.value = 'https://nai-pg.com/register/'
-        } else if (location.href.match(/fuminsv.sakura.ne.jp/)) {
-            registerPath.value = 'https://fuminsv.sakura.ne.jp/sgtest/register/'
-        }
 
         const displaySetSpells = () => {
             console.log(setSpells.value)
@@ -383,17 +374,15 @@ export default {
                 return
             }
 
-            const url = registerPath.value + 'api/registerPreset.php'
+            const url = './register/api/registerPreset.php'
             axios.post(url, promptForDB).catch(error => console.log(error))
             copyAlert.value = 'プロンプトをデータベースに登録しました。'
             isOpenSaveModal.value = false
         }
 
         onMounted(async () => {
-            const url = registerPath.value + 'api/getPreset.php'
-            await axios.get(url).then(result => {
-                console.log(result)
-            }).catch(error => console.log(error))
+            const url = '/register/api/getPreset.php'
+            await axios.get(url).catch(error => console.log(error))
         })
         
         return {

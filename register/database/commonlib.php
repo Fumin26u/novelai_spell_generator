@@ -2,6 +2,7 @@
 // declare(strict_types = 1);
 require_once("system-conf.php");
 header("Access-Control-Allow-Origin: *");
+header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');   
 
 // タイムゾーン設定
 date_default_timezone_set('Asia/Tokyo');
