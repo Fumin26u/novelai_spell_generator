@@ -3,7 +3,7 @@
 header('Content-Type: application.json; charset=utf-8');
 $_POST = json_decode(file_get_contents('php://input'), true);
 
-$home = './';
+$home = '../';
 require_once($home . 'database/commonlib.php');
 
 if (!isset($_POST['from']) && $_POST['from'] !== 'generator' && !isset($_SESSION['user_id'])) exit;

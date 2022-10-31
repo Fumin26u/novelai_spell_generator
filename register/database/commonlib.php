@@ -1,6 +1,7 @@
 <?php
 // declare(strict_types = 1);
 require_once("system-conf.php");
+header("Access-Control-Allow-Origin: *");
 
 // タイムゾーン設定
 date_default_timezone_set('Asia/Tokyo');
