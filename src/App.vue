@@ -145,7 +145,7 @@
 
 <script>
 import master_data from './master_data.js'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import draggable from 'vuedraggable'
 import axios from 'axios'
 
@@ -379,6 +379,13 @@ export default {
             copyAlert.value = 'プロンプトをデータベースに登録しました。'
             isOpenSaveModal.value = false
         }
+
+        onMounted(() => {
+            const url = 'http://localhost:8081/#/test.php'
+            axios.post(url).then(response => {
+                console.log(response)
+            }).catch(error => console.log(error))
+        })
         
         return {
             tagsList,
