@@ -145,7 +145,7 @@
 
 <script>
 import master_data from './master_data.js'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import draggable from 'vuedraggable'
 import axios from 'axios'
 
@@ -374,11 +374,16 @@ export default {
                 return
             }
 
-            const url = 'https://nai-pg.com/register/api.php'
+            const url = './register/api/registerPreset.php'
             axios.post(url, promptForDB).catch(error => console.log(error))
             copyAlert.value = 'プロンプトをデータベースに登録しました。'
             isOpenSaveModal.value = false
         }
+
+        onMounted(async () => {
+            const url = '/register/api/getPreset.php'
+            await axios.get(url).catch(error => console.log(error))
+        })
         
         return {
             tagsList,
