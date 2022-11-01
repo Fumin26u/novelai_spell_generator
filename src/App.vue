@@ -222,6 +222,11 @@ export default {
                         retVal.value.push(tagsList.value[i].content[j].jp)
                         retVal.value.push(i + ',' + j)
                         retVal.value.push(tagsList.value[i].content[j].nsfw)
+                        // 該当のプロンプトがnsfwワードだった場合R-18モードにする
+                        if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
+                            displayNsfw.value = true
+                            toggleDisplayNsfw()
+                        }
                     }               
                 })
             })
@@ -230,17 +235,13 @@ export default {
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
         const uploadSpell = spell => {
+            if (spell.trim() === '') return
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setSpells.value = []
             manualInputText.value = ''
             tagsList.value.map((genre, i) => {
                 genre.content.map((_, j) => {
                     tagsList.value[i].content[j].selected = false
-                    // 該当のプロンプトがnsfwワードだった場合R-18モードにする
-                    if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
-                        displayNsfw.value = true
-                        toggleDisplayNsfw()
-                    }
                 })
             })
 
