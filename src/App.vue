@@ -150,7 +150,7 @@
 
 <script>
 import master_data from './master_data.js'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import axios from 'axios'
 
@@ -369,6 +369,7 @@ export default {
 
         // プロンプトをDBに保存する
         const savePrompt = (promptForDB) => {
+            console.log('test')
             if (promptForDB.commands === '') {
                 copyAlert.value = 'コマンドが入力されていません。'
                 isOpenSaveModal.value = false
@@ -386,10 +387,10 @@ export default {
             isOpenSaveModal.value = false
         }
 
-        onMounted(async () => {
-            const url = '/register/api/getPreset.php'
-            await axios.get(url).catch(error => console.log(error))
-        })
+        // onMounted(async () => {
+        //     const url = '/register/api/getPreset.php'
+        //     await axios.get(url).catch(error => console.log(error))
+        // })
         
         return {
             tagsList,
