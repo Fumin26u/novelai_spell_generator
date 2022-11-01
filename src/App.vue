@@ -2,7 +2,7 @@
     <div class="top-content">
         <div class="main">
             <div class="title-area">
-                <h1 :style="'margin-right: 48px; display: inline-block;'"><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
+                <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
                 <div class="link-area">
                     <a href="https://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
                     <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
@@ -30,7 +30,7 @@
                             :key="genre.slag"
                             :style="[genre.display ? 'display:block' : 'display:none']"
                         >
-                            <p :style="'font-weight:bold; font-size:18px;'">{{ genre.jp }}</p>
+                            <p :style="'font-weight:bold; font-size:17px;'">{{ genre.jp }}</p>
                             <p :style="'font-size:13px'">{{ genre.caption }}</p>
                             <div>
                                 <div 
@@ -57,11 +57,12 @@
                         class="spells" 
                         v-model="setSpells"
                         item-key="index"
-                        @end="displaySetSpells()"
                     >
                         <template #item="{element, index}">
                             <div>
-                                <p><span :style="'font-weight:bold; margin-right:8px'">{{ element.parentTag }}</span>{{ element.jp }}</p>
+                                <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
+                                    <span :style="'font-weight:bold; margin-right:8px; color:black;'">{{ element.parentTag }}</span>{{ element.jp }}
+                                </p>
                                 <div class="enhance-area">
                                     <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
                                     <span>{{ element.enhance }}</span>
@@ -74,34 +75,20 @@
                         </template>
                     </draggable>
                     <div class="output-area">
-                        <div>
-                            <label :for="'manual-input'">手動入力</label>
-                            <input type="text" :id="'manual-input'" v-model="manualInput">
-                        </div>
-                        <div :style="'margin: 1em 0'">
-                            <button @click="convertToNovelAITags(setSpells)" class="btn-common add">プロンプトを生成</button>
-                            <p :style="'display: inline-block; margin: 8px 0;'">出力値: 
+                        <div class="text-area">
+                            <p class="output">出力値: 
                                 <span v-if="spellsNovelAI.value !== undifined">
                                     {{ spellsNovelAI.value + manualInput }}
                                 </span>
                             </p>
-                            <div>
-                                <button 
-                                    @click="copyToClipboard(spellsNovelAI.value + manualInput)"
-                                    :style="'display: inline-block;'"
-                                    class="btn-common copy"
-                                >
-                                    コピー
-                                </button>
-                                <button 
-                                    @click="openSaveModal(setSpells), isOpenSaveModal = true" 
-                                    class="btn-common blue" 
-                                    :style="'display: inline-block; margin-left: 8px;'"
-                                >
-                                    保存
-                                </button>
-                                <span class="copy-alert">{{ copyAlert }}</span>
-                            </div>
+                            <label :for="'manual-input'">手動入力</label>
+                            <input type="text" :id="'manual-input'" v-model="manualInput">
+                        </div>
+                        <div class="button-area">                          
+                            <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
+                            <button @click="copyToClipboard(spellsNovelAI.value + manualInput)" class="btn-common copy">コピー</button>
+                            <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
+                            <span class="copy-alert">{{ copyAlert }}</span>           
                         </div>
                     </div>
                 </div>
@@ -167,28 +154,21 @@ export default {
         const displayNsfw = ref(false)
         // Hover中のタグ
         const hoverPromptName = ref('')
-        // セットされているタグ(プロンプト)のキュー
-        const setSpells = ref([])
-        // 生成されたNovelAI形式のプロンプト
-        const spellsNovelAI = ref('')
-        // プロンプトをコピーした際のアラート
-        const copyAlert = ref('')
-        // 手動入力内容
-        const manualInputText = ref('')
         // アップロード用プロンプト
         const spellsByUserText = ref('')
-        // DB保存モーダルの表示可否
-        const isOpenSaveModal = ref(false)
-        // DB保存用のデータ
-        const promptForDB = ref({
-            commands: '',
-            commands_ban: '',
-            description: '',
-            seed: '',
-            resolution: '',
-            others: '',
-        })
-        const displaySetSpells = () => console.log(setSpells.value)
+        // 手動入力内容
+        const manualInputText = ref('')
+        // セットされているタグ(プロンプト)のキュー
+        const setSpells = ref([])
+
+        // 指定されたタグ名に該当するプロンプトを選択状態にする
+        const selectPromptFromSearch = (word) => {
+            tagsList.value.map((genre, i) => {
+                genre.content.map((prompt, j) => {           
+                    if (prompt.tag === word)  tagsList.value[i].content[j].selected = true              
+                })
+            })
+        }
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
@@ -204,8 +184,8 @@ export default {
 
                 genre.content.map((prompt, j) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
-                    prompt['enhance'] = 0
                     prompt['selected'] = false
+                    prompt['enhance'] = 0
                     prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
@@ -220,42 +200,43 @@ export default {
         // nsfwコンテンツの表示設定
         const toggleDisplayNsfw = () => {
             tagsList.value = convertJsonToTagList(master_data)
-        }
+            setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
+        } 
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
             const retVal = ref([])
-            tagsList.value.map((tags, i) => {
-                tags.content.map((tag, j) => {
-                    tag.content.map((spell, k) => {
-                        if (spell.tag === word) {
-                            retVal.value.push(tagsList.value[i].content[j].jp)
-                            retVal.value.push(tagsList.value[i].content[j].content[k].jp)
-                            retVal.value.push(i + ',' + j + ',' + k)
-                            tagsList.value[i].content[j].content[k].selected = true
-                        } 
-                    })
+            tagsList.value.map((genre, i) => {
+                genre.content.map((prompt, j) => {           
+                    if (prompt.tag === word) {
+                        retVal.value.push(tagsList.value[i].jp)
+                        retVal.value.push(tagsList.value[i].content[j].jp)
+                        retVal.value.push(i + ',' + j)
+                        retVal.value.push(tagsList.value[i].content[j].nsfw)
+                    }               
                 })
             })
             return retVal.value
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
-        const uploadSpell = (spell) => {
+        const uploadSpell = spell => {
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setSpells.value = []
             manualInputText.value = ''
-            tagsList.value.map((tags, i) => {
-                tags.content.map((tag, j) => {
-                    tag.content.map((_, k) => {
-                        tagsList.value[i].content[j].content[k].selected = false
-                    })
+            tagsList.value.map((genre, i) => {
+                genre.content.map((_, j) => {
+                    tagsList.value[i].content[j].selected = false
+                    // 該当のプロンプトがnsfwワードだった場合R-18モードにする
+                    if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
+                        displayNsfw.value = true
+                        toggleDisplayNsfw()
+                    }
                 })
             })
 
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
-
             const tags = tagsQueue.map(tag => tag.trim())
 
             tags.map((tag, index) => {
@@ -273,7 +254,9 @@ export default {
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
                     // 親タグ、日本語名、各インデックスを取得
-                    const [parentTag, tagjp, index] = searchTagsFromSpell(tagname)
+                    const [parentTag, tagjp, index, nsfw] = searchTagsFromSpell(tagname)
+                    // 該当のプロンプトを選択状態にする
+                    selectPromptFromSearch(tagname)
                     // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
                     if (parentTag === undefined || tagjp === undefined || index === undefined) {
                         manualInputText.value += tag + ', '
@@ -282,11 +265,10 @@ export default {
                         spellQueue['jp'] = tagjp
                         spellQueue['detail'] = ''
                         spellQueue['slag'] = tagname.replace(' ', '_')
-                        spellQueue['selected'] = true
                         spellQueue['parentTag'] = parentTag
                         spellQueue['enhance'] = enhanceCount.value
                         spellQueue['index'] = index
-    
+                        spellQueue['nsfw'] = nsfw
                         setSpells.value.push(spellQueue)
                     }
                 }
@@ -313,6 +295,7 @@ export default {
             }
         }
 
+        // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
             const tagsIndexList = setSpells.value[index].index.split(',')
             const i = parseInt(tagsIndexList[0])
@@ -323,12 +306,12 @@ export default {
         }
 
         // タグ(プロンプト)の強化
-        const enhanceSpell = (index, num) => {
-            setSpells.value[index].enhance += num
-        }
+        const enhanceSpell = (index, num) => setSpells.value[index].enhance += num
 
+        // 生成されたNovelAI形式のプロンプト
+        const spellsNovelAI = ref('')
         // キューにセットされているタグをNovelAIで使える形に変換する
-        const convertToNovelAITags = (spells) => {
+        const convertToNovelAITags = spells => {
             const text = ref('')
             spells.map(spell => {
                 // タグの付与
@@ -349,12 +332,25 @@ export default {
             spellsNovelAI.value = text
         }
 
+        // DB保存モーダルの表示可否
+        const isOpenSaveModal = ref(false)
+        // DB保存用のデータ
+        const promptForDB = ref({
+            commands: '',
+            commands_ban: '',
+            description: '',
+            seed: '',
+            resolution: '',
+            others: '',
+        })
         // DB保存用のモーダルを開く
         const openSaveModal = (setSpells) => {
             convertToNovelAITags(setSpells)
             promptForDB.value.commands = spellsNovelAI.value
         }
         
+        // プロンプトをコピーした際のアラート
+        const copyAlert = ref('')
         // プロンプトをクリップボードにコピーする
         const copyToClipboard = text => {
             navigator.clipboard.writeText(text)
@@ -411,7 +407,6 @@ export default {
                 'LandScape (Large) 1024x512',
                 'Square (Large) 1024x1024',
             ],
-            displaySetSpells,
             toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
@@ -471,6 +466,7 @@ button, input[type="submit"] {
     padding: 4px 8px;
     transition: all .1s;
     cursor: pointer;
+    vertical-align: middle;
 }
 .btn-common.add {
     border: 1.5px solid green;
@@ -679,9 +675,6 @@ button, input[type="submit"] {
     > .output-area {
         position: absolute;
         bottom: 40px;
-        > p, button {
-            display: inline-block;
-        }
         div p {
             font-size: 13px;
         }
@@ -691,9 +684,17 @@ button, input[type="submit"] {
             width: 380px;
             font-size: 15px;
         }
-
-        .copy-alert {
-            margin-left: 8px;
+        .output {
+            margin: 0 0 8px;
+        }
+        > .button-area {
+            margin: 8px 0;
+            button {
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 8px;
+                font-weight: bold;
+            }
         }
     }
 }
