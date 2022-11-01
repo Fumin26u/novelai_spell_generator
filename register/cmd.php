@@ -17,14 +17,16 @@ try {
     foreach ($dbArray as $array) {
         $i = 1;
         foreach ($array as $a) {
-            $st = $pdo->prepare('INSERT INTO command (command_id, command_name, command_jp, genre_id, nsfw, detail) VALUES (:id, :name, :jp, :gid, :nsfw, NULL)');
+            $st = $pdo->prepare('INSERT INTO command (command_id, command_name, command_jp, genre_id, nsfw, variation, detail) VALUES (:id, :name, :jp, :gid, :nsfw, :variation, NULL)');
             $tail = strlen($i) === 2 ? '00' : '000';
             $id = $a['genre_id'] . $tail . $i;
             $st->bindValue(':id', $id, PDO::PARAM_INT);
             $st->bindValue(':name', $a['command_name'], PDO::PARAM_STR);
             $st->bindValue(':jp', $a['command_jp'], PDO::PARAM_STR);
             $st->bindValue(':gid', $a['genre_id'], PDO::PARAM_INT);
-            $st->bindValue(':nsfw', 21 <= $a['genre_id'] && $a['genre_id'] <= 24 ? 1 : 0, PDO::PARAM_INT);
+            $st->bindValue(':gid', $a['genre_id'], PDO::PARAM_INT);
+            $st->bindValue(':nsfw', $a['nsfw'], PDO::PARAM_INT);
+            $st->bindValue(':variation', $a['variation'], PDO::PARAM_STR);
             $st->execute();
             $i++;
         }
