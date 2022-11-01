@@ -23,9 +23,6 @@ try {
     $select_list = [];
     if (isset($_GET['genre_id']) && !isset($_GET['command_id'])) {
         $content = 'genre';
-        // セレクトボックス用のカテゴリ一覧を取得
-        $st = $pdo->query('SELECT category_id, category_jp FROM category');
-        $select_list = $st->fetchAll(PDO::FETCH_ASSOC);
 
         // ジャンルIDの現在の最大値
         $st = $pdo->query('SELECT MAX(genre_id) FROM genre');
@@ -36,7 +33,7 @@ try {
     if (isset($_GET['command_id'])) { 
         $content = 'command';         
         // セレクトボックス用のジャンル一覧を取得
-        $st = $pdo->query('SELECT genre_id, genre_jp, category_jp FROM genre INNER JOIN category ON genre.category_id = category.category_id');
+        $st = $pdo->query('SELECT genre_id, genre_jp FROM genre');
         $select_list = $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -54,17 +51,17 @@ try {
                 if ($_GET['genre_id'] === '') {
                     $sql = <<<SQL
                     INSERT INTO genre 
-                    (genre_id, genre_slag, genre_jp, category_id, detail) 
+                    (genre_id, genre_slag, genre_jp, caption, nsfw) 
                     VALUES
-                    (:id, :slag, :jp, :parent_group, :detail)
+                    (:id, :slag, :jp, :detail, :nsfw)
                     SQL;
                 } else {
                     $sql = <<<SQL
                     UPDATE genre SET
                     genre_slag = :slag,
                     genre_jp = :jp,
-                    category_id = :parent_group,
-                    detail = :detail
+                    caption = :detail,
+                    nsfw = :nsfw
                     WHERE genre_id = :id
                     SQL;
                 }
@@ -80,9 +77,9 @@ try {
 
                     $sql = <<<SQL
                     INSERT INTO command 
-                    (command_id, command_name, command_jp, genre_id, detail) 
+                    (command_id, command_name, command_jp, genre_id, nsfw, variation, detail) 
                     VALUES
-                    (:id, :slag, :jp, :parent_group, :detail)
+                    (:id, :slag, :jp, :parent_group, :nsfw, :variation, :detail)
                     SQL;
                 } else {
                     $sql = <<<SQL
@@ -90,6 +87,8 @@ try {
                     command_name = :slag,
                     command_jp = :jp,
                     genre_id = :parent_group,
+                    nsfw = :nsfw,
+                    variation = :variation,
                     detail = :detail
                     WHERE command_id = :id
                     SQL;
@@ -101,8 +100,12 @@ try {
                 $st->bindValue(':id', h($_POST['id']), PDO::PARAM_INT);
                 $st->bindValue(':slag', h($_POST['slag']), PDO::PARAM_STR);
                 $st->bindValue(':jp', h($_POST['jp']), PDO::PARAM_STR);
-                $st->bindValue(':parent_group', h($_POST['parent_group']), PDO::PARAM_INT);
                 $st->bindValue(':detail', isset($_POST['detail']) ? h($_POST['detail']) : null, PDO::PARAM_STR);
+                $st->bindValue(':nsfw', isset($_POST['nsfw']) ? 1 : 0, PDO::PARAM_INT);
+                if ($content === 'command') {
+                    $st->bindValue(':parent_group', h($_POST['parent_group']), PDO::PARAM_STR);
+                    $st->bindValue(':variation', h($_POST['variation']) === 'none' ? null : h($_POST['variation']), PDO::PARAM_STR);
+                }
                 $st->execute();
 
                 $message[] = '登録しました。';
@@ -113,8 +116,8 @@ try {
                         'genre_id' => h($_POST['id']),
                         'genre_slag' => h($_POST['slag']),
                         'genre_jp' => h($_POST['jp']),
-                        'category_id' => h($_POST['parent_group']),
                         'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
+                        'nsfw' => h($_POST['nsfw']),
                     ];
                 } else if ($content === 'command') {
                     $prompt_info = [
@@ -122,6 +125,8 @@ try {
                         'command_name' => h($_POST['slag']),
                         'command_jp' => h($_POST['jp']),
                         'genre_id' => h($_POST['parent_group']),
+                        'nsfw' => h($_POST['nsfw']),
+                        'variation' => h($_POST['variation']),
                         'detail' => isset($_POST['detail']) ? h($_POST['detail']) : '',
                     ];
                 }
@@ -194,21 +199,6 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                     </dd>
                 </div>
                 <div>
-                    <dt>カテゴリ</dt>
-                    <dd>
-                        <select name="parent_group">
-                            <?php foreach($select_list as $option) { ?>
-                                <option 
-                                    value="<?= $option['category_id'] ?>" 
-                                    <?= isset($prompt_info['category_id']) && $option['category_id'] === $prompt_info['category_id'] ? ' selected' : '' ?>
-                                >
-                                    <?= $option['category_jp'] ?>
-                                </option>
-                            <?php } ?>
-                        </select>
-                    </dd>
-                </div>
-                <div>
                     <dt>スラッグ</dt>
                     <dd>
                         <input 
@@ -231,13 +221,25 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                     </dd>
                 </div>
                 <div>
-                    <dt>詳細・その他</dt>
+                    <dt>キャプション</dt>
                     <dd>
                         <input 
                             type="text" 
                             name="detail" 
                             value="<?= isset($prompt_info['detail']) ? h($prompt_info['detail']) : '' ?>" 
                         >
+                    </dd>
+                </div>
+                <div>
+                    <dt>年齢制限</dt>
+                    <dd>
+                        <input 
+                            type="checkbox" 
+                            name="nsfw" 
+                            id="nsfw"
+                            value="<?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'on' ? ' checked' : '' ?>" 
+                        >
+                        <label for="nsfw">R-18指定にする</label>
                     </dd>
                 </div>
             </dl>
@@ -264,7 +266,7 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                                     value="<?= $option['genre_id'] ?>" 
                                     <?= isset($prompt_info['genre_id']) && $option['genre_id'] === $prompt_info['genre_id'] ? ' selected' : '' ?>
                                 >
-                                    <?= $option['category_jp'] . ' - ' .  $option['genre_jp'] ?>
+                                    <?= $option['genre_jp'] ?>
                                 </option>
                             <?php } ?>
                         </select>
@@ -290,6 +292,28 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                             value="<?= isset($prompt_info['command_jp']) ? h($prompt_info['command_jp']) : '' ?>" 
                             required
                         >
+                    </dd>
+                </div>
+                <div>
+                    <dt>年齢制限</dt>
+                    <dd>
+                        <input 
+                            type="checkbox" 
+                            name="nsfw" 
+                            id="nsfw"
+                            value="<?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'on' ? ' checked' : '' ?>" 
+                        >
+                        <label for="nsfw">R-18指定にする</label>
+                    </dd>
+                </div>
+                <div>
+                    <dt>カラー設定</dt>
+                    <dd>
+                        <select name="variation">
+                            <option value="none">なし</option>
+                            <option value="CC">マルチカラー</option>
+                            <option value="CM">モノクロ</option>
+                        </select>
                     </dd>
                 </div>
                 <div>

@@ -16,20 +16,17 @@ function getMasterData() {
         $pdo->beginTransaction();
     
         $sql = <<<SQL
-        SELECT command_id, command_name, command_jp, command.detail, command.genre_id, genre.category_id FROM command 
+        SELECT command.* FROM command 
         INNER JOIN genre ON command.genre_id = genre.genre_id
         SQL;
         $st = $pdo->query($sql);
         $commands = $st->fetchAll(PDO::FETCH_ASSOC);
 
-        $st = $pdo->query('SELECT genre_id, genre_slag, genre_jp, detail, category_id FROM genre');
+        $st = $pdo->query('SELECT * FROM genre');
         $genres = $st->fetchAll(PDO::FETCH_ASSOC);
 
-        $st = $pdo->query('SELECT category_id, category_slag, category_jp, detail FROM category');
-        $categories = $st->fetchAll(PDO::FETCH_ASSOC);
-
         $pdo->commit();
-        return [$commands, $genres, $categories];
+        return [$commands, $genres];
         
     } catch (PDOException $e) {
         echo $e;
@@ -37,32 +34,26 @@ function getMasterData() {
 }
 
 // マスタデータを1つの連想配列に成形
-function shapeMasterData($categories, $genres, $commands) {
+function shapeMasterData($genres, $commands) {
     $shapedMasterData = [];
-    foreach ($categories as $category) {
-        $shapedMasterData[$category['category_id']] = [
-            'jp' => $category['category_jp'],
-            'slag' => $category['category_slag'],
-            'detail' => $category['detail'],
-            'content' => [],
-        ];
-    }
     
     foreach ($genres as $genre) {
-        $shapedMasterData[$genre['category_id']]['content'][$genre['genre_id']] = [
+        $shapedMasterData[$genre['genre_id']] = [
             'jp' => $genre['genre_jp'],
             'slag' => $genre['genre_slag'],
-            'detail' => $genre['detail'],
-            'type' => 'checkbox',
+            'caption' => $genre['caption'],
+            'nsfw' => $genre['nsfw'] === 1 ? true : false,
             'content' => [],
         ];
     }
 
     foreach ($commands as $command) {
-        $shapedMasterData[$command['category_id']]['content'][$command['genre_id']]['content'][] = [
+        $shapedMasterData[$command['genre_id']]['content'][] = [
             'id' => $command['command_id'],
             'tag' => $command['command_name'],
             'jp' => $command['command_jp'],
+            'nsfw' => $command['nsfw'] === 1 ? true : false,
+            'variation' => $command['variation'],
             'detail' => $command['detail'],
         ];
     }
@@ -79,7 +70,7 @@ function convertMasterDataToJson($masterData) {
 
 // プロンプト一覧の読み込み
 $masterData = getMasterData();
-$shapedMasterData = shapeMasterData($masterData[2], $masterData[1], $masterData[0]);
+$shapedMasterData = shapeMasterData($masterData[1], $masterData[0]);
 
 // [jsonをダウンロード]ボタンが押された場合、json文字列が定数に格納されたjsファイルをダウンロード
 if (isset($_POST['dl_json'])) {
@@ -127,44 +118,58 @@ $title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
         </div>
     </section>
     <section class="masterData-list">
-        <?php foreach($shapedMasterData as $i => $categories) { ?>
+        <?php foreach($shapedMasterData as $i => $genres) { ?>
         <div>
-            <h2><?= $categories['jp'] ?></h2>
             <table class="command-table">
                 <thead>
                     <tr>
                         <th id="id">ID</th>
                         <th id="jp">日本語名</th>
-                        <th id="slag">スラッグ・プロンプト名</th>
-                        <th id="detail">説明</th>
+                        <th id="slag">プロンプト名</th>
+                        <th id="nsfw">年齢制限</th>
+                        <th id="variation">色設定</th>
                         <th id="edit">編集</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($categories['content'] as $j => $genres) { ?>
-                        <tr class="genre" onclick="displayCommands(<?= $j ?>)">
-                            <td id="id"><?= $j ?></td>
-                            <td id="jp"><?= $genres['jp'] ?></td>
-                            <td id="slag"><?= $genres['slag'] ?></td>
-                            <td id="detail"><?= $genres['detail'] ?></td>
+                    <tr class="genre" onclick="displayCommands(<?= $i ?>)">
+                        <td id="id"><?= $i ?></td>
+                        <td id="jp"><?= $genres['jp'] ?></td>
+                        <td id="slag"><?= $genres['slag'] ?></td>
+                        <td id="nsfw"><?= $genres['nsfw'] ? 'R-18' : '全年齢' ?></td>
+                        <td id="variation"></td>
+                        <td id="edit">
+                            <a href="./register.php?genre_id=<?= $i ?>">編集</a>
+                        </td>
+                    </tr>
+                    <?php foreach($genres['content'] as $commands) { ?>
+                        <tr 
+                            class="command <?= 'command_' . $i ?>" 
+                            style="display: none;"
+                        >
+                            <td id="id"><?= $commands['id'] ?></td>
+                            <td id="jp"><?= $commands['jp'] ?></td>
+                            <td id="slag"><?= $commands['tag'] ?></td>
+                            <td id="nsfw"><?= $commands['nsfw'] ? 'R-18' : '全年齢' ?></td>
+                            <td id="variation">
+                                <?php
+                                    switch ($commands['variation']) {
+                                        case 'CC':
+                                            echo 'マルチカラー';
+                                            break;
+                                        case 'CM':
+                                            echo 'モノクロ';
+                                            break;
+                                        default:
+                                            echo 'なし';
+                                            break;
+                                    }
+                                ?>
+                            </td>
                             <td id="edit">
-                                <a href="./register.php?genre_id=<?= $j ?>">編集</a>
+                                <a href="./register.php?command_id=<?= $commands['id'] ?>&genre_id=<?= $i ?>">編集</a>
                             </td>
                         </tr>
-                        <?php foreach($genres['content'] as $commands) { ?>
-                            <tr 
-                                class="command <?= 'command_' . $j ?>" 
-                                style="display: none;"
-                            >
-                                <td id="id"><?= $commands['id'] ?></td>
-                                <td id="jp"><?= $commands['jp'] ?></td>
-                                <td id="slag"><?= $commands['tag'] ?></td>
-                                <td id="detail"><?= $commands['detail'] ?></td>
-                                <td id="edit">
-                                    <a href="./register.php?command_id=<?= $commands['id'] ?>&genre_id=<?= $j ?>">編集</a>
-                                </td>
-                            </tr>
-                        <?php } ?>
                     <?php } ?>
                 </tbody>
             </table>
