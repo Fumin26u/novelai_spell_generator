@@ -30,8 +30,8 @@
                             :key="genre.slag"
                             :style="[genre.display ? 'display:block' : 'display:none']"
                         >
-                            <p :style="'font-weight:bold; font-size:17px;'">{{ genre.jp }}</p>
-                            <p :style="'font-size:13px'">{{ genre.caption }}</p>
+                            <p class="genre">{{ genre.jp }}</p>
+                            <p class="caption">{{ genre.caption }}</p>
                             <div>
                                 <div 
                                     v-for="(prompt, j) in genre.content" 
@@ -51,8 +51,10 @@
                     </section>
                 </div>
                 <div class="spell-settings">
-                    <p>選択中のプロンプト：{{hoverPromptName}}</p>
-                    <h2>設定プロンプト一覧</h2>
+                    <div class="description">
+                        <p>選択中のプロンプト：{{hoverPromptName}}</p>
+                        <h2>設定プロンプト一覧</h2>
+                    </div>
                     <draggable 
                         class="spells" 
                         v-model="setSpells"
@@ -124,7 +126,6 @@
                     <dt>解像度</dt>
                     <dd>
                         <select v-model="resolution">
-                            <!-- <option disabled value="">以下の項目から選択</option> -->
                             <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
                         </select>
                     </dd>
@@ -238,12 +239,11 @@ export default {
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
             const tags = tagsQueue.map(tag => tag.trim())
-
             tags.map((tag, index) => {
                 if(tag.trim() === " " || tag.trim() === "") {
                     tags.splice(index, 1)
                 } else {
-                    const spellQueue = {}                    
+                    const spellQueue = {}
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
                     const enhanceCount = ref(0)
                     if (tag.match(/\{/g)) {
@@ -313,6 +313,7 @@ export default {
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = spells => {
             const text = ref('')
+            
             spells.map(spell => {
                 // タグの付与
                 // 強化値が0の場合そのまま追加
@@ -603,10 +604,16 @@ button, input[type="submit"] {
 .spell-list {
     width: 17%;
     padding: 8px;
-    margin: 2em 0 1em;
+    margin: 26px 0 1em;
     border: 1px dashed #888;
-    /* border-radius: 8px; */
     box-shadow: 0 2px 2px #aaa;
+    > .genre {
+        font-weight: bold;
+        font-size: 18px;
+    }
+    > .caption {
+        font-size: 14px;
+    }
     > div {
         max-height: 240px;
         overflow-y: auto;
@@ -628,14 +635,18 @@ button, input[type="submit"] {
     position: sticky;
     top: 50px;
     height: 96vh;
-    > h2 {
-        margin: 0;
+    > .description {
+        h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        p {
+            font-size: 13px;
+        }          
     }
-    > p {
-        font-size: 14px;
-    }
+
     > .spells {
-        max-height: 520px;
+        max-height: 560px;
         overflow-y: scroll;
         border-bottom: 1px solid #888;
         > div {
