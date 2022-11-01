@@ -28,11 +28,19 @@
                             class="spell-list"
                             v-for="(genre, i) in tagsList"                 
                             :key="genre.slag"
-                            :style="[genre.display ? 'display:block' : 'display:none']"
+                            :style="[!genre.nsfw || displayNsfw ? 'display:block' : 'display:none']"
                         >
-                            <p class="genre">{{ genre.jp }}</p>
-                            <p class="caption">{{ genre.caption }}</p>
-                            <div>
+                            <div class="description">
+                                <div>
+                                    <p class="genre">{{ genre.jp }}</p>
+                                    <p class="caption">{{ genre.caption }}</p>
+                                </div>
+                                <div>
+                                    <span @click="tagsList[i]['display'] = true" :style="[tagsList[i]['display'] ? 'display:none' : 'display:block;']">▼</span>
+                                    <span @click="tagsList[i]['display'] = false" :style="[tagsList[i]['display'] ? 'display:block' : 'display:none;']">▲</span>
+                                </div>
+                            </div>
+                            <div :style="[tagsList[i]['display'] ? 'max-height:none;' : 'max-height:240px;']">
                                 <div 
                                     v-for="(prompt, j) in genre.content" 
                                     :key="prompt.slag" 
@@ -180,7 +188,7 @@ export default {
             // 配列に表示に必要なデータを挿入
             const commandList = []
             commandListQueue.map((genre, i) => {
-                genre['display'] = !genre.nsfw || (genre.nsfw && displayNsfw.value) ? true : false
+                genre['display'] = false
                 genre.caption = genre.caption === "" ? "-" : genre.caption
 
                 genre.content.map((prompt, j) => {  
@@ -598,6 +606,7 @@ button, input[type="submit"] {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    align-items: flex-start;
     margin-right: 0.5em;
 }
 
@@ -607,11 +616,28 @@ button, input[type="submit"] {
     margin: 26px 0 1em;
     border: 1px dashed #888;
     box-shadow: 0 2px 2px #aaa;
-    > .genre {
+    > .description {
+        display: flex;
+        justify-content: space-between;
+        > div {
+            display: block;
+            &:first-child {
+                width: 90%;
+            }
+            &:last-child {
+                width: 10%;
+            }
+        }
+        > div span {
+            cursor: pointer;
+            user-select: none;
+        }
+    }
+    .genre {
         font-weight: bold;
         font-size: 18px;
     }
-    > .caption {
+    .caption {
         font-size: 14px;
     }
     > div {
