@@ -12,30 +12,39 @@
             <div class="content">
                 <div class="main-content">
                     <section class="upload-prompt">
-                        <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                        <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
-                        <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
+                        <div class="upload">
+                            <label :id="'upload-prompt'">プロンプトをアップロード</label>
+                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
+                            <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
+                        </div>
+                        <div class="toggle-nsfw">
+                            <button @click="displayNsfw = displayNsfw ? false:true, toggleDisplayNsfw()" :class="[displayNsfw ? 'btn-common pink': 'btn-common blue']">
+                                {{ displayNsfw ? 'R-18' : '全年齢' }}
+                            </button>
+                        </div>
                     </section>
-                    <section v-for="(tags, i) in tagsList" :key="tags.slag">
-                        <h2>{{ tags.jp }}</h2>
-                        <div class="tag-list">
-                            <div 
-                                class="spell-list"
-                                v-for="(tag, j) in tags.content"
-                                :key="tag.slag"
-                            >
-                                <p :style="'font-weight:bold'">{{ tag.jp }}</p>
-                                <div>
-                                    <div v-for="(spell, k) in tag.content" :key="spell.slag" :style="'position: relative;'">
-                                        <button 
-                                            :class="[spell.selected ? 'btn-toggle selected' : 'btn-toggle']" 
-                                            @click="toggleSetPromptList(i, j, k)"
-                                            @mouseover="hoverPromptName = spell.tag"
-                                            @mouseleave="hoverPromptName = ''"
-                                        >
-                                        {{ spell.jp }}
-                                        </button>
-                                    </div>
+                    <section class="tag-list">
+                        <div 
+                            class="spell-list"
+                            v-for="(genre, i) in tagsList"                 
+                            :key="genre.slag"
+                            :style="[genre.display ? 'display:block' : 'display:none']"
+                        >
+                            <p :style="'font-weight:bold; font-size:18px;'">{{ genre.jp }}</p>
+                            <p :style="'font-size:13px'">{{ genre.caption }}</p>
+                            <div>
+                                <div 
+                                    v-for="(prompt, j) in genre.content" 
+                                    :key="prompt.slag" 
+                                    :style="[prompt.display ? 'display:block; position:relative;' : 'display:none']">
+                                    <button 
+                                        :class="[prompt.selected ? 'btn-toggle selected' : 'btn-toggle']" 
+                                        @click="toggleSetPromptList(i, j)"
+                                        @mouseover="hoverPromptName = prompt.tag"
+                                        @mouseleave="hoverPromptName = ''"
+                                    >
+                                    {{ prompt.jp }}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -154,6 +163,8 @@ export default {
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
+        // nsfwコンテンツの表示可否
+        const displayNsfw = ref(false)
         // Hover中のタグ
         const hoverPromptName = ref('')
         // セットされているタグ(プロンプト)のキュー
@@ -177,49 +188,39 @@ export default {
             resolution: '',
             others: '',
         })
-
-        const displaySetSpells = () => {
-            console.log(setSpells.value)
-        }
+        const displaySetSpells = () => console.log(setSpells.value)
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
             const jsonObj = JSON.parse(json)
-            const commandList = []
-            Object.keys(jsonObj).map(index => commandList.push(jsonObj[index]))
-
-            // 内部のオブジェクトとなっているコンテンツを配列に変換
-            commandList.map(category => {
-                const categoryContent = []
-                Object.keys(category.content).map(i => {
-                    const genreContent = []
-                    Object.keys(category.content[i].content).map(j => {
-                        genreContent.push(category.content[i].content[j])
-                    })
-
-                    category.content[i].content = genreContent
-                    categoryContent.push(category.content[i])
-                })
-                category.content = categoryContent
-            })
+            const commandListQueue = []
+            Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
 
             // 配列に表示に必要なデータを挿入
-            commandList.map((category, i) => {
-                category.content.map((genre, j) => {
-                    genre['display'] = false 
-                    genre.content.map((tag, k) => {
-                        tag['slag'] = tag.tag.replace(' ', '_')
-                        tag['enhance'] = 0
-                        tag['selected'] = false
-                        tag['parentTag'] = genre.jp
-                        tag['index'] = i + ',' + j + ',' + k
-                    })              
+            const commandList = []
+            commandListQueue.map((genre, i) => {
+                genre['display'] = !genre.nsfw || (genre.nsfw && displayNsfw.value) ? true : false
+                genre.caption = genre.caption === "" ? "-" : genre.caption
+
+                genre.content.map((prompt, j) => {  
+                    prompt['slag'] = prompt.tag.replace(' ', '_')
+                    prompt['enhance'] = 0
+                    prompt['selected'] = false
+                    prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
+                    prompt['parentTag'] = genre.jp
+                    prompt['index'] = i + ',' + j                    
                 })
+                commandList.push(genre)
             })
 
             return commandList
         }
         tagsList.value = convertJsonToTagList(master_data)
+        
+        // nsfwコンテンツの表示設定
+        const toggleDisplayNsfw = () => {
+            tagsList.value = convertJsonToTagList(master_data)
+        }
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
@@ -293,20 +294,20 @@ export default {
         }
 
         // タグのセットキューに挿入
-        const toggleSetPromptList = (i, j, k) => { 
-            const queue = tagsList.value[i].content[j].content[k]
-            const selected = tagsList.value[i].content[j].content[k].selected
+        const toggleSetPromptList = (i, j) => { 
+            const queue = tagsList.value[i].content[j]
+            const selected = tagsList.value[i].content[j].selected
 
             if (!selected) {
                 if (!setSpells.value.includes(queue)) {
                     setSpells.value.push(queue)
-                    tagsList.value[i].content[j].content[k].selected = true
+                    tagsList.value[i].content[j].selected = true
                 }
             } else {
                 for (let index = 0; index < setSpells.value.length; index++) {
                     if (setSpells.value[index].tag === queue.tag) {
                         setSpells.value.splice(index, 1)
-                        tagsList.value[i].content[j].content[k].selected = false
+                        tagsList.value[i].content[j].selected = false
                     }
                 }
             }
@@ -316,9 +317,8 @@ export default {
             const tagsIndexList = setSpells.value[index].index.split(',')
             const i = parseInt(tagsIndexList[0])
             const j = parseInt(tagsIndexList[1])
-            const k = parseInt(tagsIndexList[2])
             
-            tagsList.value[i].content[j].content[k].selected = false
+            tagsList.value[i].content[j].selected = false
             setSpells.value.splice(index, 1)
         }
 
@@ -395,6 +395,7 @@ export default {
             spellsNovelAI,
             copyAlert,
             isOpenSaveModal,
+            displayNsfw: displayNsfw,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
@@ -411,6 +412,7 @@ export default {
                 'Square (Large) 1024x1024',
             ],
             displaySetSpells,
+            toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
             enhanceSpell,
@@ -567,25 +569,45 @@ button, input[type="submit"] {
     }
 }
 
-.upload-prompt > * {
-    display: inline-block;
-    vertical-align: middle;
-}
-.upload-prompt > input {
-    width: 600px;
-    margin: 0 8px;
-    padding: 4px 0;
-    font-size: 16px;
+.upload-prompt {
+    display: flex;
+    justify-content: space-between;
+    input {
+        width: 500px;
+        margin: 0 8px;
+        padding: 4px 0;
+        font-size: 16px;
+    }
+    > .toggle-nsfw {
+        margin-right: 8px;
+        > .btn-common {
+            font-family: 'Yu Gothic Medium';
+            letter-spacing: 1px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        > .btn-common.pink {
+            border: 1.8px solid tomato;
+            color: tomato;
+            &:hover {
+                background: tomato;
+                color: white;
+            }
+        }
+    }
 }
 
 .tag-list {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     margin-right: 0.5em;
 }
 
 .spell-list {
-    padding: 16px 16px 8px;
+    width: 17%;
+    padding: 8px;
+    margin: 2em 0 1em;
     border: 1px dashed #888;
     /* border-radius: 8px; */
     box-shadow: 0 2px 2px #aaa;
