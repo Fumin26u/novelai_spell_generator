@@ -5,18 +5,18 @@
             <section class="preset-list">
                 <div class="preset-content">
                     <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectedPreset = savedPromptList[index]">
-                        <img 
-                            :src="[prompt.image === null ? './images/preset/noimage.png' : './images/preset/thumbnail/' + prompt.image]"
-                            :alt="prompt.description"
-                        >
+                        <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
                 </div>
             </section>
             <section class="preset-detail">
-                <div>
+                <ul>
+                    <li>
+                        <!-- <img :src="prompt.originalImage" :alt="prompt.description"> -->
+                    </li>
                     <p>{{ selectedPreset }}</p>
-                </div>
+                </ul>
             </section>
         </div>
     </div>
@@ -33,23 +33,34 @@ export default {
         HeaderComponent,
     },
     setup() {
-        // プリセットのプロンプト内にnsfwが存在するかどうかを調べオブジェクトに追加
+        // 各プリセットに必要情報を追加
         const setIsNsfw = presets => {
             presets.map((preset, index) => {
-                presets[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
+                savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
+            })
+        }
+
+        const setImages = presets => {
+            const imgPath = './assets/'
+            presets.map((preset, index) => {
+                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
+                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
+                savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
+                savedPromptList.value[index]['originalImage'] = require(originalImagePath)
             })
         }
 
         const savedPromptList = ref({})
+        savedPromptList.value = fetchData
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(async() => {
             const url = './register/api/getPreset.php'
             await axios.get(url)
-                // .then(response => convertJsonToPromptList(response.data))
+                .then(response => savedPromptList.value = response.data)
                 .catch(error => console.log(error))
         })
-        savedPromptList.value = fetchData
         setIsNsfw(savedPromptList.value)
+        setImages(savedPromptList.value)
 
         // 選択されたプリセット
         const selectedPreset = ref({})
