@@ -124,3 +124,80 @@ table td#commands, table td#commands_ban, table td#seed {
 table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     text-decoration: underline;
 }
+
+/* --------------------
+
+    設定プロンプト一覧   
+
+-------------------- */
+.preset-top {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+.preset-list {
+    width: 68%;
+}
+
+.preset-content {
+    border-right: 1px solid #888;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.preset-content > div {
+    cursor: pointer;
+    width: 20%;
+    border: 1px solid #888;
+    border-radius: 8px;
+    margin: 0 auto 1em;
+}
+.preset-content > div > img {
+    max-width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+    margin: 0 auto;
+    border-bottom: 1px solid #888;
+    display: block;
+}
+
+#preset-detail {
+    width: 31%;
+    margin: 0 8px;
+    position: sticky;
+    top: 1em;
+    height: 96vh;
+}
+#select-preset li {
+    padding: 0 0 8px;
+    margin: 0 0 8px;
+    border-bottom: 1px solid #888;
+    display: block;
+    width: 100%;
+}
+#preset-title, #select-preset .title, #preset-detail a {
+    font-weight: bold;
+}
+
+#preset-title-area {
+    font-size: 17px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#preset-detail #preset-image {
+    width: 100%;
+}
+
+#select-preset .copy {
+    color: #cc8c00;
+    cursor: pointer;
+}
+#select-preset .copy:hover {
+    text-decoration: underline;
+}
+#preset-prompt, #preset-prompt_ban{
+    font-size: 13px;
+}

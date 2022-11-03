@@ -5,7 +5,6 @@ require_once($home . 'database/commonlib.php');
 $user_id = isset($_SESSION['user_id']) ? h($_SESSION['user_id']) : ''; 
 
 $presets = [];
-$presets_json = [];
 // ログインしている場合、ログインユーザーの登録プロンプト一覧を取得
 if (isset($_SESSION['user_id'])) {
     try {
@@ -19,7 +18,7 @@ if (isset($_SESSION['user_id'])) {
     
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
             $pdo->commit();
-            $presets = $rows;          
+            $presets = $rows;
         } else {
             // 更に、検索ボックスで検索された場合内容に沿ってプロンプトを絞り込む
             $search_age = '';
@@ -57,10 +56,11 @@ if (isset($_SESSION['user_id'])) {
     } catch (PDOException $e) {
         echo 'データベース接続に失敗しました。';
         if (DEBUG) echo $e;
-    }      
+    }    
+
+    
 }
-// jsに渡す為のJSON文字列を作成
-$presets_json = json_encode($presets, JSON_UNESCAPED_UNICODE);
+
 $title = 'NovelAI プロンプトセーバー';
 // デスクリプション
 $description = "AIによるイラスト自動生成サービスである「NovelAI」の呪文(プロンプト)の生成・管理を補助するサービスです。マウスクリックによる簡単操作で呪文を生成することや、お気に入りの画像を生成する呪文を保存することが可能です。";
@@ -103,75 +103,48 @@ $canonical = "https://nai-pg.com/register/";
         <?php if (isset($_GET['order'])) { ?>
             <p>該当のデータが<?= count($presets) ?>件存在します。</p>
         <?php } ?> 
-        <div class="preset-top">
-            <div class="preset-list">
-                <?php if (!empty($presets)) { ?>
-                <div class="preset-content">
-                    <?php foreach ($presets as $index => $preset) { ?>
-                        <div onclick="selectPreset(<?= $index ?>)">
-                            <img 
-                                src="<?= $preset['image'] === null ? $home . 'images/preset/noimage.png' : $home . 'images/preset/thumbnail/' . $preset['image'] ?>" 
-                                alt="<?= $preset['description'] ?>"
-                            >
-                            <p><?= $preset['description'] ?></p>
-                        </div>
-                    <?php } ?>
-                </div>
+        <?php if (!empty($presets)) { ?>
+        <table class="command-table">
+            <thead>
+                <tr>
+                    <th id="description">説明</th>
+                    <th id="commands">プロンプト</th>
+                    <th id="commands_ban">BANプロンプト</th>
+                    <th id="seed">シード値</th>
+                    <th id="resolution">解像度</th>
+                    <th id="others">備考</th>
+                    <th id="edit">編集</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($presets as $preset) { ?>
+                    <tr>
+                        <td id="description"><?= $preset['description'] ?></td>
+                        <td id="commands" onclick="copyPreset('<?= $preset['commands'] ?>', '<?= $preset['description'] . 'のプロンプト' ?>')"><?= $preset['commands'] ?></td>
+                        <td id="commands_ban" onclick="copyPreset('<?= $preset['commands_ban'] ?>', '<?= $preset['description'] . 'のBANプロンプト' ?>')"><?= $preset['commands_ban'] ?></td>
+                        <td id="seed" onclick="copyPreset('<?= $preset['seed'] ?>', '<?= $preset['description'] . 'のシード値' ?>')"><?= $preset['seed'] ?></td>
+                        <td id="resolution"><?= $preset['resolution'] ?></td>
+                        <td id="others"><?= $preset['others'] ?></td>
+                        <td id="edit"><a href="<?= $home ?>commands.php?preset_id=<?= $preset['preset_id'] ?>">編集</a></td>
+                    </tr>
                 <?php } ?>
-            </div>
-            <div id="preset-detail" style="display:none;">
-                <div id="preset-title-area">
-                    <p id="preset-title"></p>
-                    <a href="" id="preset-edit">編集</a>
-                </div>
-                <ul id="select-preset">
-                    <li>
-                        <img src="" alt="" id="preset-image">
-                    </li>
-                    <li>
-                        <p class="title">nsfw</p>
-                        <p class="detail" id="preset-nsfw"></p>
-                    </li>
-                    <li>
-                        <p class="title">プロンプト</p>
-                        <p class="detail copy" id="preset-prompt" onclick="copyPreset('preset-prompt')"></p>
-                    </li>
-                    <li>
-                        <p class="title">BANプロンプト</p>
-                        <p class="detail copy" id="preset-prompt_ban" onclick="copyPreset('preset-prompt_ban')"></p>
-                    </li>
-                    <li>
-                        <p class="title">シード値</p>
-                        <p class="detail copy" id="preset-seed" onclick="copyPreset('preset-seed')"></p>
-                    </li>
-                    <li>
-                        <p class="title">解像度</p>
-                        <p class="detail" id="preset-resolution"></p>
-                    </li>
-                    <li>
-                        <p class="title">備考</p>
-                        <p class="detail" id="preset-others"></p>
-                    </li>
-                </ul>
-            </div>
-        </div>
+            </tbody>
+        </table>
+        <?php } ?>
     </section>
     <?php } ?>
 </main>
 </body>
 <script lang="js">
 {
-    // プリセット内のデータがクリックされた際、その値をコピーする
-    function copyPreset(id) {
-        const title = document.getElementById('preset-title').innerHTML;
-        const text = document.getElementById(id).innerHTML;
+    function copyPreset(command, title) {
         const href = location.href.substr(0,5);
         if (href === 'https') {
-            navigator.clipboard.writeText(text);
+            navigator.clipboard.writeText(command);
         } else if (href === 'http:') {
             const input = document.createElement('input');
             document.body.appendChild(input);
-            input.value = text;
+            input.value = command;
             input.select();
             document.execCommand('copy');
             document.body.removeChild(input);
@@ -180,7 +153,6 @@ $canonical = "https://nai-pg.com/register/";
         copyAlert.innerHTML = title + 'をコピーしました。'
     };
 
-    // 検索ボックスの表示可否
     const om = document.getElementById('open-menu');
     const cm = document.getElementById('close-menu');
     const sf = document.getElementById('search-form');
@@ -208,24 +180,6 @@ $canonical = "https://nai-pg.com/register/";
                 si[i].checked = false;
             }
         }
-    }
-
-    // PHPから文字列化したjsonを受け取り、JSオブジェクトに変換
-    const pl = <?= $presets_json ?>;
-    let selectedIndex = -1;
-    function selectPreset(index) {
-        console.log(pl[index].commands)
-        document.getElementById('preset-detail').style.display = 'block';
-        selectedIndex = index;
-        document.getElementById('preset-title').innerHTML = pl[index].description;
-        document.getElementById('preset-edit').href = './commands.php?preset_id=' + pl[index].preset_id;
-        document.getElementById('preset-image').src = pl[index].image === null ? './images/preset/noimage.png' : './images/preset/original/' + pl[index].image;
-        document.getElementById('preset-nsfw').innerHTML = pl[index].nsfw === null || !pl[index].nsfw ? 'なし' : 'あり';
-        document.getElementById('preset-prompt').innerHTML = pl[index].commands;
-        document.getElementById('preset-prompt_ban').innerHTML = pl[index].commands_ban;
-        document.getElementById('preset-seed').innerHTML = pl[index].seed;
-        document.getElementById('preset-resolution').innerHTML = pl[index].resolution;
-        document.getElementById('preset-others').innerHTML = pl[index].others;
     }
 
     // データ検索がされていない場合検索ボックスの再リロードを行う
