@@ -501,7 +501,7 @@ export default {
                     width: 18px;
                     height: 18px;
                     cursor: pointer;
-                    background-image: url('./dnd.png');
+                    background-image: url('./assets/images/dnd.png');
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;

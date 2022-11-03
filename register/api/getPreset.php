@@ -2,8 +2,11 @@
 $home = '../';
 require_once($home . 'database/commonlib.php');
 
-// 非ログイン時強制終了し、ログインユーザーIDを取得
-if (!isset($_SESSION['user_id'])) exit;
+// 非ログイン時はログインページにリダイレクト
+if (!isset($_SESSION['user_id'])) {
+    // header('location: ' . $home . 'login.php', true, 303);
+    exit;
+};
 $user_id = h($_SESSION['user_id']);
 
 try {
