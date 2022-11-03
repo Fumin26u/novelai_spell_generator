@@ -1,14 +1,7 @@
 <template>
     <div class="top-content">
         <div class="main">
-            <div class="title-area">
-                <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
-                <div class="link-area">
-                    <a href="https://nai-pg.com/register/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
-                    <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
-                    <a href="https://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
-                </div>
-            </div>
+            <HeaderComponent></HeaderComponent>
             <div class="content">
                 <div class="main-content">
                     <section class="upload-prompt">
@@ -104,47 +97,14 @@
                 </div>
             </div>
         </div>
-        <div class="modal-cover" :style="[isOpenSaveModal ? 'display: block' : 'display: none']" @click="isOpenSaveModal = false"></div>
-        <div class="modal-window" :style="[isOpenSaveModal ? 'display: block' : 'display: none']">
-            <div>
-                <h3>データをDBに登録</h3>
-                <small>※<a href="https://nai-pg.com/register/" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。非ログイン時は登録ボタンを押しても登録されません。</small>
-            </div>
-            <div class="close-modal">
-                <span @click="isOpenSaveModal = false" class="btn-close"></span>
-            </div>
-            <dl class="db-form">
-                <div>
-                    <dt>プロンプト</dt>
-                    <dd><input type="text" v-model="promptForDB.commands"></dd>
-                </div>
-                <div>
-                    <dt>BANプロンプト</dt>
-                    <dd><input type="text" v-model="promptForDB.commands_ban"></dd>
-                </div>
-                <div>
-                    <dt>説明</dt>
-                    <dd><input type="text" v-model="promptForDB.description"></dd>
-                </div>
-                <div>
-                    <dt>シード値</dt>
-                    <dd><input type="text" v-model="promptForDB.seed"></dd>
-                </div>
-                <div>
-                    <dt>解像度</dt>
-                    <dd>
-                        <select v-model="resolution">
-                            <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
-                        </select>
-                    </dd>
-                </div>
-                <div>
-                    <dt>その他</dt>
-                    <dd><textarea v-model="promptForDB.others"></textarea></dd>
-                </div>
-                <button @click="savePrompt(promptForDB)" class="btn-common add">登録</button>
-            </dl>
-        </div>
+        <ModalDBComponent
+            :prompts="promptForDB"
+            :copyMessage="copyAlert"
+            :displayModalState="isOpenSaveModal"
+            @updateModal="updateModalState"
+            @updateText="updateAlertText"
+            :style="[isOpenSaveModal ? 'display: block' : 'display: none']"
+        />
     </div>
 </template>
 
@@ -152,10 +112,16 @@
 import master_data from './master_data.js'
 import { ref } from 'vue'
 import draggable from 'vuedraggable'
-import axios from 'axios'
+import './assets/style.scss'
+import HeaderComponent from './components/HeaderComponent.vue'
+import ModalDBComponent from './components/ModalDBComponent.vue'
 
 export default {
-    components: { draggable },
+    components: {
+        draggable,
+        HeaderComponent,
+        ModalDBComponent,
+    },
     setup() {
         // 表示するタグ一覧
         const tagsList = ref([])
@@ -367,25 +333,10 @@ export default {
             copyAlert.value = 'クリップボードにコピーしました。'
         }
 
-        // プロンプトをDBに保存する
-        const savePrompt = (promptForDB) => {
-            console.log('test')
-            if (promptForDB.commands === '') {
-                copyAlert.value = 'コマンドが入力されていません。'
-                isOpenSaveModal.value = false
-                return
-            }
-            if (typeof promptForDB.seed === 'number') {
-                copyAlert.value = 'Seed値が数値で入力されていません。'
-                isOpenSaveModal.value = false
-                return
-            }
-
-            const url = './register/api/registerPreset.php'
-            axios.post(url, promptForDB).catch(error => console.log(error))
-            copyAlert.value = 'プロンプトをデータベースに登録しました。'
-            isOpenSaveModal.value = false
-        }
+        // コンポーネントから受け取ったアラートテキストを更新する
+        const updateAlertText = text => copyAlert.value = text
+        // モーダルの表示状態を行進する
+        const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
 
         // onMounted(async () => {
         //     const url = '/register/api/getPreset.php'
@@ -406,18 +357,6 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
-            resolution: 'Portrait (Normal) 512x768',
-            resolutionList: [
-                'Portrait (Normal) 512x768',
-                'LandScape (Normal) 768x512',
-                'Square (Normal) 640x640',
-                'Portrait (Small) 384x640',
-                'LandScape (Small) 640x384',
-                'Square (Small) 512x512',
-                'Portrait (Large) 512x1024',
-                'LandScape (Large) 1024x512',
-                'Square (Large) 1024x1024',
-            ],
             toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
@@ -426,143 +365,13 @@ export default {
             convertToNovelAITags,
             openSaveModal,
             copyToClipboard,
-            savePrompt,
+            updateAlertText,
+            updateModalState,
         }
     }
 }
 </script>
 <style lang="scss" scoped>
-.top-content {
-    font-family: 'Yu Gothic Medium';
-    box-sizing: border-box;
-    position: relative;
-    > .main {
-        max-width: 1560px;
-        margin: 0 auto;
-        padding: 0 0 2em;
-    }
-}
-
-a {
-    text-decoration: none;
-    &:hover {
-        text-decoration: underline;
-    }
-}
-
-h1, h2, h3 {
-    margin: 8px 0;
-    padding: 0;
-}
-h1 {font-size: 24px;}
-h2 {font-size: 22px;}
-ul, p {
-    margin: 0;
-    padding: 0;
-}
-
-input {
-    padding: 4px;
-}
-input[type="checkbox"], input[type='radio'] {
-    transform: scale(1.1);
-}
-
-button, input[type="submit"] {
-    cursor: pointer;
-}
-.btn-common {
-    background-color: white;
-    border-radius: 4px;
-    padding: 4px 8px;
-    transition: all .1s;
-    cursor: pointer;
-    vertical-align: middle;
-}
-.btn-common.add {
-    border: 1.5px solid green;
-    color: green;
-    &:hover {
-        background-color: green;
-        color: white;
-    }
-}
-.btn-common.delete {
-    border: 1.5px solid red;
-    color: red;
-    &:hover {
-        background-color: red;
-        color: white;
-    }
-}
-.btn-common.copy {
-    border: 1.8px solid darkorange;
-    color: darkorange;
-    font-weight: bold;
-    &:hover {
-        background-color: darkorange;
-        color: white;
-    }
-}
-.btn-common.blue {
-    border: 1.8px solid darkblue;
-    color: darkblue;
-    font-weight: bold;
-    &:hover {
-        background-color: darkblue;
-        color: white;
-    }
-}
-
-.btn-toggle {
-    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
-    border: none;
-    outline: none;
-    width: 144px;
-    font-size: 16px;
-    padding: 4px;
-    margin: 2px 6px 2px 0;
-    background: hsl(196, 61%, 88%);
-    color: hsl(196, 100%, 10%);
-    box-shadow: 2px 2px hsl(196, 100%, 40%);
-    transition: all 0.03s;
-}
-.btn-toggle.selected {
-    padding: 4px 8px;
-    background: hsl(196, 100%, 15%);
-    color: white;
-    box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
-    border: none;
-    transform: translate(2px, 2px);
-}
-.display-prompt-name {
-    display: block;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: -100%;
-    background-color: #00ffff;
-    z-index: 100;
-}
-
-.title-area {
-    border-bottom: 2px dashed #888;
-    padding: 0.5em 0;
-    margin: 0 0 1em;
-}
-.title-area > h1, .title-area > .link-area {
-    display: inline-block;
-    vertical-align: center;
-    margin-right: 3em;
-}
-.title-area > .link-area > a {
-    margin: 0 1em;
-}
-.title-area > .link-area .prompt-saver {
-    font-size: 18px;
-    font-weight: bold;
-}
-
 .content {
     position: relative;
     display: flex;
@@ -672,7 +481,6 @@ button, input[type="submit"] {
             font-size: 13px;
         }          
     }
-
     > .spells {
         max-height: 560px;
         overflow-y: scroll;
@@ -735,110 +543,6 @@ button, input[type="submit"] {
                 font-weight: bold;
             }
         }
-    }
-}
-
-.modal-cover {
-    width: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 90;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-}
-.modal-window {
-    position: fixed;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 900px;
-    width: 70%;
-    height: 540px;
-    background: white;
-    z-index: 99;
-    box-sizing: border-box;
-    > div {
-        h3 { 
-            margin: 8px;
-            display: inline-block;
-        }
-        p {
-            display: inline-block;
-            margin-left: 8px;
-            vertical-align: bottom;
-        }
-    }
-}
-.btn-close {
-    outline: none;
-    border: none;
-    cursor: pointer;
-    background: #dedede;
-    border-radius: 24px;
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    transition: all .1s;
-    &:hover {
-        background: #ccc;
-    }
-    &:before, &:after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 3px;
-        height: 30px;
-        background: #666;
-    }
-    &:before {
-        transform: translate(-50%, -50%) rotate(45deg);
-    }
-    &:after {
-        transform: translate(-50%, -50%) rotate(-45deg);
-    }
-}
-
-.db-form {
-    margin: 8px;
-    display: block;
-    text-align: center;
-    > div {
-        margin: 8px;
-        padding: 8px;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        font-size: 18px;
-        border-bottom: 1px solid #888;
-        dt {
-            width: 16%;
-            text-align: right;
-        }
-        dd {
-            width: 78%;
-            text-align: left;
-            margin: 0;
-        }
-    }
-    input, select, textarea {
-        padding: 4px 8px;
-        width: 94%;
-        font-size: 16px;
-        font-family: 'Yu Gothic Medium';
-    }
-    textarea {
-        height: 80px;
-    }
-    > button {
-        width: 180px;
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-family: 'Yu Gothic Medium';
     }
 }
 </style>

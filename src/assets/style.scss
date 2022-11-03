@@ -1,0 +1,151 @@
+/*--------------------
+
+    共通パーツ
+
+--------------------*/
+.main {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 0 0 2em;
+}
+
+a {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+h1, h2, h3 {
+    margin: 8px 0;
+    padding: 0;
+}
+h1 {font-size: 24px;}
+h2 {font-size: 22px;}
+ul, p {
+    margin: 0;
+    padding: 0;
+}
+
+input {
+    padding: 4px;
+}
+input[type="checkbox"], input[type='radio'] {
+    transform: scale(1.1);
+}
+
+button, input[type="submit"] {
+    cursor: pointer;
+}
+
+/*--------------------
+
+    共通ボタン
+
+--------------------*/
+.btn-common {
+    background-color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: all .1s;
+    cursor: pointer;
+    vertical-align: middle;
+}
+.btn-common.add {
+    border: 1.5px solid green;
+    color: green;
+    &:hover {
+        background-color: green;
+        color: white;
+    }
+}
+.btn-common.delete {
+    border: 1.5px solid red;
+    color: red;
+    &:hover {
+        background-color: red;
+        color: white;
+    }
+}
+.btn-common.copy {
+    border: 1.8px solid darkorange;
+    color: darkorange;
+    font-weight: bold;
+    &:hover {
+        background-color: darkorange;
+        color: white;
+    }
+}
+.btn-common.blue {
+    border: 1.8px solid darkblue;
+    color: darkblue;
+    font-weight: bold;
+    &:hover {
+        background-color: darkblue;
+        color: white;
+    }
+}
+
+/*--------------------
+
+    共通ボタン(トグル)
+
+--------------------*/
+.btn-toggle {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    border: none;
+    outline: none;
+    width: 144px;
+    font-size: 16px;
+    padding: 4px;
+    margin: 2px 6px 2px 0;
+    background: hsl(196, 61%, 88%);
+    color: hsl(196, 100%, 10%);
+    box-shadow: 2px 2px hsl(196, 100%, 40%);
+    transition: all 0.03s;
+}
+.btn-toggle.selected {
+    padding: 4px 8px;
+    background: hsl(196, 100%, 15%);
+    color: white;
+    box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
+    border: none;
+    transform: translate(2px, 2px);
+}
+
+/*--------------------
+
+    共通ボタン(×ボタン)
+
+--------------------*/
+.btn-close {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: #dedede;
+    border-radius: 24px;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transition: all .1s;
+    &:hover {
+        background: #ccc;
+    }
+    &:before, &:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 3px;
+        height: 30px;
+        background: #666;
+    }
+    &:before {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &:after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+    }
+}
