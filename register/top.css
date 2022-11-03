@@ -200,13 +200,15 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
 }
 #preset-detail #preset-image {
     width: 100%;
+    max-height: 300px;
+    object-fit: cover;
 }
 
 #select-preset .copy {
     color: #cc8c00;
     cursor: pointer;
     overflow-y: auto;
-    max-height: 128px;
+    max-height: 100px;
 }
 #select-preset .copy:hover {
     text-decoration: underline;
