@@ -205,6 +205,8 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
 #select-preset .copy {
     color: #cc8c00;
     cursor: pointer;
+    overflow-y: auto;
+    max-height: 128px;
 }
 #select-preset .copy:hover {
     text-decoration: underline;
