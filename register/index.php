@@ -108,7 +108,7 @@ $canonical = "https://nai-pg.com/register/";
                 <?php if (!empty($presets)) { ?>
                 <div class="preset-content">
                     <?php foreach ($presets as $index => $preset) { ?>
-                        <div onclick="selectPreset(<?= $index ?>)">
+                        <div onclick="selectPreset(<?= $index ?>)" class="preset-card">
                             <img 
                                 src="<?= $preset['image'] === null ? $home . 'images/preset/noimage.png' : $home . 'images/preset/thumbnail/' . $preset['image'] ?>" 
                                 alt="<?= $preset['description'] ?>"
@@ -212,9 +212,13 @@ $canonical = "https://nai-pg.com/register/";
 
     // PHPから文字列化したjsonを受け取り、JSオブジェクトに変換
     const pl = <?= $presets_json ?>;
-    let selectedIndex = -1;
     function selectPreset(index) {
-        console.log(pl[index].commands)
+        const pc = document.getElementsByClassName('preset-card');
+        for (let i = 0; i < pc.length; i++) {
+            pc[i].classList.remove('selected');
+        }
+        pc[index].classList.add('selected');
+
         document.getElementById('preset-detail').style.display = 'block';
         selectedIndex = index;
         document.getElementById('preset-title').innerHTML = pl[index].description;
