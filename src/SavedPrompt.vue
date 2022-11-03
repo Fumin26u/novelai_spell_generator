@@ -45,6 +45,7 @@ export default {
             presets.map((preset, index) => {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
+                console.log(thumbnailPath === imgPath + 'noimage.png')
                 savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
                 savedPromptList.value[index]['originalImage'] = require(originalImagePath)
             })
