@@ -166,7 +166,11 @@ header .header-right a {
 .form-common dd textarea {
     height: 80px;
 }
-
+.form-common dd input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+ 
 /* --------------------
 
     プロンプトテーブル(共通)

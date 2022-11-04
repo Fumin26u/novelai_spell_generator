@@ -160,16 +160,26 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     margin: 0 15px 2em -1px;
 }
 .preset-content > div > * {
-    max-width: 92%;
     margin: 0 auto;
+    max-width: 92%;
 }
 .preset-content > div > img {
-    height: 120px;
+    height: 135px;
     object-fit: cover;
     border-bottom: 1px solid #888;
     display: block;
 }
+@media (min-width: 1560px) {
+    .preset-content > div > * {
+        max-width: none;
+        margin: 0 auto;
+    }
+    .preset-content > div > img {
+        width: 216px;
+    }
+}
 .preset-content > div > p {
+    width: 216px;
     overflow-y: auto;
     height: 52px;
 }
@@ -198,9 +208,14 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     justify-content: space-between;
     align-items: center;
 }
+#preset-detail .preset-image {
+    max-height: 316px;
+    overflow-y: auto;
+}
 #preset-detail #preset-image {
     width: 100%;
-    max-height: 300px;
+    height: auto;
+    display: block;
     object-fit: cover;
 }
 

@@ -125,7 +125,7 @@ $canonical = "https://nai-pg.com/register/";
                     <a href="" id="preset-edit">編集</a>
                 </div>
                 <ul id="select-preset">
-                    <li>
+                    <li class="preset-image">
                         <img src="" alt="" id="preset-image">
                     </li>
                     <li>
