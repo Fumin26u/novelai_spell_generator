@@ -10,6 +10,50 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// アップロードされた画像からサムネイルを抽出し、ファイル名を変更した後指定フォルダに保存
+function setImages() {
+    $image = $_FILES['image']['name'];
+    $imageLocalPath = $_FILES['image']['tmp_name'];
+    $imageDirPath = './images/preset/original/';
+    
+    // ファイルを保存
+    move_uploaded_file($imageLocalPath, $imageDirPath . $image);
+
+    // ファイル名の変更
+    $imageFileName = uniqid("img") . '.png';
+    rename($imageDirPath . $image, $imageDirPath . $imageFileName);
+
+    // ファイルの解像度を取得
+    list($width, $height, $type, $attr) = getimagesize($imageDirPath . $imageFileName);
+    // サムネイル用にオリジナル画像を16:10の比率で切り取る
+    $cropWidth = $width;
+    $cropHeight = $height;
+    while (true) {
+        $h = ($cropWidth / 16) * 10;
+        if ($h < $cropHeight) {
+            $cropHeight = $h;
+            break;
+        } else {
+            $cropWidth -= 10;
+        }
+    }
+    // 画像の切り取る位置の0ベクトル地点
+    $cropX = ($width / 2) - ($cropWidth / 2);
+    $cropY = 0;
+    // 画像を切り取る
+    $croppedImage = imagecrop(
+        imagecreatefrompng($imageDirPath . $imageFileName),
+        ['x' => $cropX, 'y' => $cropY, 'width' => $cropWidth, 'height' => $cropHeight]
+    );
+    // 切り取った画像をthumbnailフォルダに出力
+    if ($croppedImage !== false) {
+        imagepng($croppedImage, './images/preset/thumbnail/' . $imageFileName);
+        imagedestroy($croppedImage);
+    }
+
+    return $imageFileName;
+}
+
 $presets = [];
 if (isset($_GET['preset_id'])) {
     $preset_id = h($_GET['preset_id']);
@@ -66,14 +110,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         try {
+            // nsfwにチェックが付いているか、プロンプトセットにnsfwが入っていればnsfw指定にする
+            $isNsfw = 
+                strpos($_POST['commands'], 'nsfw') !== false || 
+                (isset($_POST['nsfw']) && $_POST['nsfw'] === 'on')
+                ? 1 : 0;
+
             $pdo = dbConnect();
             $pdo->beginTransaction();
+
+            // 画像がアップロードされた場合、リネームとサムネイル抽出を行い特定フォルダに保存
+            $imageFileName = isset($presets['image']) ? $presets['image'] : '';
+            if ($_FILES['image']['name'] !== '') $imageFileName = setImages();
+
             if (isset($_GET['preset_id'])) {
                 $sql = <<<SQL
                     UPDATE preset SET
                     commands = :commands,
                     commands_ban = :commands_ban,
                     description = :description,
+                    image = :image,
+                    nsfw = :nsfw,
                     seed = :seed,
                     resolution = :resolution,
                     others = :others,
@@ -83,9 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $sql = <<<SQL
                 INSERT INTO preset 
-                (user_id, commands, commands_ban, description, seed, resolution, others, created_at, updated_at)
+                (user_id, commands, commands_ban, description, image, nsfw, seed, resolution, others, created_at, updated_at)
                 VALUES 
-                (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW(), NOW())
+                (:user_id, :commands, :commands_ban, :description, :image, :nsfw, :seed, :resolution, :others, NOW(), NOW())
                 SQL;
             }
             $st = $pdo->prepare($sql);
@@ -94,6 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
             $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
             $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
+            $st->bindValue(':image', $imageFileName !== '' ? $imageFileName : null, PDO::PARAM_STR);
+            $st->bindValue(':nsfw', $isNsfw, PDO::PARAM_INT);
             $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
             $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
             $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
@@ -107,8 +166,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'user_id' => h($_SESSION['user_id']),
                 'commands' => h($_POST['commands']),
                 'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
+                'image' => $imageFileName !== '' ? $imageFileName : null,
                 'description' => isset($_POST['description']) ? h($_POST['description']) : '',
                 'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
+                'nsfw' => $isNsfw === 1 ? true : false,
                 'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
                 'others' => isset($_POST['others']) ? h($_POST['others']) : '',
             ];
@@ -155,6 +216,31 @@ $canonical = "https://nai-pg.com/register/";
 <meta property="og:site_name" content="NovelAI プロンプトセーバー">
 <meta property="og:url" content="<?= $canonical ?>">
 <meta property="og:title" content="<?= $title ?>">
+<style>
+.spell-register {
+   display: flex;
+   justify-content: space-evenly; 
+   align-items: flex-start;
+}
+.spell-register form {
+    width: 64%;
+}
+.spell-register .preview {
+    width: 36%;
+    margin: 1em auto;
+}
+.spell-register .preview p {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px dashed #888;
+}
+.spell-register .preview img {
+    width: 100%;
+    display: block;
+    margin: 1em auto;
+}
+</style>
 </head>
 <body>
 <?php include($home . 'header.php') ?>
@@ -162,7 +248,7 @@ $canonical = "https://nai-pg.com/register/";
     <p><?= implode(', ', $message) ?></p>
     <h2>プロンプト登録・編集</h2>
     <section class="spell-register">
-        <form action="<?= $form_action ?>" method="POST" class="form-common">
+        <form action="<?= $form_action ?>" method="POST" class="form-common" enctype="multipart/form-data">
             <?php if (isset($_GET['preset_id'])) { ?>
             <div class="delete-area">
                 <input type="hidden" name="preset_id" value="<?= h($_GET['preset_id']) ?>">
@@ -170,6 +256,17 @@ $canonical = "https://nai-pg.com/register/";
             </div>
             <?php } ?>
             <dl>
+                <div>
+                    <dt>画像</dt>
+                    <dd>
+                        <input 
+                            type="file" 
+                            name="image"
+                            onchange="previewImage(this)"
+                            accept="image/png"
+                        >
+                    </dd>
+                </div>
                 <div>
                     <dt>プロンプト</dt>
                     <dd>
@@ -199,6 +296,18 @@ $canonical = "https://nai-pg.com/register/";
                             name="description" 
                             value="<?= isset($presets['description']) ? $presets['description'] : '' ?>"
                         >
+                    </dd>
+                </div>
+                <div>
+                    <dt>nsfw</dt>
+                    <dd>
+                        <input 
+                            type="checkbox" 
+                            name="nsfw" 
+                            id="nsfw"
+                            <?= isset($presets['nsfw']) && $presets['nsfw'] ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw">nsfwに設定する</label>
                     </dd>
                 </div>
                 <div>
@@ -234,6 +343,10 @@ $canonical = "https://nai-pg.com/register/";
                 <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
             </dl>
         </form>
+        <div class="preview">
+            <p>アップロード画像</p>
+            <img src="<?= isset($presets['image'])  ? './images/preset/original/' . $presets['image'] : '' ?>" id="image-preview">
+        </div>
     </section>
 </main>
 </body>
@@ -241,6 +354,14 @@ $canonical = "https://nai-pg.com/register/";
 {
     function alertDeleteMessage() {
         return window.confirm("本当に削除しますか?") ? true : false;
+    }
+
+    function previewImage(image) {
+        const fileReader = new FileReader();
+        fileReader.onload = (() => {
+            document.getElementById('image-preview').src = fileReader.result;
+        });
+        fileReader.readAsDataURL(image.files[0]);
     }
 }
 </script>

@@ -124,3 +124,110 @@ table td#commands, table td#commands_ban, table td#seed {
 table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     text-decoration: underline;
 }
+
+/* --------------------
+
+    設定プロンプト一覧   
+
+-------------------- */
+.preset-top {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+.preset-list {
+    width: 68%;
+}
+
+.preset-content {
+    border-right: 1px solid #888;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.preset-content > div {
+    cursor: pointer;
+    width: 22%;
+    border: 1px solid #888;
+    margin: 0 1em 2em 0;
+    padding: 8px 0;
+    box-shadow: 2px 2px 4px #aaa;
+}
+.preset-content > div.selected {
+    border: 2px solid lightgreen;
+    padding: 7px 0;
+    margin: 0 15px 2em -1px;
+}
+.preset-content > div > * {
+    margin: 0 auto;
+    max-width: 92%;
+}
+.preset-content > div > img {
+    height: 135px;
+    object-fit: cover;
+    border-bottom: 1px solid #888;
+    display: block;
+}
+@media (min-width: 1560px) {
+    .preset-content > div > * {
+        max-width: none;
+        margin: 0 auto;
+    }
+    .preset-content > div > img {
+        width: 216px;
+    }
+}
+.preset-content > div > p {
+    width: 216px;
+    overflow-y: auto;
+    height: 52px;
+}
+
+#preset-detail {
+    width: 31%;
+    margin-left: 1em;
+    position: sticky;
+    top: 1em;
+    height: 96vh;
+}
+#select-preset li {
+    padding: 0 0 8px;
+    margin: 0 0 8px;
+    border-bottom: 1px solid #888;
+    display: block;
+    width: 100%;
+}
+#preset-title, #select-preset .title, #preset-detail a {
+    font-weight: bold;
+}
+
+#preset-title-area {
+    font-size: 17px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#preset-detail .preset-image {
+    max-height: 316px;
+    overflow-y: auto;
+}
+#preset-detail #preset-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+#select-preset .copy {
+    color: #cc8c00;
+    cursor: pointer;
+    overflow-y: auto;
+    max-height: 100px;
+}
+#select-preset .copy:hover {
+    text-decoration: underline;
+}
+#preset-prompt, #preset-prompt_ban{
+    font-size: 13px;
+}
