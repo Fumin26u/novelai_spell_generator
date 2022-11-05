@@ -150,7 +150,6 @@ export default {
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
             const jsonObj = typeof json === 'string' ? JSON.parse(json) : json
-            console.log(jsonObj)
             const commandListQueue = []
             Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
 
