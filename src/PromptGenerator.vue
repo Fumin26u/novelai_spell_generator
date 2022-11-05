@@ -63,8 +63,22 @@
                     >
                         <template #item="{element, index}">
                             <div>
-                                <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
-                                    <span :style="'font-weight:bold; margin-right:8px; color:black;'">{{ element.parentTag }}</span>{{ element.jp }}
+                                <div class="prompt-color-select" v-if="element.variation === 'CC'">
+                                    <span>{{ element.parentTag }}</span>
+                                    <select :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" v-model="selectedColor" @change="changePromptColor(selectedColor, index)">
+                                        <option :value="''">{{ element.jp }}</option>
+                                        <option v-for="color in colorMulticolor" :key="color.prompt" :value="color.prompt">{{ element.jp }}{{ color.jp }}</option>
+                                    </select>
+                                </div>
+                                <div class="prompt-color-select" v-if="element.variation === 'CM'">
+                                    <span>{{ element.parentTag }}</span>
+                                    <select :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" v-model="selectedColor" @change="changePromptColor(selectedColor, index)">
+                                        <option :value="''">{{ element.jp }}</option>
+                                        <option v-for="color in colorMonochrome" :key="color.prompt" :value="color.prompt">{{ element.jp }}{{ color.jp }}</option>
+                                    </select>
+                                </div>
+                                <p v-if="element.variation === null" :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
+                                    <span>{{ element.parentTag }}</span>{{ element.jp }}
                                 </p>
                                 <div class="enhance-area">
                                     <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
@@ -117,6 +131,7 @@ import draggable from 'vuedraggable'
 import './assets/style.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
+import { colorMulticolor, colorMonochrome } from './colorVariation.js'
 
 export default {
     components: {
@@ -125,6 +140,7 @@ export default {
         ModalDBComponent,
     },
     setup() {
+        console.log(colorMulticolor, colorMonochrome)
         // 表示するタグ一覧
         const tagsList = ref([])
         // nsfwコンテンツの表示可否
@@ -161,6 +177,7 @@ export default {
 
                 genre.content.map((prompt, j) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
+                    prompt['original_name'] = prompt.tag
                     prompt['selected'] = false
                     prompt['enhance'] = 0
                     prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
@@ -290,6 +307,13 @@ export default {
             }
         }
 
+        // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
+        const changePromptColor = (colorTag, index) => {
+            if (colorTag !== '') {
+                setSpells.value[index].tag = colorTag + ' ' + setSpells.value[index].original_name
+            } 
+        }
+
         // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
             const tagsIndexList = setSpells.value[index].index.split(',')
@@ -372,9 +396,12 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
+            colorMulticolor,
+            colorMonochrome,
             toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
+            changePromptColor,
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
@@ -505,9 +532,9 @@ export default {
             display: flex;
             justify-content: space-evenly;
             align-items: center;
-            > p {
+            > p , > .prompt-color-select{
                 width: 65%;
-                &::before {
+                &:before {
                     content: '';
                     margin-right: 8px;
                     display: inline-block;
@@ -519,6 +546,19 @@ export default {
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;
+                }
+                > span {
+                    font-weight:bold; 
+                    margin-right:8px; 
+                    color:black;
+                }
+                select {
+                    font-family: 'Yu Gothic Medium';
+                    outline: none;
+                    border: none;
+                    border-bottom: 1px solid #888;
+                    font-size: 16px;
+                    white-space: normal;
                 }
             }
             > .enhance-area {
