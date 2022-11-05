@@ -63,23 +63,31 @@
                     >
                         <template #item="{element, index}">
                             <div>
-                                <div class="prompt-color-select" v-if="element.variation === 'CC'">
-                                    <span>{{ element.parentTag }}</span>
-                                    <select :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" v-model="selectedColor" @change="changePromptColor(selectedColor, index)">
-                                        <option :value="''">{{ element.jp }}</option>
-                                        <option v-for="color in colorMulticolor" :key="color.prompt" :value="color.prompt">{{ element.jp }}{{ color.jp }}</option>
-                                    </select>
+                                <div class="prompt-variation-select">
+                                    <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
+                                        <span>{{ element.parentTag }}</span>{{ element.jp }}
+                                    </p>
+                                    <div v-if="element.variation === 'CM'">
+                                        <span class="caption">色の設定</span>
+                                        <select 
+                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            v-model="selectedColor" 
+                                            @change="changePromptColor(selectedColor, index)"
+                                        >
+                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color.prompt">{{ color.jp }}</option>
+                                        </select>
+                                    </div>
+                                    <div v-if="element.variation === 'CC'">
+                                        <span class="caption">色の設定</span>
+                                        <select 
+                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            v-model="selectedColor" 
+                                            @change="changePromptColor(selectedColor, index)"
+                                        >
+                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color.prompt">{{ color.jp }}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="prompt-color-select" v-if="element.variation === 'CM'">
-                                    <span>{{ element.parentTag }}</span>
-                                    <select :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" v-model="selectedColor" @change="changePromptColor(selectedColor, index)">
-                                        <option :value="''">{{ element.jp }}</option>
-                                        <option v-for="color in colorMonochrome" :key="color.prompt" :value="color.prompt">{{ element.jp }}{{ color.jp }}</option>
-                                    </select>
-                                </div>
-                                <p v-if="element.variation === null" :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
-                                    <span>{{ element.parentTag }}</span>{{ element.jp }}
-                                </p>
                                 <div class="enhance-area">
                                     <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
                                     <span>{{ element.enhance }}</span>
@@ -131,7 +139,7 @@ import draggable from 'vuedraggable'
 import './assets/style.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
-import { colorMulticolor, colorMonochrome } from './colorVariation.js'
+import { colorMulti, colorMono } from './colorVariation.js'
 
 export default {
     components: {
@@ -140,7 +148,6 @@ export default {
         ModalDBComponent,
     },
     setup() {
-        console.log(colorMulticolor, colorMonochrome)
         // 表示するタグ一覧
         const tagsList = ref([])
         // nsfwコンテンツの表示可否
@@ -153,6 +160,9 @@ export default {
         const manualInputText = ref('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
+        // カラー設定可能なプロンプトのカラーバリエーション
+        const colorMultiColor = ref(colorMulti)
+        const colorMonochrome = ref(colorMono)
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
         const selectPromptFromSearch = (word) => {
@@ -308,11 +318,7 @@ export default {
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
-        const changePromptColor = (colorTag, index) => {
-            if (colorTag !== '') {
-                setSpells.value[index].tag = colorTag + ' ' + setSpells.value[index].original_name
-            } 
-        }
+        const changePromptColor = (colorTag, index) => setSpells.value[index].tag = colorTag + ' ' + setSpells.value[index].original_name
 
         // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
@@ -396,7 +402,8 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
-            colorMulticolor,
+            selectedColor: '',
+            colorMultiColor,
             colorMonochrome,
             toggleDisplayNsfw,
             uploadSpell,
@@ -532,27 +539,43 @@ export default {
             display: flex;
             justify-content: space-evenly;
             align-items: center;
-            > p , > .prompt-color-select{
+            > .prompt-variation-select{
                 width: 65%;
-                &:before {
-                    content: '';
-                    margin-right: 8px;
-                    display: inline-block;
-                    vertical-align: middle;
-                    width: 18px;
-                    height: 18px;
-                    cursor: pointer;
-                    background-image: url('./assets/images/dnd.png');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                > p {
+                    &:before {
+                        content: '';
+                        margin-right: 8px;
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 18px;
+                        height: 18px;
+                        cursor: pointer;
+                        background-image: url('./assets/images/dnd.png');
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                    }
                 }
-                > span {
+                > p > span {
                     font-weight:bold; 
                     margin-right:8px; 
                     color:black;
                 }
-                select {
+                > div {
+                    margin: 0 16px 0 auto;
+                }
+                > div > .caption {
+                    font-size: 12px;
+                    line-height: 10px;
+                    margin-left: 12px;
+                    display: block;
+                }
+                > div > select {
+                    width: 86px;
+                    margin-left: 8px;
                     font-family: 'Yu Gothic Medium';
                     outline: none;
                     border: none;

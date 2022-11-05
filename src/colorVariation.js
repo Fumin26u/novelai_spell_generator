@@ -1,85 +1,89 @@
-export const colorMonochrome = [
-    // {
-    //     prompt: '',
-    //     jp: '',
-    // },
+export const colorMono = [
+    {
+        prompt: '',
+        jp: '自動',
+    },
     {
         prompt: 'black',
-        jp: '(黒)',
+        jp: '黒',
     },
     {
         prompt: 'white',
-        jp: '(白)',
+        jp: '白',
     },
     {
         prompt: 'brown',
-        jp: '(茶)',
+        jp: '茶',
     },
     {
         prompt: 'dark blue',
-        jp: '(藍)',
+        jp: '藍',
     },
     {
         prompt: 'gray',
-        jp: '(灰)',
+        jp: '灰',
     },
 ]
 
-export const colorMulticolor = [
+export const colorMulti = [
+    {
+        prompt: '',
+        jp: '自動',
+    },
     {
         prompt: 'black',
-        jp: '(黒)',
+        jp: '黒',
     },
     {
         prompt: 'white',
-        jp: '(白)',
+        jp: '白',
     },
     {
         prompt: 'brown',
-        jp: '(茶)',
+        jp: '茶',
     },
     {
         prompt: 'green',
-        jp: '(緑)',
+        jp: '緑',
     },
     {
         prompt: 'blue',
-        jp: '(青)',
+        jp: '青',
     },
     {
         prompt: 'aqua',
-        jp: '(アクア)',
+        jp: 'アクア',
     },
     {
         prompt: 'dark blue',
-        jp: '(藍)',
+        jp: '藍',
     },
     {
         prompt: 'red',
-        jp: '(赤)',
+        jp: '赤',
     },
     {
         prompt: 'purple',
-        jp: '(紫)',
+        jp: '紫',
     },
     {
         prompt: 'pink',
-        jp: '(ピンク)',
+        jp: 'ピンク',
     },
     {
         prompt: 'orange',
-        jp: '(オレンジ)',
+        jp: 'オレンジ',
     },
     {
         prompt: 'yellow',
-        jp: '(黄色)',
+        jp: '黄色',
     },
     {
         prompt: 'amber',
-        jp: '(琥珀)',
+        jp: '琥珀',
     },
     {
         prompt: 'gray',
-        jp: '(灰)',
+        jp: '灰',
     },
 ]
