@@ -236,6 +236,7 @@ export default {
                     if (prompt.tag === word) {
                         retVal.value.push(tagsList.value[i].jp)
                         retVal.value.push(tagsList.value[i].content[j].jp)
+                        retVal.value.push(tagsList.value[i].content[j].variation)
                         retVal.value.push(i + ',' + j)
                         retVal.value.push(tagsList.value[i].content[j].nsfw)
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
@@ -279,7 +280,7 @@ export default {
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
                     // 親タグ、日本語名、各インデックスを取得
-                    const [parentTag, tagjp, index, nsfw] = searchTagsFromSpell(tagname)
+                    const [parentTag, tagjp, variation, index, nsfw] = searchTagsFromSpell(tagname)
                     // 該当のプロンプトを選択状態にする
                     selectPromptFromSearch(tagname)
                     // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
@@ -292,6 +293,7 @@ export default {
                         spellQueue['slag'] = tagname.replace(' ', '_')
                         spellQueue['parentTag'] = parentTag
                         spellQueue['enhance'] = enhanceCount.value
+                        spellQueue['variation'] = variation
                         spellQueue['index'] = index
                         spellQueue['nsfw'] = nsfw
                         setSpells.value.push(spellQueue)
