@@ -111,7 +111,8 @@
 
 <script>
 import master_data from './master_data.js'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/style.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
@@ -148,7 +149,8 @@ export default {
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json) => {
-            const jsonObj = JSON.parse(json)
+            const jsonObj = typeof json === 'string' ? JSON.parse(json) : json
+            console.log(jsonObj)
             const commandListQueue = []
             Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
 
@@ -171,11 +173,24 @@ export default {
 
             return commandList
         }
-        tagsList.value = convertJsonToTagList(master_data)
+
+        // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
+        const getMasterData = async() => {
+            const url = './register/api/getMasterData.php?from=spell_generator'
+            await axios.get(url)
+                .then(response => {
+                    tagsList.value = convertJsonToTagList(response.data)
+                })
+                .catch(error => {
+                    tagsList.value = convertJsonToTagList(master_data)
+                    console.log(error)
+                })
+        }
+        onMounted(() => getMasterData())
         
         // nsfwコンテンツの表示設定
         const toggleDisplayNsfw = () => {
-            tagsList.value = convertJsonToTagList(master_data)
+            tagsList.value = getMasterData()
             setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
@@ -338,11 +353,6 @@ export default {
         const updateAlertText = text => copyAlert.value = text
         // モーダルの表示状態を行進する
         const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
-
-        // onMounted(async () => {
-        //     const url = '/register/api/getPreset.php'
-        //     await axios.get(url).catch(error => console.log(error))
-        // })
         
         return {
             tagsList,
