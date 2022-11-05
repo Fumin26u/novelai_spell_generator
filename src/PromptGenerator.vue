@@ -190,7 +190,12 @@ export default {
         
         // nsfwコンテンツの表示設定
         const toggleDisplayNsfw = () => {
-            tagsList.value = getMasterData()
+            tagsList.value.map ((genre, i) => {
+                genre.content.map((_, j) => 
+                    tagsList.value[i].content[j]['display'] = 
+                        !tagsList.value[i].content[j].nsfw || (tagsList.value[i].content[j].nsfw && displayNsfw.value) 
+                        ? true : false)
+            })
             setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
