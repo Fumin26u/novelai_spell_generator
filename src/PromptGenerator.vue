@@ -64,9 +64,12 @@
                         <template #item="{element, index}">
                             <div>
                                 <div class="prompt-variation-select">
-                                    <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
-                                        <span>{{ element.parentTag }}</span>{{ element.jp }}
-                                    </p>
+                                    <div class="prompt-name">
+                                        <div>
+                                            <span class="caption">{{ element.parentTag }}</span>
+                                            <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">{{ element.jp }}</p>
+                                        </div>
+                                    </div>
                                     <div v-if="element.variation === 'CM'">
                                         <span class="caption">色の設定</span>
                                         <select 
@@ -535,7 +538,7 @@ export default {
         overflow-y: scroll;
         border-bottom: 1px solid #888;
         > div {
-            margin: 8px auto;
+            margin: 4px auto;
             display: flex;
             justify-content: space-evenly;
             align-items: center;
@@ -543,13 +546,17 @@ export default {
                 width: 65%;
                 display: flex;
                 justify-content: space-between;
-                align-items: flex-end;
-                > p {
+                > div {
+                    margin: 0 16px 0 auto;
+                }
+                > div.prompt-name {
+                    margin: 0;
+                    display: flex;
+                    justify-content: space-evenly;
+                    align-items: center;
                     &:before {
                         content: '';
                         margin-right: 8px;
-                        display: inline-block;
-                        vertical-align: middle;
                         width: 18px;
                         height: 18px;
                         cursor: pointer;
@@ -558,20 +565,18 @@ export default {
                         background-repeat: no-repeat;
                         background-position: center;
                     }
+                    p {
+                        font-weight: bold;
+                    }
                 }
-                > p > span {
-                    font-weight:bold; 
-                    margin-right:8px; 
-                    color:black;
-                }
-                > div {
-                    margin: 0 16px 0 auto;
-                }
-                > div > .caption {
-                    font-size: 12px;
-                    line-height: 10px;
+                > div .caption {
+                    font-size: 13px;
                     margin-left: 12px;
+                    margin-bottom: -6px;
                     display: block;
+                }
+                > .prompt-name .caption {
+                    margin-left: 0;
                 }
                 > div > select {
                     width: 86px;
