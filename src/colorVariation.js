@@ -1,7 +1,7 @@
 export const colorMono = [
     {
-        prompt: '',
-        jp: '自動',
+        prompt: 'none',
+        jp: 'なし',
     },
     {
         prompt: 'black',
@@ -27,8 +27,8 @@ export const colorMono = [
 
 export const colorMulti = [
     {
-        prompt: '',
-        jp: '自動',
+        prompt: 'none',
+        jp: 'なし',
     },
     {
         prompt: 'black',

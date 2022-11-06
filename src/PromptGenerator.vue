@@ -77,7 +77,8 @@
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
-                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color.prompt">{{ color.jp }}</option>
+                                            <option disabled :value="{}">(選択)</option>
+                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
                                         </select>
                                     </div>
                                     <div v-if="element.variation === 'CC'">
@@ -87,7 +88,8 @@
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
-                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color.prompt">{{ color.jp }}</option>
+                                            <option disabled :value="{}">(選択)</option>
+                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color">{{ color.jp }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -163,9 +165,10 @@ export default {
         const manualInputText = ref('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
-        // カラー設定可能なプロンプトのカラーバリエーション
+        // カラー設定可能なプロンプトのカラーバリエーションと現在の値を格納する配列
         const colorMultiColor = ref(colorMulti)
         const colorMonochrome = ref(colorMono)
+        const selectedColor = ref({})
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
         const selectPromptFromSearch = (word) => {
@@ -191,6 +194,7 @@ export default {
                 genre.content.map((prompt, j) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
                     prompt['original_name'] = prompt.tag
+                    prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
                     prompt['enhance'] = 0
                     prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
@@ -323,7 +327,16 @@ export default {
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
-        const changePromptColor = (colorTag, index) => setSpells.value[index].tag = colorTag + ' ' + setSpells.value[index].original_name
+        const changePromptColor = (colorTag, index) => {
+            if (colorTag.prompt === 'none') {
+                setSpells.value[index].jp = setSpells.value[index].original_name_jp
+                setSpells.value[index].tag = setSpells.value[index].original_name
+            } else {
+                setSpells.value[index].jp = setSpells.value[index].original_name_jp + ' (' + colorTag.jp + ')'
+                setSpells.value[index].tag = colorTag.prompt + ' ' + setSpells.value[index].original_name
+            }
+            selectedColor.value = {}
+        } 
 
         // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
@@ -407,7 +420,7 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
-            selectedColor: '',
+            selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,
             toggleDisplayNsfw,
