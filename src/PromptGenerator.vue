@@ -197,7 +197,7 @@ export default {
                     prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
                     prompt['enhance'] = 0
-                    prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
+                    prompt['display'] = !prompt.nsfw || displayNsfw.value ? true : false
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
                 })
@@ -221,36 +221,65 @@ export default {
         }
         
         // nsfwコンテンツの表示設定
-        const toggleDisplayNsfw = () => {
+        const toggleDisplayNsfw = (execSelectPrompt = true) => {
             tagsList.value.map ((genre, i) => {
                 genre.content.map((_, j) => 
                     tagsList.value[i].content[j]['display'] = 
                         !tagsList.value[i].content[j].nsfw || displayNsfw.value ? true : false
                 )
             })
-            setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
+            if (execSelectPrompt) setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (word) => {
-            const retVal = []
-            tagsList.value.map((genre, i) => {
-                genre.content.map((prompt, j) => {           
-                    if (prompt.tag === word) {
-                        retVal.push(tagsList.value[i].jp)
-                        retVal.push(tagsList.value[i].content[j].jp)
-                        retVal.push(tagsList.value[i].content[j].variation)
-                        retVal.push(i + ',' + j)
-                        retVal.push(tagsList.value[i].content[j].nsfw)
+        const searchTagsFromSpell = (tagname, enhanceCount) => {            
+            // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
+            const promptAfterSpace = tagname.substring(tagname.indexOf(' ')+1)
+            const promptBeforeSpace = tagname.substring(0, tagname.indexOf(' '))
+            const colorTagJP = ref('')
+            // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
+            if (promptBeforeSpace !== -1) {
+                colorMultiColor.value.map(color => {
+                    if (promptBeforeSpace === color.prompt) {
+                        colorTagJP.value = color.jp
+                    }
+                })
+            }
+            
+            const setPrompt = {}
+            for (const [i, genre] of Object.entries(tagsList.value)) {
+                for (const [j, prompt] of Object.entries(genre.content)) {
+                    if (prompt.tag === tagname || prompt.tag == promptAfterSpace) {
+                        if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
+                            console.log(promptAfterSpace)
+                            console.log(colorTagJP.value)
+                            setPrompt['tag'] = promptAfterSpace
+                            setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
+                        } else {
+                            setPrompt['tag'] = tagname
+                            setPrompt['jp'] = tagsList.value[i].content[j].jp
+                        }
+                        setPrompt['original_name'] = tagname
+                        setPrompt['original_name_jp'] = tagsList.value[i].content[j].jp
+                        setPrompt['parentTag'] = tagsList.value[i].jp
+                        setPrompt['detail'] = ''
+                        setPrompt['slag'] = tagname.replace(' ', '_')
+                        setPrompt['enhance'] = enhanceCount
+                        setPrompt['variation'] = tagsList.value[i].content[j].variation
+                        setPrompt['index'] = i + ',' + j
+                        setPrompt['nsfw'] = tagsList.value[i].content[j].nsfw
+
+                        tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
                         if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
                             displayNsfw.value = true
-                            toggleDisplayNsfw()
+                            toggleDisplayNsfw(false)
                         }
-                    } else { return false }            
-                })
-            })
-            return retVal
+                        return setPrompt
+                    } 
+                }
+            }
+            return false
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
@@ -272,7 +301,6 @@ export default {
                 if(tag.trim() === " " || tag.trim() === "") {
                     tags.splice(index, 1)
                 } else {
-                    const spellQueue = {}
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
                     const enhanceCount = ref(0)
                     if (tag.match(/\{/g)) {
@@ -282,25 +310,9 @@ export default {
                     }
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
-                    // 親タグ、日本語名、各インデックスを取得
-                    const [parentTag, tagjp, variation, index, nsfw] = searchTagsFromSpell(tagname)
-                    // 該当のプロンプトを選択状態にする
-                    selectPromptFromSearch(tagname)
-                    // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
-                    if (!parentTag) {
-                        manualInputText.value += tag + ', '
-                    } else {
-                        spellQueue['tag'] = tagname
-                        spellQueue['jp'] = tagjp
-                        spellQueue['detail'] = ''
-                        spellQueue['slag'] = tagname.replace(' ', '_')
-                        spellQueue['parentTag'] = parentTag
-                        spellQueue['enhance'] = enhanceCount.value
-                        spellQueue['variation'] = variation
-                        spellQueue['index'] = index
-                        spellQueue['nsfw'] = nsfw
-                        setSpells.value.push(spellQueue)
-                    }
+                    // 設定プロンプトリストに必要情報を挿入
+                    if(searchTagsFromSpell(tagname, enhanceCount.value) !== false) 
+                        setSpells.value.push(searchTagsFromSpell(tagname, enhanceCount.value))
                 }
             })
         }
