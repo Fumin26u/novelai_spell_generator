@@ -14,18 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $err = [];
             $pdo = dbConnect();
         
-            $st = $pdo->prepare('SELECT user_id FROM users WHERE user_id = :user_id');
+            $st = $pdo->prepare('SELECT email, user_id FROM users WHERE user_id = :user_id OR email = :email');
+            $st->bindValue(':email', h($_POST['email']), PDO::PARAM_STR);
             $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
             $st->execute();
             
             $rows = $st->fetch(PDO::FETCH_ASSOC);
             
             if (!empty($rows)) {
-                $err[] = '既に使用されているユーザーIDです。';
+                $err[] = '既に使用されているメールアドレスまたはユーザーIDです。';
             } else {
                 $pdo->beginTransaction();
 
-                $st = $pdo->prepare('INSERT INTO users (user_id, password) VALUES (:user_id, :password)');
+                $st = $pdo->prepare('INSERT INTO users (email, user_id, password) VALUES (:email, :user_id, :password)');
+                $st->bindValue(':email', h($_POST['email']), PDO::PARAM_STR);
                 $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
                 $st->bindValue(':password', password_hash(h($_POST['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
                 $st->execute();
@@ -64,7 +66,12 @@ $title = 'アカウント登録 | NovelAI プロンプトセーバー';
         <p><?= implode(', ', $message) ?></p>
         <h2>ユーザー新規登録</h2>
         <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST" class="form-common">
+            <a href="<?= $home ?>login.php">既にアカウント登録している場合はこちら</a>
             <dl>
+                <div>
+                    <dt>メールアドレス</dt>
+                    <dd><input type="text" id="email" name="email" required></dd>
+                </div>
                 <div>
                     <dt>ユーザーID</dt>
                     <dd><input type="text" id="user_id" name="user_id" required></dd>

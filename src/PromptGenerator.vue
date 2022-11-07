@@ -29,8 +29,8 @@
                                     <p class="caption">{{ genre.caption }}</p>
                                 </div>
                                 <div>
-                                    <span @click="tagsList[i]['display'] = true" :style="[tagsList[i]['display'] ? 'display:none' : 'display:block;']">▼</span>
-                                    <span @click="tagsList[i]['display'] = false" :style="[tagsList[i]['display'] ? 'display:block' : 'display:none;']">▲</span>
+                                    <span @click="tagsList[i]['display'] = true" v-if="!tagsList[i]['display']">▼</span>
+                                    <span @click="tagsList[i]['display'] = false" v-if="tagsList[i]['display']">▲</span>
                                 </div>
                             </div>
                             <div :style="[tagsList[i]['display'] ? 'max-height:none;' : 'max-height:240px;']">
@@ -63,9 +63,35 @@
                     >
                         <template #item="{element, index}">
                             <div>
-                                <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">
-                                    <span :style="'font-weight:bold; margin-right:8px; color:black;'">{{ element.parentTag }}</span>{{ element.jp }}
-                                </p>
+                                <div class="prompt-variation-select">
+                                    <div class="prompt-name">
+                                        <div>
+                                            <span class="caption">{{ element.parentTag }}</span>
+                                            <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">{{ element.jp }}</p>
+                                        </div>
+                                    </div>
+                                    <div v-if="element.variation !== null">
+                                        <span class="caption">色の設定</span>
+                                        <select 
+                                            v-if="element.variation === 'CC'"
+                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            v-model="selectedColor" 
+                                            @change="changePromptColor(selectedColor, index)"
+                                        >
+                                            <option disabled :value="{}">(選択)</option>
+                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color">{{ color.jp }}</option>
+                                        </select>
+                                        <select 
+                                            v-if="element.variation === 'CM'"
+                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            v-model="selectedColor" 
+                                            @change="changePromptColor(selectedColor, index)"
+                                        >
+                                            <option disabled :value="{}">(選択)</option>
+                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="enhance-area">
                                     <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
                                     <span>{{ element.enhance }}</span>
@@ -115,8 +141,10 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/style.scss'
+import './assets/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
+import { colorMulti, colorMono } from './colorVariation.js'
 
 export default {
     components: {
@@ -137,6 +165,10 @@ export default {
         const manualInputText = ref('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref([])
+        // カラー設定可能なプロンプトのカラーバリエーションと現在の値を格納する配列
+        const colorMultiColor = ref(colorMulti)
+        const colorMonochrome = ref(colorMono)
+        const selectedColor = ref({})
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
         const selectPromptFromSearch = (word) => {
@@ -161,9 +193,11 @@ export default {
 
                 genre.content.map((prompt, j) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
+                    prompt['original_name'] = prompt.tag
+                    prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
                     prompt['enhance'] = 0
-                    prompt['display'] = !prompt.nsfw || (prompt.nsfw && displayNsfw.value) ? true : false
+                    prompt['display'] = !prompt.nsfw || displayNsfw.value ? true : false
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
                 })
@@ -185,38 +219,67 @@ export default {
                     console.log(error)
                 })
         }
-        onMounted(() => getMasterData())
         
         // nsfwコンテンツの表示設定
-        const toggleDisplayNsfw = () => {
+        const toggleDisplayNsfw = (execSelectPrompt = true) => {
             tagsList.value.map ((genre, i) => {
                 genre.content.map((_, j) => 
                     tagsList.value[i].content[j]['display'] = 
-                        !tagsList.value[i].content[j].nsfw || (tagsList.value[i].content[j].nsfw && displayNsfw.value) 
-                        ? true : false)
+                        !tagsList.value[i].content[j].nsfw || displayNsfw.value ? true : false
+                )
             })
-            setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
+            if (execSelectPrompt) setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (word) => {
-            const retVal = ref([])
-            tagsList.value.map((genre, i) => {
-                genre.content.map((prompt, j) => {           
-                    if (prompt.tag === word) {
-                        retVal.value.push(tagsList.value[i].jp)
-                        retVal.value.push(tagsList.value[i].content[j].jp)
-                        retVal.value.push(i + ',' + j)
-                        retVal.value.push(tagsList.value[i].content[j].nsfw)
+        const searchTagsFromSpell = (tagname, enhanceCount) => {            
+            // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
+            const promptAfterSpace = tagname.substring(tagname.indexOf(' ')+1)
+            const promptBeforeSpace = tagname.substring(0, tagname.indexOf(' '))
+            const colorTagJP = ref('')
+            // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
+            if (promptBeforeSpace !== -1) {
+                colorMultiColor.value.map(color => {
+                    if (promptBeforeSpace === color.prompt) {
+                        colorTagJP.value = color.jp
+                    }
+                })
+            }
+            
+            const setPrompt = {}
+            for (const [i, genre] of Object.entries(tagsList.value)) {
+                for (const [j, prompt] of Object.entries(genre.content)) {
+                    if (prompt.tag === tagname || prompt.tag == promptAfterSpace) {
+                        if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
+                            console.log(promptAfterSpace)
+                            console.log(colorTagJP.value)
+                            setPrompt['tag'] = promptAfterSpace
+                            setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
+                        } else {
+                            setPrompt['tag'] = tagname
+                            setPrompt['jp'] = tagsList.value[i].content[j].jp
+                        }
+                        setPrompt['original_name'] = tagname
+                        setPrompt['original_name_jp'] = tagsList.value[i].content[j].jp
+                        setPrompt['parentTag'] = tagsList.value[i].jp
+                        setPrompt['detail'] = ''
+                        setPrompt['slag'] = tagname.replace(' ', '_')
+                        setPrompt['enhance'] = enhanceCount
+                        setPrompt['variation'] = tagsList.value[i].content[j].variation
+                        setPrompt['index'] = i + ',' + j
+                        setPrompt['nsfw'] = tagsList.value[i].content[j].nsfw
+
+                        tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
                         if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
                             displayNsfw.value = true
-                            toggleDisplayNsfw()
+                            toggleDisplayNsfw(false)
                         }
-                    }               
-                })
-            })
-            return retVal.value
+                        return setPrompt
+                    } 
+                }
+            }
+            return false
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
@@ -238,7 +301,6 @@ export default {
                 if(tag.trim() === " " || tag.trim() === "") {
                     tags.splice(index, 1)
                 } else {
-                    const spellQueue = {}
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
                     const enhanceCount = ref(0)
                     if (tag.match(/\{/g)) {
@@ -248,24 +310,9 @@ export default {
                     }
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
-                    // 親タグ、日本語名、各インデックスを取得
-                    const [parentTag, tagjp, index, nsfw] = searchTagsFromSpell(tagname)
-                    // 該当のプロンプトを選択状態にする
-                    selectPromptFromSearch(tagname)
-                    // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
-                    if (parentTag === undefined || tagjp === undefined || index === undefined) {
-                        manualInputText.value += tag + ', '
-                    } else {
-                        spellQueue['tag'] = tagname
-                        spellQueue['jp'] = tagjp
-                        spellQueue['detail'] = ''
-                        spellQueue['slag'] = tagname.replace(' ', '_')
-                        spellQueue['parentTag'] = parentTag
-                        spellQueue['enhance'] = enhanceCount.value
-                        spellQueue['index'] = index
-                        spellQueue['nsfw'] = nsfw
-                        setSpells.value.push(spellQueue)
-                    }
+                    // 設定プロンプトリストに必要情報を挿入
+                    if(searchTagsFromSpell(tagname, enhanceCount.value) !== false) 
+                        setSpells.value.push(searchTagsFromSpell(tagname, enhanceCount.value))
                 }
             })
         }
@@ -289,6 +336,18 @@ export default {
                 }
             }
         }
+
+        // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
+        const changePromptColor = (colorTag, index) => {
+            if (colorTag.prompt === 'none') {
+                setSpells.value[index].jp = setSpells.value[index].original_name_jp
+                setSpells.value[index].tag = setSpells.value[index].original_name
+            } else {
+                setSpells.value[index].jp = setSpells.value[index].original_name_jp + ' (' + colorTag.jp + ')'
+                setSpells.value[index].tag = colorTag.prompt + ' ' + setSpells.value[index].original_name
+            }
+            selectedColor.value = {}
+        } 
 
         // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
@@ -357,6 +416,9 @@ export default {
         const updateAlertText = text => copyAlert.value = text
         // モーダルの表示状態を行進する
         const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
+
+        // 画面読み込み時、DBからマスタデータを取得。できない場合はローカルから取得。
+        onMounted(() => getMasterData())
         
         return {
             tagsList,
@@ -372,9 +434,13 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             promptForDB: promptForDB,
+            selectedColor: selectedColor,
+            colorMultiColor,
+            colorMonochrome,
             toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
+            changePromptColor,
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
@@ -386,178 +452,3 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-.content {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    > .main-content {
-        width: 68%;
-        border-right: 1px solid #888;
-    }
-    > .spell-settings {
-        width: 32%;
-    }
-}
-
-.upload-prompt {
-    display: flex;
-    justify-content: space-between;
-    input {
-        width: 500px;
-        margin: 0 8px;
-        padding: 4px 0;
-        font-size: 16px;
-    }
-    > .toggle-nsfw {
-        margin-right: 8px;
-        > .btn-common {
-            font-family: 'Yu Gothic Medium';
-            letter-spacing: 1px;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        > .btn-common.pink {
-            border: 1.8px solid tomato;
-            color: tomato;
-            &:hover {
-                background: tomato;
-                color: white;
-            }
-        }
-    }
-}
-
-.tag-list {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    margin-right: 0.5em;
-}
-
-.spell-list {
-    width: 17%;
-    padding: 8px;
-    margin: 26px 0 1em;
-    border: 1px dashed #888;
-    box-shadow: 0 2px 2px #aaa;
-    > .description {
-        display: flex;
-        justify-content: space-between;
-        > div {
-            display: block;
-            &:first-child {
-                width: 90%;
-            }
-            &:last-child {
-                width: 10%;
-            }
-        }
-        > div span {
-            cursor: pointer;
-            user-select: none;
-        }
-    }
-    .genre {
-        font-weight: bold;
-        font-size: 18px;
-    }
-    .caption {
-        font-size: 14px;
-    }
-    > div {
-        max-height: 240px;
-        overflow-y: auto;
-        > div {
-            margin: 8px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        > div span {
-            margin-right: 8px;
-            max-width: 120px;
-        }
-    }
-}
-
-.spell-settings {
-    margin: 0 8px;
-    position: sticky;
-    top: 50px;
-    height: 96vh;
-    > .description {
-        h2 {
-            margin: 0;
-            font-size: 20px;
-        }
-        p {
-            font-size: 13px;
-        }          
-    }
-    > .spells {
-        max-height: 560px;
-        overflow-y: scroll;
-        border-bottom: 1px solid #888;
-        > div {
-            margin: 8px auto;
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-            > p {
-                width: 65%;
-                &::before {
-                    content: '';
-                    margin-right: 8px;
-                    display: inline-block;
-                    vertical-align: middle;
-                    width: 18px;
-                    height: 18px;
-                    cursor: pointer;
-                    background-image: url('./assets/images/dnd.png');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                }
-            }
-            > .enhance-area {
-                width: 25%;
-            }
-            > .enhance-area span {
-                display: inline-block;
-                width: 33%;    
-                text-align: center;
-            }
-            > .delete-area {
-                width: 10%;
-            }
-        }
-    }
-    > .output-area {
-        position: absolute;
-        bottom: 40px;
-        div p {
-            font-size: 13px;
-        }
-        #manual-input {
-            margin: 0 8px; 
-            padding: 8px; 
-            width: 380px;
-            font-size: 15px;
-        }
-        .output {
-            margin: 0 0 8px;
-        }
-        > .button-area {
-            margin: 8px 0;
-            button {
-                display: inline-block;
-                vertical-align: middle;
-                margin-right: 8px;
-                font-weight: bold;
-            }
-        }
-    }
-}
-</style>
