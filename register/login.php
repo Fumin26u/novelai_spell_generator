@@ -67,6 +67,7 @@ $title = 'ログイン | NovelAI プロンプトセーバー';
         <p><?= implode(', ', $message) ?></p>
         <h2>ユーザーログイン</h2>
         <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST" class="form-common">
+            <a href="<?= $home ?>register.php">アカウント未登録の場合はこちら</a>
             <dl>
                 <div>
                     <dt>ユーザーID</dt>
