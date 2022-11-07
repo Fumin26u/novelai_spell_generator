@@ -29,8 +29,8 @@
                                     <p class="caption">{{ genre.caption }}</p>
                                 </div>
                                 <div>
-                                    <span @click="tagsList[i]['display'] = true" :style="[tagsList[i]['display'] ? 'display:none' : 'display:block;']">▼</span>
-                                    <span @click="tagsList[i]['display'] = false" :style="[tagsList[i]['display'] ? 'display:block' : 'display:none;']">▲</span>
+                                    <span @click="tagsList[i]['display'] = true" v-if="!tagsList[i]['display']">▼</span>
+                                    <span @click="tagsList[i]['display'] = false" v-if="tagsList[i]['display']">▲</span>
                                 </div>
                             </div>
                             <div :style="[tagsList[i]['display'] ? 'max-height:none;' : 'max-height:240px;']">
@@ -70,26 +70,25 @@
                                             <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">{{ element.jp }}</p>
                                         </div>
                                     </div>
-                                    <div v-if="element.variation === 'CM'">
+                                    <div v-if="element.variation !== null">
                                         <span class="caption">色の設定</span>
                                         <select 
-                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
-                                            v-model="selectedColor" 
-                                            @change="changePromptColor(selectedColor, index)"
-                                        >
-                                            <option disabled :value="{}">(選択)</option>
-                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
-                                        </select>
-                                    </div>
-                                    <div v-if="element.variation === 'CC'">
-                                        <span class="caption">色の設定</span>
-                                        <select 
+                                            v-if="element.variation === 'CC'"
                                             :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
                                             <option disabled :value="{}">(選択)</option>
                                             <option v-for="color in colorMultiColor" :key="color.prompt" :value="color">{{ color.jp }}</option>
+                                        </select>
+                                        <select 
+                                            v-if="element.variation === 'CM'"
+                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            v-model="selectedColor" 
+                                            @change="changePromptColor(selectedColor, index)"
+                                        >
+                                            <option disabled :value="{}">(選択)</option>
+                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -142,6 +141,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/style.scss'
+import './assets/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
 import { colorMulti, colorMono } from './colorVariation.js'
@@ -219,39 +219,38 @@ export default {
                     console.log(error)
                 })
         }
-        onMounted(() => getMasterData())
         
         // nsfwコンテンツの表示設定
         const toggleDisplayNsfw = () => {
             tagsList.value.map ((genre, i) => {
                 genre.content.map((_, j) => 
                     tagsList.value[i].content[j]['display'] = 
-                        !tagsList.value[i].content[j].nsfw || (tagsList.value[i].content[j].nsfw && displayNsfw.value) 
-                        ? true : false)
+                        !tagsList.value[i].content[j].nsfw || displayNsfw.value ? true : false
+                )
             })
             setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (word) => {
-            const retVal = ref([])
+            const retVal = []
             tagsList.value.map((genre, i) => {
                 genre.content.map((prompt, j) => {           
                     if (prompt.tag === word) {
-                        retVal.value.push(tagsList.value[i].jp)
-                        retVal.value.push(tagsList.value[i].content[j].jp)
-                        retVal.value.push(tagsList.value[i].content[j].variation)
-                        retVal.value.push(i + ',' + j)
-                        retVal.value.push(tagsList.value[i].content[j].nsfw)
+                        retVal.push(tagsList.value[i].jp)
+                        retVal.push(tagsList.value[i].content[j].jp)
+                        retVal.push(tagsList.value[i].content[j].variation)
+                        retVal.push(i + ',' + j)
+                        retVal.push(tagsList.value[i].content[j].nsfw)
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
                         if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
                             displayNsfw.value = true
                             toggleDisplayNsfw()
                         }
-                    }               
+                    } else { return false }            
                 })
             })
-            return retVal.value
+            return retVal
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
@@ -288,7 +287,7 @@ export default {
                     // 該当のプロンプトを選択状態にする
                     selectPromptFromSearch(tagname)
                     // 親タグらを取得時点でそれらがundefinedの場合、そのタグを手入力欄に代わりに挿入
-                    if (parentTag === undefined || tagjp === undefined || index === undefined) {
+                    if (!parentTag) {
                         manualInputText.value += tag + ', '
                     } else {
                         spellQueue['tag'] = tagname
@@ -405,6 +404,9 @@ export default {
         const updateAlertText = text => copyAlert.value = text
         // モーダルの表示状態を行進する
         const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
+
+        // 画面読み込み時、DBからマスタデータを取得。できない場合はローカルから取得。
+        onMounted(() => getMasterData())
         
         return {
             tagsList,
@@ -438,209 +440,3 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-.content {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    > .main-content {
-        width: 68%;
-        border-right: 1px solid #888;
-    }
-    > .spell-settings {
-        width: 32%;
-    }
-}
-
-.upload-prompt {
-    display: flex;
-    justify-content: space-between;
-    input {
-        width: 500px;
-        margin: 0 8px;
-        padding: 4px 0;
-        font-size: 16px;
-    }
-    > .toggle-nsfw {
-        margin-right: 8px;
-        > .btn-common {
-            font-family: 'Yu Gothic Medium';
-            letter-spacing: 1px;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        > .btn-common.pink {
-            border: 1.8px solid tomato;
-            color: tomato;
-            &:hover {
-                background: tomato;
-                color: white;
-            }
-        }
-    }
-}
-
-.tag-list {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    margin-right: 0.5em;
-}
-
-.spell-list {
-    width: 17%;
-    padding: 8px;
-    margin: 26px 0 1em;
-    border: 1px dashed #888;
-    box-shadow: 0 2px 2px #aaa;
-    > .description {
-        display: flex;
-        justify-content: space-between;
-        > div {
-            display: block;
-            &:first-child {
-                width: 90%;
-            }
-            &:last-child {
-                width: 10%;
-            }
-        }
-        > div span {
-            cursor: pointer;
-            user-select: none;
-        }
-    }
-    .genre {
-        font-weight: bold;
-        font-size: 18px;
-    }
-    .caption {
-        font-size: 14px;
-    }
-    > div {
-        max-height: 240px;
-        overflow-y: auto;
-        > div {
-            margin: 8px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        > div span {
-            margin-right: 8px;
-            max-width: 120px;
-        }
-    }
-}
-
-.spell-settings {
-    margin: 0 8px;
-    position: sticky;
-    top: 50px;
-    height: 96vh;
-    > .description {
-        h2 {
-            margin: 0;
-            font-size: 20px;
-        }
-        p {
-            font-size: 13px;
-        }          
-    }
-    > .spells {
-        max-height: 560px;
-        overflow-y: scroll;
-        border-bottom: 1px solid #888;
-        > div {
-            margin: 4px auto;
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-            > .prompt-variation-select{
-                width: 65%;
-                display: flex;
-                justify-content: space-between;
-                > div {
-                    margin: 0 16px 0 auto;
-                }
-                > div.prompt-name {
-                    margin: 0;
-                    display: flex;
-                    justify-content: space-evenly;
-                    align-items: center;
-                    &:before {
-                        content: '';
-                        margin-right: 8px;
-                        width: 18px;
-                        height: 18px;
-                        cursor: pointer;
-                        background-image: url('./assets/images/dnd.png');
-                        background-size: contain;
-                        background-repeat: no-repeat;
-                        background-position: center;
-                    }
-                    p {
-                        font-weight: bold;
-                    }
-                }
-                > div .caption {
-                    font-size: 13px;
-                    margin-left: 12px;
-                    margin-bottom: -6px;
-                    display: block;
-                }
-                > .prompt-name .caption {
-                    margin-left: 0;
-                }
-                > div > select {
-                    width: 86px;
-                    margin-left: 8px;
-                    font-family: 'Yu Gothic Medium';
-                    outline: none;
-                    border: none;
-                    border-bottom: 1px solid #888;
-                    font-size: 16px;
-                    white-space: normal;
-                }
-            }
-            > .enhance-area {
-                width: 25%;
-            }
-            > .enhance-area span {
-                display: inline-block;
-                width: 33%;    
-                text-align: center;
-            }
-            > .delete-area {
-                width: 10%;
-            }
-        }
-    }
-    > .output-area {
-        position: absolute;
-        bottom: 40px;
-        div p {
-            font-size: 13px;
-        }
-        #manual-input {
-            margin: 0 8px; 
-            padding: 8px; 
-            width: 380px;
-            font-size: 15px;
-        }
-        .output {
-            margin: 0 0 8px;
-        }
-        > .button-area {
-            margin: 8px 0;
-            button {
-                display: inline-block;
-                vertical-align: middle;
-                margin-right: 8px;
-                font-weight: bold;
-            }
-        }
-    }
-}
-</style>
