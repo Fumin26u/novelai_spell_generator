@@ -207,7 +207,7 @@ $canonical = "https://nai-pg.com/register/";
 <html lang="ja">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="<?= $home ?>styles.css">
+<link rel="stylesheet" href="<?= $home ?>prompt.css">
 <title><?= $title ?></title>
 <link rel="canonical" href="<?= $canonical ?>">
 <meta property="og:description" content="<?= $description ?>">
@@ -216,31 +216,6 @@ $canonical = "https://nai-pg.com/register/";
 <meta property="og:site_name" content="NovelAI プロンプトセーバー">
 <meta property="og:url" content="<?= $canonical ?>">
 <meta property="og:title" content="<?= $title ?>">
-<style>
-.spell-register {
-   display: flex;
-   justify-content: space-evenly; 
-   align-items: flex-start;
-}
-.spell-register form {
-    width: 64%;
-}
-.spell-register .preview {
-    width: 36%;
-    margin: 1em auto;
-}
-.spell-register .preview p {
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 2px dashed #888;
-}
-.spell-register .preview img {
-    width: 100%;
-    display: block;
-    margin: 1em auto;
-}
-</style>
 </head>
 <body>
 <?php include($home . 'header.php') ?>
@@ -264,6 +239,7 @@ $canonical = "https://nai-pg.com/register/";
                             name="image"
                             onchange="previewImage(this)"
                             accept="image/png"
+                            id="image-file"
                         >
                     </dd>
                 </div>
@@ -344,8 +320,23 @@ $canonical = "https://nai-pg.com/register/";
             </dl>
         </form>
         <div class="preview">
-            <p>アップロード画像</p>
-            <img src="<?= isset($presets['image'])  ? './images/preset/original/' . $presets['image'] : '' ?>" id="image-preview">
+            <div id="image-preview">
+                <p>アップロード画像</p>
+                <img src="<?= isset($presets['image'])  ? './images/preset/original/' . $presets['image'] : '' ?>" id="image-preview-area">
+                <div class="delete-image" onclick="deleteImage(event)">
+                    <span>×</span>
+                </div>
+            </div>
+            <div 
+                id="image-dnd" 
+                ondrop="importImage(event)" 
+                ondragover="dragImage(event, 'over')"
+                ondragleave="dragImage(event, 'leave')"
+            >
+                <div>
+                    ここに画像をドロップ
+                </div>
+            </div>
         </div>
     </section>
 </main>
@@ -355,13 +346,56 @@ $canonical = "https://nai-pg.com/register/";
     function alertDeleteMessage() {
         return window.confirm("本当に削除しますか?") ? true : false;
     }
-
+    
+    const imageFile = document.getElementById('image-file');
+    const imageDnd = document.getElementById('image-dnd');
+    const imagePreview = document.getElementById('image-preview');
+    const imagePreviewArea = document.getElementById('image-preview-area')
+    const fileReader = new FileReader();
     function previewImage(image) {
-        const fileReader = new FileReader();
         fileReader.onload = (() => {
-            document.getElementById('image-preview').src = fileReader.result;
+            imagePreviewArea.src = fileReader.result;
         });
-        fileReader.readAsDataURL(image.files[0]);
+        fileReader.readAsDataURL(image);
+    }
+
+    function importImage(e) {
+        imageDnd.style.border = "2px solid #ccc";
+        
+        const file = e.dataTransfer.files;
+        if (file.length !== 1) return alert('複数ファイルのアップロードはできません。');
+        imageFile.files = file;
+        imagePreview.classList.add('on');
+        imageDnd.style.display = "none";
+
+        e.stopPropagation();
+        e.preventDefault();
+        previewImage(file[0]);
+    }
+
+    function dragImage(e, state) {
+        e.stopPropagation();
+        e.preventDefault();
+        imageDnd.style.border = state === 'over' ?
+            "2px solid skyblue" :
+            "2px solid #ccc";
+    }
+
+    function deleteImage(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        imageFile.value = '';
+        imagePreviewArea.src = '';
+        imagePreview.classList.remove('on');
+        imageDnd.style.display = 'block';
+    }
+
+    window.onload = () => {
+        if (imagePreviewArea.src !== '') {
+            imagePreview.classList.add('on');
+            imageDnd.style.display = "none";
+        }
     }
 }
 </script>
