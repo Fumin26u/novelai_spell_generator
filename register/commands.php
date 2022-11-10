@@ -359,6 +359,7 @@ $canonical = "https://nai-pg.com/register/";
         fileReader.readAsDataURL(image);
     }
 
+    // 画像を取得しファイル名とプレビューに反映
     function importImage(e) {
         imageDnd.style.border = "2px solid #ccc";
         
@@ -373,6 +374,7 @@ $canonical = "https://nai-pg.com/register/";
         previewImage(file[0]);
     }
 
+    // dndエリアに画像がドラッグされた際の処理
     function dragImage(e, state) {
         e.stopPropagation();
         e.preventDefault();
@@ -381,6 +383,7 @@ $canonical = "https://nai-pg.com/register/";
             "2px solid #ccc";
     }
 
+    // 画像上の×ボタンが押された際の処理
     function deleteImage(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -391,8 +394,9 @@ $canonical = "https://nai-pg.com/register/";
         imageDnd.style.display = 'block';
     }
 
+    // 画面読み込み時、画像が同時に読み込まれていた場合はその画像を表示
     window.onload = () => {
-        if (imagePreviewArea.src !== '') {
+        if (imagePreviewArea.src.slice(-4) === '.png') {
             imagePreview.classList.add('on');
             imageDnd.style.display = "none";
         }
