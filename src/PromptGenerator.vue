@@ -39,7 +39,7 @@
                                     :key="prompt.slag" 
                                     :style="[prompt.display ? 'display:block; position:relative;' : 'display:none']">
                                     <button 
-                                        :class="[prompt.selected ? 'btn-toggle selected' : 'btn-toggle']" 
+                                        :class="[prompt.selected ? 'btn-toggle selected' : 'btn-toggle', prompt.nsfw ? ' nsfw' : '']" 
                                         @click="toggleSetPromptList(i, j)"
                                         @mouseover="hoverPromptName = prompt.tag"
                                         @mouseleave="hoverPromptName = ''"
@@ -53,8 +53,8 @@
                 </div>
                 <div class="spell-settings">
                     <div class="description">
-                        <p>選択中のプロンプト：{{hoverPromptName}}</p>
                         <h2>設定プロンプト一覧</h2>
+                        <small>選択中: {{hoverPromptName}}</small>
                         <div class="manual-input-area">
                             <label :for="'manual-input'">手動追加</label>
                             <input type="text" :id="'manual-input'" v-model="manualInput">

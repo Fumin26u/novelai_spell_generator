@@ -16,19 +16,20 @@ export default {
 <style lang="scss" scoped>
 .header {
     border-bottom: 2px dashed #888;
-    padding: 0.5em 0;
+    padding: 8px 0;
     margin: 0 0 1em;
 }
 .header > h1, .header > .link-area {
     display: inline-block;
-    vertical-align: center;
+    vertical-align: middle;
     margin-right: 3em;
 }
 .header > .link-area > a {
     margin: 0 1em;
+    font-size: 14px;
 }
 .header > .link-area .prompt-saver {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
 }
 </style>
