@@ -55,6 +55,11 @@
                     <div class="description">
                         <p>選択中のプロンプト：{{hoverPromptName}}</p>
                         <h2>設定プロンプト一覧</h2>
+                        <div class="manual-input-area">
+                            <label :for="'manual-input'">手動追加</label>
+                            <input type="text" :id="'manual-input'" v-model="manualInput">
+                            <button class="btn-common add" @click="addManualPromptToList(manualInput)">追加</button>
+                        </div>
                     </div>
                     <draggable 
                         class="spells" 
@@ -107,15 +112,13 @@
                         <div class="text-area">
                             <p class="output">出力値: 
                                 <span v-if="spellsNovelAI.value !== undifined">
-                                    {{ spellsNovelAI.value + manualInput }}
+                                    {{ spellsNovelAI.value }}
                                 </span>
                             </p>
-                            <label :for="'manual-input'">手動入力</label>
-                            <input type="text" :id="'manual-input'" v-model="manualInput">
                         </div>
                         <div class="button-area">                          
                             <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
-                            <button @click="copyToClipboard(spellsNovelAI.value + manualInput)" class="btn-common copy">コピー</button>
+                            <button @click="copyToClipboard(spellsNovelAI.value)" class="btn-common copy">コピー</button>
                             <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
                             <span class="copy-alert">{{ copyAlert }}</span>           
                         </div>
@@ -279,6 +282,7 @@ export default {
                     } 
                 }
             }
+            addManualPromptToList(tagname, enhanceCount)
             return false
         }
 
@@ -337,6 +341,28 @@ export default {
             }
         }
 
+        // 手動入力でのプロンプトの追加
+        const addManualPromptToList = (input, enhanceCount = 0) => {
+            let isAlreadySetPrompt = false
+            // 既に追加されているプロンプト名の場合追加しない
+            setSpells.value.map(prompt => {
+                if (input.trim() === prompt.tag) isAlreadySetPrompt = true
+            })
+            if (!isAlreadySetPrompt && input.trim() !== '') {
+                setSpells.value.push({
+                    tag: input,
+                    jp: input,
+                    parentTag: '手動',
+                    detail: '',
+                    slag: input.replace(' ', '_'),
+                    enhance: enhanceCount,
+                    variation: null,
+                    index: null,
+                    nsfw: false
+                })
+            }
+        }
+
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
         const changePromptColor = (colorTag, index) => {
             if (colorTag.prompt === 'none') {
@@ -351,11 +377,13 @@ export default {
 
         // セットキューから指定したプロンプトを削除
         const deleteSetPromptList = (index) => {
-            const tagsIndexList = setSpells.value[index].index.split(',')
-            const i = parseInt(tagsIndexList[0])
-            const j = parseInt(tagsIndexList[1])
-            
-            tagsList.value[i].content[j].selected = false
+            if (setSpells.value[index].index !== null) {
+                const tagsIndexList = setSpells.value[index].index.split(',')
+                const i = parseInt(tagsIndexList[0])
+                const j = parseInt(tagsIndexList[1])
+                
+                tagsList.value[i].content[j].selected = false
+            }
             setSpells.value.splice(index, 1)
         }
 
@@ -441,6 +469,7 @@ export default {
             uploadSpell,
             toggleSetPromptList,
             changePromptColor,
+            addManualPromptToList,
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,

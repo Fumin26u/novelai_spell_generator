@@ -105,7 +105,20 @@
         }
         p {
             font-size: 13px;
-        }          
+        }
+        > .manual-input-area {
+            margin: 4px 0;
+            > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            #manual-input {
+                margin: 0 8px; 
+                padding: 4px; 
+                width: 320px;
+                font-size: 15px;
+            }  
+        }       
     }
     > .spells {
         max-height: 560px;
@@ -181,12 +194,6 @@
         bottom: 40px;
         div p {
             font-size: 13px;
-        }
-        #manual-input {
-            margin: 0 8px; 
-            padding: 8px; 
-            width: 380px;
-            font-size: 15px;
         }
         .output {
             margin: 0 0 8px;
