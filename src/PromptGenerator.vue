@@ -110,11 +110,12 @@
                     </draggable>
                     <div class="output-area">
                         <div class="text-area">
-                            <p class="output">出力値: 
-                                <span v-if="spellsNovelAI.value !== undifined">
+                            <p class="output"><b>出力値</b> (クリックで編集可)<br>
+                                <span v-if="!isEditNAIPrompt" @click="toggleIsEditNAIPrompt(true)">
                                     {{ spellsNovelAI.value }}
                                 </span>
                             </p>
+                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI.value" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
                         </div>
                         <div class="button-area">                          
                             <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
@@ -445,6 +446,12 @@ export default {
         // モーダルの表示状態を行進する
         const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
 
+        const isEditNAIPrompt = ref(false)
+        const toggleIsEditNAIPrompt = state => {
+            console.log(state)
+            isEditNAIPrompt.value = state
+        } 
+
         // 画面読み込み時、DBからマスタデータを取得。できない場合はローカルから取得。
         onMounted(() => getMasterData())
         
@@ -465,6 +472,7 @@ export default {
             selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,
+            isEditNAIPrompt: isEditNAIPrompt,
             toggleDisplayNsfw,
             uploadSpell,
             toggleSetPromptList,
@@ -477,6 +485,7 @@ export default {
             copyToClipboard,
             updateAlertText,
             updateModalState,
+            toggleIsEditNAIPrompt,
         }
     }
 }
