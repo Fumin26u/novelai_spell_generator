@@ -459,9 +459,6 @@ export default {
             tagsList,
             hoverPromptName,
             setSpells,
-            options: {
-                animation: 200
-            },
             spellsNovelAI,
             copyAlert,
             isOpenSaveModal,
