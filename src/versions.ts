@@ -1,5 +1,10 @@
 const versions = [
     {
+        date: '2022年11月15日',
+        version: '1.4.1',
+        detail: '生成したプロンプトをStable Diffusion WebUI用に変更可能に',
+    },
+    {
         date: '2022年11月10日',
         version: '1.4.0',
         detail: '一部UIの変更、プロンプトの手動追加機能・生成されたプロンプトの編集機能・プリセット登録での画像ドラッグ&ドロップ追加機能を作成',

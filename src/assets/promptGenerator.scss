@@ -196,7 +196,7 @@
     }
     > .output-area {
         position: absolute;
-        bottom: 40px;
+        bottom: 28px;
         width: 100%;
         div p {
             font-size: 13px;
@@ -218,6 +218,9 @@
         }
         > .button-area {
             margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            
             button {
                 display: inline-block;
                 vertical-align: middle;

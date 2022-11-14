@@ -198,6 +198,10 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     display: block;
     width: 100%;
 }
+#select-preset li > div p, #select-preset li > div button {
+    display: inline-block;
+    vertical-align: middle;
+}
 #preset-title, #select-preset .title, #preset-detail a {
     font-weight: bold;
 }

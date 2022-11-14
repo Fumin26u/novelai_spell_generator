@@ -22,7 +22,7 @@
     </div>
 </template>
 <script>
-import fetchData from './fetchData.js'
+import fetchData from './fetchData.ts'
 import HeaderComponent from './components/HeaderComponent.vue'
 import './assets/style.scss'
 import { ref, onMounted } from 'vue'
@@ -46,8 +46,10 @@ export default {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
                 console.log(thumbnailPath === imgPath + 'noimage.png')
-                savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
-                savedPromptList.value[index]['originalImage'] = require(originalImagePath)
+                savedPromptList.value[index]['thumbnail'] = thumbnailPath
+                savedPromptList.value[index]['originalImage'] = originalImagePath
+                // savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
+                // savedPromptList.value[index]['originalImage'] = require(originalImagePath)
             })
         }
 

@@ -88,6 +88,15 @@ main {
     color: white;
 }
 
+.btn-common.blue {
+    border: 1px solid darkblue;
+    color: darkblue;
+}
+.btn-common.blue:hover {
+    background-color: darkblue;
+    color: white;
+}
+
 /* --------------------
 
     ヘッダー    

@@ -43,27 +43,30 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
 export default {
     emits: ['updateModal', 'updateText'],
     props: {
-        prompts: Object,
+        prompts: {
+            type: Object,
+            required: true,
+        },
         copyMessage: String,
         displayModalState: Boolean,
     },
-    setup(props, context) {
+    setup(props: any, context: any) {
         // DB保存モーダルの表示可否
-        const isOpenSaveModal = ref(props.displayModalState)
+        const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // DB保存用のデータ
-        const promptForDB = ref(props.prompts)
+        const promptForDB = ref<{[key: string]: string}>(props.prompts)
 
-        const updateText = text => context.emit('updateText', text)
-        const updateModal = isDisplay => context.emit('updateModal', isDisplay)
+        const updateText = (text: string) => context.emit('updateText', text)
+        const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
         // プロンプトをDBに保存する
-        const savePrompt = (promptForDB) => {
+        const savePrompt = (promptForDB: {[key: string]: any}) => {
             if (promptForDB.commands === '') {
                 updateText('コマンドが入力されていません。')
                 updateModal(false)
