@@ -240,6 +240,28 @@ export default {
             setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         }
 
+        // 手動入力でのプロンプトの追加
+        const addManualPromptToList = (input: string, enhanceCount: number = 0): void => {
+            let isAlreadySetPrompt = false
+            // 既に追加されているプロンプト名の場合追加しない
+            setSpells.value.map((prompt: {[key: string]: any}) => {
+                if (input.trim() === prompt.tag) isAlreadySetPrompt = true
+            })
+            if (!isAlreadySetPrompt && input.trim() !== '') {
+                setSpells.value.push({
+                    tag: input,
+                    jp: input,
+                    parentTag: '手動',
+                    detail: '',
+                    slag: input.replace(' ', '_'),
+                    enhance: enhanceCount,
+                    variation: null,
+                    index: null,
+                    nsfw: false
+                })
+            }
+        }
+
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
@@ -258,7 +280,8 @@ export default {
             const setPrompt: {[key: string]: string | number} = {}
             for (let i = 0; i < tagsList.value.length; i++) {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
-                    const prompt = tagsList.value[i].content[j].content
+                    const prompt = tagsList.value[i].content[j]
+                    console.log(prompt)
                     if (prompt.tag === tagname || prompt.tag == promptAfterSpace) {
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             console.log(promptAfterSpace)
@@ -324,7 +347,7 @@ export default {
 
                     // 設定プロンプトリストに必要情報を挿入 
                     const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
-                    if (searchedTags['error'] === 'not found') setSpells.value.push(searchedTags)        
+                    if (searchedTags['error'] !== 'not found') setSpells.value.push(searchedTags)        
                 }
             })
         }
@@ -346,28 +369,6 @@ export default {
                         tagsList.value[i].content[j].selected = false
                     }
                 }
-            }
-        }
-
-        // 手動入力でのプロンプトの追加
-        const addManualPromptToList = (input: string, enhanceCount: number = 0): void => {
-            let isAlreadySetPrompt = false
-            // 既に追加されているプロンプト名の場合追加しない
-            setSpells.value.map(prompt => {
-                if (input.trim() === prompt.tag) isAlreadySetPrompt = true
-            })
-            if (!isAlreadySetPrompt && input.trim() !== '') {
-                setSpells.value.push({
-                    tag: input,
-                    jp: input,
-                    parentTag: '手動',
-                    detail: '',
-                    slag: input.replace(' ', '_'),
-                    enhance: enhanceCount,
-                    variation: null,
-                    index: null,
-                    nsfw: false
-                })
             }
         }
 
