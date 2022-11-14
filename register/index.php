@@ -133,16 +133,22 @@ $canonical = "https://nai-pg.com/register/";
                         <p class="detail" id="preset-nsfw"></p>
                     </li>
                     <li>
-                        <p class="title">プロンプト</p>
-                        <p class="detail copy" id="preset-prompt" onclick="copyPreset('preset-prompt')"></p>
+                        <div>
+                            <p class="title" id="preset-title-prompt">プロンプト</p>
+                            <button onclick="togglePromptSet()" id="toggle-button-prompt" class="btn-common blue"></button>
+                        </div>
+                        <p class="detail copy" id="preset-prompt" onclick="copyPreset('preset-prompt', 'preset-title-prompt')"></p>
                     </li>
                     <li>
-                        <p class="title">BANプロンプト</p>
-                        <p class="detail copy" id="preset-prompt_ban" onclick="copyPreset('preset-prompt_ban')"></p>
+                        <div>
+                            <p class="title" id="preset-title-prompt_ban">BANプロンプト</p>
+                            <button onclick="togglePromptSet()" id="toggle-button-prompt_ban" class="btn-common blue"></button>
+                        </div>
+                        <p class="detail copy" id="preset-prompt_ban" onclick="copyPreset('preset-prompt_ban', 'preset-title-prompt_ban')"></p>
                     </li>
                     <li>
-                        <p class="title">シード値</p>
-                        <p class="detail copy" id="preset-seed" onclick="copyPreset('preset-seed')"></p>
+                        <p class="title" id="preset-title-seed">シード値</p>
+                        <p class="detail copy" id="preset-seed" onclick="copyPreset('preset-seed', 'preset-title-seed')"></p>
                     </li>
                     <li>
                         <p class="title">解像度</p>
@@ -162,9 +168,10 @@ $canonical = "https://nai-pg.com/register/";
 <script lang="js">
 {
     // プリセット内のデータがクリックされた際、その値をコピーする
-    function copyPreset(id) {
+    function copyPreset(id, name) {
         const title = document.getElementById('preset-title').innerHTML;
         const text = document.getElementById(id).innerHTML;
+        const copyFrom = document.getElementById(name).innerHTML;
         const href = location.href.substr(0,5);
         if (href === 'https') {
             navigator.clipboard.writeText(text);
@@ -177,7 +184,7 @@ $canonical = "https://nai-pg.com/register/";
             document.body.removeChild(input);
         }
         const copyAlert = document.getElementById('copy-alert');
-        copyAlert.innerHTML = title + 'をコピーしました。'
+        copyAlert.innerHTML = title + 'の' + copyFrom + 'をコピーしました。'
     };
 
     // 検索ボックスの表示可否
@@ -210,6 +217,40 @@ $canonical = "https://nai-pg.com/register/";
         }
     }
 
+    // プロンプトの()を選択された形式に変更
+    const generatedPromptFor = [
+        'NovelAI',
+        'Stable Diffusion',
+    ];
+    let promptFor = 0;
+    const tbp = document.getElementById('toggle-button-prompt');
+    const tbpb = document.getElementById('toggle-button-prompt_ban');
+    const pp = document.getElementById('preset-prompt');
+    const ppb = document.getElementById('preset-prompt_ban');
+    function togglePromptSet(init = '') {
+        let selectedPromptFor = generatedPromptFor[promptFor];
+        if (init !== '') {
+            selectedPromptFor = init;
+        }
+
+        if (promptFor === generatedPromptFor.length - 1) {
+            promptFor = 0
+        } else {
+            promptFor += 1
+        }
+
+        tbp.innerHTML = selectedPromptFor;
+        tbpb.innerHTML = selectedPromptFor;
+
+        if (selectedPromptFor === 'Stable Diffusion') {
+            pp.innerHTML = pp.innerHTML.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+            ppb.innerHTML = ppb.innerHTML.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+        } else {
+            pp.innerHTML = pp.innerHTML.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+            ppb.innerHTML = ppb.innerHTML.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+        }
+    }
+
     // PHPから文字列化したjsonを受け取り、JSオブジェクトに変換
     const pl = <?= $presets_json ?>;
     function selectPreset(index) {
@@ -230,19 +271,19 @@ $canonical = "https://nai-pg.com/register/";
         document.getElementById('preset-seed').innerHTML = pl[index].seed;
         document.getElementById('preset-resolution').innerHTML = pl[index].resolution;
         document.getElementById('preset-others').innerHTML = pl[index].others;
+
+        togglePromptSet('NovelAI');
     }
 
-    // データ検索がされていない場合検索ボックスの再リロードを行う
-    <?php if(!isset($_GET['order'])) { ?>
     window.onload = () => {
+        <?php if(!isset($_GET['order'])) { ?>
+        // データ検索がされていない場合検索ボックスの再リロードを行う
         checkAllBox();
-    }
-    <?php } else { ?>
-    // データ検索がされている場合初期状態で検索ボックスを表示
-    window.onload = () => {
+        <?php } else { ?>
+        // データ検索がされている場合初期状態で検索ボックスを表示
         openMenu();
+        <?php } ?>
     }
-    <?php } ?>
 }
 </script>
 </html>
