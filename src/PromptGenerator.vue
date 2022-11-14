@@ -140,7 +140,7 @@
 </template>
 
 <script>
-import master_data from './master_data.js'
+import master_data from './master_data.ts'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
@@ -148,7 +148,7 @@ import './assets/style.scss'
 import './assets/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
-import { colorMulti, colorMono } from './colorVariation.js'
+import { colorMulti, colorMono } from './colorVariation.ts'
 
 export default {
     components: {
