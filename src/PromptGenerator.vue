@@ -271,7 +271,6 @@ export default {
         const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
             const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
-            console.log(promptAfterSpace)
             const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
             const colorTagJP = ref<string>('')
             // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
@@ -282,13 +281,11 @@ export default {
                     }
                 })
             }
-            // console.log(colorTagJP.value)
             
             const setPrompt: {[key: string]: string | number} = {}
             for (let i = 0; i < tagsList.value.length; i++) {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
                     const prompt = tagsList.value[i].content[j]
-                    console.log(tagname)
                     if (prompt.tag === tagname || (colorTagJP.value.trim() !== '' && promptAfterSpace === prompt.tag)) {
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             setPrompt['tag'] = promptAfterSpace
