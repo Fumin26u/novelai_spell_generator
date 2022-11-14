@@ -11,7 +11,7 @@
                             <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
-                            <button @click="displayNsfw = displayNsfw ? false:true, toggleDisplayNsfw()" :class="[displayNsfw ? 'btn-common pink': 'btn-common blue']">
+                            <button @click="displayNsfw = displayNsfw ? false:true, displayNsfwContent()" :class="[displayNsfw ? 'btn-common pink': 'btn-common blue']">
                                 {{ displayNsfw ? 'R-18' : '全年齢' }}
                             </button>
                         </div>
@@ -112,14 +112,14 @@
                         <div class="text-area">
                             <p class="output"><b>出力値</b> (クリックで編集可)<br>
                                 <span v-if="!isEditNAIPrompt" @click="toggleIsEditNAIPrompt(true)">
-                                    {{ spellsNovelAI.value }}
+                                    {{ spellsNovelAI }}
                                 </span>
                             </p>
-                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI.value" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
+                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
                         </div>
                         <div class="button-area">                          
                             <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
-                            <button @click="copyToClipboard(spellsNovelAI.value)" class="btn-common copy">コピー</button>
+                            <button @click="copyToClipboard(spellsNovelAI)" class="btn-common copy">コピー</button>
                             <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
                             <span class="copy-alert">{{ copyAlert }}</span>           
                         </div>
@@ -139,8 +139,8 @@
     <router-view></router-view>
 </template>
 
-<script>
-import master_data from './master_data.ts'
+<script lang="ts">
+import master_data from './master_data'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
@@ -148,7 +148,7 @@ import './assets/style.scss'
 import './assets/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
-import { colorMulti, colorMono } from './colorVariation.ts'
+import { colorMulti, colorMono } from './colorVariation'
 
 export default {
     components: {
@@ -158,44 +158,44 @@ export default {
     },
     setup() {
         // 表示するタグ一覧
-        const tagsList = ref([])
+        const tagsList = ref<{[key: string]: any}[]>([])
         // nsfwコンテンツの表示可否
-        const displayNsfw = ref(false)
+        const displayNsfw = ref<boolean>(false)
         // Hover中のタグ
-        const hoverPromptName = ref('')
+        const hoverPromptName = ref<string>('')
         // アップロード用プロンプト
-        const spellsByUserText = ref('')
+        const spellsByUserText = ref<string>('')
         // 手動入力内容
-        const manualInputText = ref('')
+        const manualInputText = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
-        const setSpells = ref([])
+        const setSpells = ref<{[key: string]: any}[]>([])
         // カラー設定可能なプロンプトのカラーバリエーションと現在の値を格納する配列
-        const colorMultiColor = ref(colorMulti)
-        const colorMonochrome = ref(colorMono)
-        const selectedColor = ref({})
+        const colorMultiColor = ref<{[key: string]: string}[]>(colorMulti)
+        const colorMonochrome = ref<{[key: string]: string}[]>(colorMono)
+        const selectedColor = ref<{[key: string]: string}>({})
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
-        const selectPromptFromSearch = (word) => {
-            tagsList.value.map((genre, i) => {
-                genre.content.map((prompt, j) => {           
+        const selectPromptFromSearch = (word: string): void => {
+            tagsList.value.map((genre: {[key: string]: any}, i: number) => {
+                genre.content.map((prompt: {[key: string]: any}, j: number) => {           
                     if (prompt.tag === word)  tagsList.value[i].content[j].selected = true              
                 })
             })
         }
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
-        const convertJsonToTagList = (json) => {
+        const convertJsonToTagList = (json: string | object): {[key: string]: any}[] => {
             const jsonObj = typeof json === 'string' ? JSON.parse(json) : json
-            const commandListQueue = []
+            const commandListQueue: {[key: string]: any}[] = []
             Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
 
             // 配列に表示に必要なデータを挿入
-            const commandList = []
-            commandListQueue.map((genre, i) => {
+            const commandList: {[key: string]: any}[] = []
+            commandListQueue.map((genre: {[key: string]: any}, i: number) => {
                 genre['display'] = false
                 genre.caption = genre.caption === "" ? "-" : genre.caption
 
-                genre.content.map((prompt, j) => {  
+                genre.content.map((prompt: {[key: string]: any}, j: number) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
                     prompt['original_name'] = prompt.tag
                     prompt['original_name_jp'] = prompt.jp
@@ -212,7 +212,7 @@ export default {
         }
 
         // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
-        const getMasterData = async() => {
+        const getMasterData = async(): Promise<void> => {
             const url = './register/api/getMasterData.php?from=spell_generator'
             await axios.get(url)
                 .then(response => {
@@ -225,22 +225,27 @@ export default {
         }
         
         // nsfwコンテンツの表示設定
-        const toggleDisplayNsfw = (execSelectPrompt = true) => {
-            tagsList.value.map ((genre, i) => {
-                genre.content.map((_, j) => 
+        const toggleDisplayNsfw = (): void => {
+            tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
+                genre.content.map((_: any, j: number) => 
                     tagsList.value[i].content[j]['display'] = 
                         !tagsList.value[i].content[j].nsfw || displayNsfw.value ? true : false
                 )
             })
-            if (execSelectPrompt) setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
         } 
 
+        // nsfw表示切り替えボタンを押した際の処理
+        const displayNsfwContent = (): void => {
+            toggleDisplayNsfw()
+            setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
+        }
+
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (tagname, enhanceCount) => {            
+        const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
-            const promptAfterSpace = tagname.substring(tagname.indexOf(' ')+1)
-            const promptBeforeSpace = tagname.substring(0, tagname.indexOf(' '))
-            const colorTagJP = ref('')
+            const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
+            const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
+            const colorTagJP = ref<string>('')
             // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
             if (promptBeforeSpace !== -1) {
                 colorMultiColor.value.map(color => {
@@ -250,9 +255,10 @@ export default {
                 })
             }
             
-            const setPrompt = {}
-            for (const [i, genre] of Object.entries(tagsList.value)) {
-                for (const [j, prompt] of Object.entries(genre.content)) {
+            const setPrompt: {[key: string]: string | number} = {}
+            for (let i = 0; i < tagsList.value.length; i++) {
+                for (let j = 0; j < tagsList.value[i].content.length; j++) {
+                    const prompt = tagsList.value[i].content[j].content
                     if (prompt.tag === tagname || prompt.tag == promptAfterSpace) {
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             console.log(promptAfterSpace)
@@ -272,29 +278,30 @@ export default {
                         setPrompt['variation'] = tagsList.value[i].content[j].variation
                         setPrompt['index'] = i + ',' + j
                         setPrompt['nsfw'] = tagsList.value[i].content[j].nsfw
+                        setPrompt['error'] = ''
 
                         tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
                         if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
                             displayNsfw.value = true
-                            toggleDisplayNsfw(false)
+                            toggleDisplayNsfw()
                         }
                         return setPrompt
                     } 
                 }
             }
             addManualPromptToList(tagname, enhanceCount)
-            return false
+            return {error: 'not found'}
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
-        const uploadSpell = spell => {
+        const uploadSpell = (spell: string): void => {
             if (spell.trim() === '') return
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setSpells.value = []
             manualInputText.value = ''
-            tagsList.value.map((genre, i) => {
-                genre.content.map((_, j) => {
+            tagsList.value.map((genre: {[key: string]: any}, i: number) => {
+                genre.content.map((_: any, j: number) => {
                     tagsList.value[i].content[j].selected = false
                 })
             })
@@ -302,28 +309,28 @@ export default {
             // タグごと配列の要素にする
             const tagsQueue = spell.split(',')
             const tags = tagsQueue.map(tag => tag.trim())
-            tags.map((tag, index) => {
+            tags.map((tag: string, index: number) => {
                 if(tag.trim() === " " || tag.trim() === "") {
                     tags.splice(index, 1)
                 } else {
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
                     const enhanceCount = ref(0)
-                    if (tag.match(/\{/g)) {
-                        enhanceCount.value = tag.match(/\{/g || []).length
-                    } else if (tag.match(/\[/g)) {
-                        enhanceCount.value = tag.match(/\[/g || []).length * -1 
+                    if (tag.match(/\{/g) !== null) {
+                        enhanceCount.value = tag.match(/\{/g)!.length
+                    } else if (tag.match(/\[/g) !== null) {
+                        enhanceCount.value = tag.match(/\[/g)!.length * -1 
                     }
                     const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
 
-                    // 設定プロンプトリストに必要情報を挿入
-                    if(searchTagsFromSpell(tagname, enhanceCount.value) !== false) 
-                        setSpells.value.push(searchTagsFromSpell(tagname, enhanceCount.value))
+                    // 設定プロンプトリストに必要情報を挿入 
+                    const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
+                    if (searchedTags['error'] === 'not found') setSpells.value.push(searchedTags)        
                 }
             })
         }
 
         // タグのセットキューに挿入
-        const toggleSetPromptList = (i, j) => { 
+        const toggleSetPromptList = (i: number, j: number): void => { 
             const queue = tagsList.value[i].content[j]
             const selected = tagsList.value[i].content[j].selected
 
@@ -343,7 +350,7 @@ export default {
         }
 
         // 手動入力でのプロンプトの追加
-        const addManualPromptToList = (input, enhanceCount = 0) => {
+        const addManualPromptToList = (input: string, enhanceCount: number = 0): void => {
             let isAlreadySetPrompt = false
             // 既に追加されているプロンプト名の場合追加しない
             setSpells.value.map(prompt => {
@@ -365,7 +372,7 @@ export default {
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
-        const changePromptColor = (colorTag, index) => {
+        const changePromptColor = (colorTag: {[key: string]: string}, index: number): void => {
             if (colorTag.prompt === 'none') {
                 setSpells.value[index].jp = setSpells.value[index].original_name_jp
                 setSpells.value[index].tag = setSpells.value[index].original_name
@@ -377,7 +384,7 @@ export default {
         } 
 
         // セットキューから指定したプロンプトを削除
-        const deleteSetPromptList = (index) => {
+        const deleteSetPromptList = (index: number): void => {
             if (setSpells.value[index].index !== null) {
                 const tagsIndexList = setSpells.value[index].index.split(',')
                 const i = parseInt(tagsIndexList[0])
@@ -389,12 +396,12 @@ export default {
         }
 
         // タグ(プロンプト)の強化
-        const enhanceSpell = (index, num) => setSpells.value[index].enhance += num
+        const enhanceSpell = (index: number, num: number): void => setSpells.value[index].enhance += num
 
         // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
         // キューにセットされているタグをNovelAIで使える形に変換する
-        const convertToNovelAITags = spells => {
+        const convertToNovelAITags = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
             
             spells.map(spell => {
@@ -413,7 +420,7 @@ export default {
                 text.value += ', '
             })
             
-            spellsNovelAI.value = text
+            spellsNovelAI.value = text.value
         }
 
         // DB保存モーダルの表示可否
@@ -428,29 +435,27 @@ export default {
             others: '',
         })
         // DB保存用のモーダルを開く
-        const openSaveModal = (setSpells) => {
-            convertToNovelAITags(setSpells)
+        const openSaveModal = (promptList: {[key: string]: any}[]): void => {
+            convertToNovelAITags(promptList)
             promptForDB.value.commands = spellsNovelAI.value
         }
         
         // プロンプトをコピーした際のアラート
         const copyAlert = ref('')
         // プロンプトをクリップボードにコピーする
-        const copyToClipboard = text => {
+        const copyToClipboard = (text: string): void => {
             navigator.clipboard.writeText(text)
             copyAlert.value = 'クリップボードにコピーしました。'
         }
 
         // コンポーネントから受け取ったアラートテキストを更新する
-        const updateAlertText = text => copyAlert.value = text
+        const updateAlertText = (text: string): string => copyAlert.value = text
         // モーダルの表示状態を行進する
-        const updateModalState = isDisplay => isOpenSaveModal.value = isDisplay
+        const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
 
         const isEditNAIPrompt = ref(false)
-        const toggleIsEditNAIPrompt = state => {
-            console.log(state)
-            isEditNAIPrompt.value = state
-        } 
+        const toggleIsEditNAIPrompt = (state: boolean): boolean => isEditNAIPrompt.value = state
+        
 
         // 画面読み込み時、DBからマスタデータを取得。できない場合はローカルから取得。
         onMounted(() => getMasterData())
@@ -470,7 +475,7 @@ export default {
             colorMultiColor,
             colorMonochrome,
             isEditNAIPrompt: isEditNAIPrompt,
-            toggleDisplayNsfw,
+            displayNsfwContent,
             uploadSpell,
             toggleSetPromptList,
             changePromptColor,
