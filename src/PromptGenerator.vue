@@ -117,12 +117,17 @@
                             </p>
                             <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
                         </div>
-                        <div class="button-area">                          
-                            <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
-                            <button @click="copyToClipboard(spellsNovelAI)" class="btn-common copy">コピー</button>
-                            <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
-                            <span class="copy-alert">{{ copyAlert }}</span>           
+                        <div class="button-area">
+                            <div class="generate">
+                                <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
+                                <button @click="toggleTagsFor()" class="btn-common blue" :style="'padding: 6px;'">{{ selectedPromptFor }}</button>
+                            </div>
+                            <div class="save">
+                                <button @click="copyToClipboard(spellsNovelAI)" class="btn-common copy">コピー</button>
+                                <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
+                            </div>                          
                         </div>
+                        <span class="copy-alert">{{ copyAlert }}</span>           
                     </div>
                 </div>
             </div>
@@ -141,7 +146,7 @@
 
 <script lang="ts">
 import master_data from './master_data'
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/style.scss'
@@ -266,6 +271,7 @@ export default {
         const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
             const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
+            console.log(promptAfterSpace)
             const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
             const colorTagJP = ref<string>('')
             // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
@@ -276,16 +282,15 @@ export default {
                     }
                 })
             }
+            // console.log(colorTagJP.value)
             
             const setPrompt: {[key: string]: string | number} = {}
             for (let i = 0; i < tagsList.value.length; i++) {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
                     const prompt = tagsList.value[i].content[j]
-                    console.log(prompt)
-                    if (prompt.tag === tagname || prompt.tag == promptAfterSpace) {
+                    console.log(tagname)
+                    if (prompt.tag === tagname || (colorTagJP.value.trim() !== '' && promptAfterSpace === prompt.tag)) {
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
-                            console.log(promptAfterSpace)
-                            console.log(colorTagJP.value)
                             setPrompt['tag'] = promptAfterSpace
                             setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
                         } else {
@@ -401,6 +406,13 @@ export default {
 
         // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
+        // どのアプリ用に生成するか判定するための配列とインデックス
+        const generatedPromptFor = [
+            'NovelAI',
+            'Stable Diffusion',
+        ]
+        const promptFor = ref<number>(0)
+        const selectedPromptFor = computed(() => generatedPromptFor[promptFor.value])
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
@@ -412,16 +424,39 @@ export default {
                     text.value += spell.tag
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
+                    if (selectedPromptFor.value === 'Stable Diffusion') {
+                        text.value += '('.repeat(spell.enhance) + spell.tag + ')'.repeat(spell.enhance)
+                    } else {
+                        text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
+                    }
                 } else if (spell.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = spell.enhance * -1
                     text.value += '['.repeat(num) + spell.tag + ']'.repeat(num)
                 }
                 text.value += ', '
-            })
-            
+            })         
             spellsNovelAI.value = text.value
+        }
+
+        const togglePromptBrace = (serviceName: string): string => {
+            const returnStr = ref<string>('')
+            if (serviceName === 'NovelAI') {
+                returnStr.value = spellsNovelAI.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+            } else if (serviceName === 'Stable Diffusion') {
+                returnStr.value = spellsNovelAI.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+            }
+
+            return returnStr.value
+        }
+
+        const toggleTagsFor = (): void => {
+            if (promptFor.value === generatedPromptFor.length - 1) {
+                promptFor.value = 0
+            } else {
+                promptFor.value += 1
+            }
+            if (spellsNovelAI.value !== '') spellsNovelAI.value = togglePromptBrace(selectedPromptFor.value)
         }
 
         // DB保存モーダルの表示可否
@@ -475,6 +510,7 @@ export default {
             selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,
+            selectedPromptFor,
             isEditNAIPrompt: isEditNAIPrompt,
             displayNsfwContent,
             uploadSpell,
@@ -484,6 +520,7 @@ export default {
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
+            toggleTagsFor,
             openSaveModal,
             copyToClipboard,
             updateAlertText,
