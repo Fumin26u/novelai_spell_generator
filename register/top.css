@@ -202,9 +202,6 @@ table td#commands:hover, table td#commands_ban:hover, table td#seed:hover {
     display: inline-block;
     vertical-align: middle;
 }
-#select-preset li > div button {
-    
-}
 #preset-title, #select-preset .title, #preset-detail a {
     font-weight: bold;
 }
