@@ -24,4 +24,4 @@ try {
     if (DEBUG) echo $e;
 }
 
-echo json_encode($data);
+echo json_encode($data, JSON_UNESCAPED_UNICODE);

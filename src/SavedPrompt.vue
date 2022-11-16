@@ -21,8 +21,8 @@
         </div>
     </div>
 </template>
-<script>
-import fetchData from './assets/ts/fetchData.ts'
+<script lang="ts">
+import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
 import './assets/scss/style.scss'
 import { ref, onMounted } from 'vue'
@@ -33,37 +33,53 @@ export default {
         HeaderComponent,
     },
     setup() {
+        const savedPromptList = ref<any>([])
+
         // 各プリセットに必要情報を追加
-        const setIsNsfw = presets => {
+        const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
+            savedPromptList.value = presets
+            const imgPath = currentPath === 'local' ? './images/preset/' : './register/images/preset/'
+            presets.map((preset, index) => {
+                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
+                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
+                savedPromptList.value[index]['thumbnail'] = thumbnailPath
+                savedPromptList.value[index]['originalImage'] = originalImagePath
+            })
+        }
+
+        const setIsNsfw = (presets: {[key: string]: any}[]) => {
             presets.map((preset, index) => {
                 savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
             })
         }
 
-        const setImages = presets => {
-            const imgPath = './assets/images/preset/'
-            presets.map((preset, index) => {
-                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
-                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
-                console.log(thumbnailPath === imgPath + 'noimage.png')
-                savedPromptList.value[index]['thumbnail'] = thumbnailPath
-                savedPromptList.value[index]['originalImage'] = originalImagePath
-                // savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
-                // savedPromptList.value[index]['originalImage'] = require(originalImagePath)
-            })
-        }
-
-        const savedPromptList = ref({})
-        savedPromptList.value = fetchData
+        const currentPath = ref<string>('local')
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(async() => {
             const url = './register/api/getPreset.php'
             await axios.get(url)
-                .then(response => savedPromptList.value = response.data)
-                .catch(error => console.log(error))
+                .then(response => { 
+                    if (response.data !== '') { 
+                        switch (location.origin + location.pathname) {
+                            case 'https://fuminsv.sakura.ne.jp/sgtest/':
+                                currentPath.value = 'testServer'
+                                break
+                            case 'https://nai-pg.com/':
+                                currentPath.value = 'mainServer'
+                                break
+                            default:
+                                currentPath.value = 'local'
+                        }
+                        setImages(response.data, currentPath.value)
+                        setIsNsfw(response.data)
+                    }
+                })
+                .catch(error => { 
+                    setImages(fetchData, currentPath.value)
+                    setIsNsfw(fetchData)
+                    console.log(error)
+                })
         })
-        setIsNsfw(savedPromptList.value)
-        setImages(savedPromptList.value)
 
         // 選択されたプリセット
         const selectedPreset = ref({})
