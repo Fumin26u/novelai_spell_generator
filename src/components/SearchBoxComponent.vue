@@ -31,17 +31,17 @@
                     <dd>
                         <div>
                             <label>検索項目:</label>
-                            <input type="checkbox" v-model="searchData.target" value="description" id="description">
+                            <input type="checkbox" v-model="searchData.item" value="description" id="description">
                             <label for="description">タイトル</label>
-                            <input type="checkbox" v-model="searchData.target" value="commands" id="prompt">
+                            <input type="checkbox" v-model="searchData.item" value="commands" id="prompt">
                             <label for="prompt">プロンプト</label>
-                            <input type="checkbox" v-model="searchData.target" value="commands_ban" id="prompt_ban">
+                            <input type="checkbox" v-model="searchData.item" value="commands_ban" id="prompt_ban">
                             <label for="prompt_ban">BANプロンプト</label>
-                            <input type="checkbox" v-model="searchData.target" value="seed" id="seed">
+                            <input type="checkbox" v-model="searchData.item" value="seed" id="seed">
                             <label for="seed">シード値</label>
-                            <input type="checkbox" v-model="searchData.target" value="resolution" id="resolution">
+                            <input type="checkbox" v-model="searchData.item" value="resolution" id="resolution">
                             <label for="resolution">解像度</label>
-                            <input type="checkbox" v-model="searchData.target" value="others" id="others">
+                            <input type="checkbox" v-model="searchData.item" value="others" id="others">
                             <label for="others">備考</label>
                         </div>
                         <div>

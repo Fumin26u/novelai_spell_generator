@@ -21,9 +21,9 @@ try {
         }
     }
     $search_words = [];
-    if ($_GET['search_word'] !== '' && isset($_GET['search_item']) && !empty($_GET['search_item'])) {
-        foreach ($_GET['search_item'] as $item) {
-            $search_words[] = $item . " LIKE '%" . h($_GET['search_word']) . "%'";
+    if ($_GET['word'] !== '' && isset($_GET['item']) && !empty($_GET['item'])) {
+        foreach ($_GET['item'] as $item) {
+            $search_words[] = $item . " LIKE '%" . h($_GET['word']) . "%'";
         }
     }
 
