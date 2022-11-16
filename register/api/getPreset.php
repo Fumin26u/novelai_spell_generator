@@ -1,4 +1,7 @@
 <?php
+// header('Content-Type: application.json; charset=utf-8');
+// $_GET = json_decode(file_get_contents('php://input'), true);
+
 $home = '../';
 require_once($home . 'database/commonlib.php');
 
@@ -9,12 +12,12 @@ $user_id = h($_SESSION['user_id']);
 try {
     $pdo = dbConnect();
     $pdo->beginTransaction();
-
+    
     // 検索ワードの設定
     $search_age = [];
     if (isset($_GET['age']) && !empty($_GET['age'])) {
         foreach ($_GET['age'] as $age) {
-            $search_age[] = "nsfw = " . $age;
+            $search_age[] = "nsfw = '" . $age . "'";
         }
     }
     $search_words = [];
@@ -24,22 +27,23 @@ try {
         }
     }
 
-    $order = " ORDER BY  "  . h($_GET['sort']) . " " . h($_GET['order']);
+    $order = " ORDER BY "  . h($_GET['sort']) . " " . h($_GET['order']);
     $search_str = '';
     if (!empty($search_age) || !empty($search_words)) {
-        $search_str .= ' WHERE ';
+        $search_str .= ' AND ';
         if (!empty($search_age) && !empty($search_words)) {
-            $search_str .= '(' . implode(' OR ', $search_age) . ')';
-            $search_str .= ' AND (' . implode(' OR ', $search_words) . ')';
+            $search_str .= '(' . implode(" OR ", $search_age) . ')';
+            $search_str .= ' AND (' . implode(" OR ", $search_words) . ')';
         } else if (!empty($search_age)) {
-            $search_str .= '(' . implode(' OR ', $search_age) . ')';
+            $search_str .= '(' . implode(" OR ", $search_age) . ')';
         } else if (!empty($search_words)) {
-            $search_str .= '(' . implode(' OR ', $search_words) . ')';
+            $search_str .= '(' . implode(" OR ", $search_words) . ')';
         }
     }
     $search_str .= $order;
+    $sql = 'SELECT * FROM preset WHERE user_id = :user_id' . $search_str;
 
-    $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id' . $search_str);
+    $st = $pdo->prepare($sql);
     $st->bindValue(':user_id', $user_id, PDO::PARAM_STR);
     $st->execute();
     $rows = $st->fetchAll(PDO::FETCH_ASSOC);

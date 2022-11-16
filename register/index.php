@@ -43,6 +43,7 @@ if (isset($_SESSION['user_id'])) {
             $search_str = $search_age === '' ? '' : ' AND ' . $search_age ;
             $search_str .= empty($search_words) ? '' : ' AND (' . implode(' OR ', $search_words) . ')';
             $search_str .= $order;
+            v($search_str);
 
             // DBから検索文字列に該当する値のみを取得
             $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id' . $search_str);

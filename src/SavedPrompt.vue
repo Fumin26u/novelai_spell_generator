@@ -66,7 +66,7 @@ import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/SearchBoxComponent.vue'
 import './assets/scss/savedPrompt.scss'
-import { ref, onMounted, watchEffect } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 export default {
@@ -80,7 +80,6 @@ export default {
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
-            savedPromptList.value = presets
             const imgPath = currentPath === 'local' ? './images/preset/' : './register/images/preset/'
             presets.map((preset, index) => {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
@@ -103,10 +102,10 @@ export default {
         
 
         // 検索ボックスの入力内容
-        const selectAge = ref<string[]>(['noLimit', 'nsfw'])
-        const searchTarget = ref<string[]>(['description', 'prompt'])
+        const selectAge = ref<string[]>(['A','C','Z'])
+        const searchTarget = ref<string[]>(['description', 'commands'])
         const searchWord = ref<string>('')
-        const sortTarget = ref<string>('created')
+        const sortTarget = ref<string>('created_at')
         const sortOrder = ref<string>('asc')
        
         // ページの環境(プリセット取得場所参照に使用)
@@ -114,8 +113,11 @@ export default {
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
         const getPresetData = async(postData: {[key: string]: any}) => {
             const url = './register/api/getPreset.php'
-            await axios.get(url, postData)
-                .then(response => {
+            // プリセットを初期化
+            savedPromptList.value = []
+            await axios.get(url, {
+                params: postData
+            }).then(response => {
                     if (response.data !== '') { 
                         switch (location.origin + location.pathname) {
                             case 'https://fuminsv.sakura.ne.jp/sgtest/':
@@ -127,13 +129,15 @@ export default {
                             default:
                                 currentPath.value = 'local'
                         }
-                        setImages(response.data, currentPath.value)
-                        setIsNsfw(response.data)
+                        savedPromptList.value = response.data
+                        setImages(savedPromptList.value, currentPath.value)
+                        setIsNsfw(savedPromptList.value)
                     }
                 })
                 .catch(error => {
-                    setImages(fetchData, currentPath.value)
-                    setIsNsfw(fetchData)
+                    savedPromptList.value = fetchData
+                    setImages(savedPromptList.value, currentPath.value)
+                    setIsNsfw(savedPromptList.value)
                     console.log(error) 
                 })
         }
@@ -147,17 +151,6 @@ export default {
                 sort: sortTarget.value,
                 order: sortOrder.value,
             }
-            getPresetData(postData)
-        })
-        // 検索ボックスの入力内容が変化した場合、指定された内容で表示するプリセットを抽出
-        watchEffect(() => {
-            const postData = {
-                age: selectAge.value,
-                search_item: searchTarget.value,
-                search_word: searchWord.value,
-                sort: sortTarget.value,
-                order: sortOrder.value,
-            } 
             getPresetData(postData)
         })
 

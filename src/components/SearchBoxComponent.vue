@@ -33,9 +33,9 @@
                             <label>検索項目:</label>
                             <input type="checkbox" v-model="searchTarget" value="description" id="description">
                             <label for="description">タイトル</label>
-                            <input type="checkbox" v-model="searchTarget" value="prompt" id="prompt">
+                            <input type="checkbox" v-model="searchTarget" value="commands" id="prompt">
                             <label for="prompt">プロンプト</label>
-                            <input type="checkbox" v-model="searchTarget" value="prompt_ban" id="prompt_ban">
+                            <input type="checkbox" v-model="searchTarget" value="commands_ban" id="prompt_ban">
                             <label for="prompt_ban">BANプロンプト</label>
                             <input type="checkbox" v-model="searchTarget" value="seed" id="seed">
                             <label for="seed">シード値</label>
@@ -60,9 +60,9 @@
                             <label for="sort-seed">シード値</label>
                             <input type="radio" v-model="sortTarget" value="resolution" id="sort-resolution">
                             <label for="sort-resolution">解像度</label>
-                            <input type="radio" v-model="sortTarget" value="created" id="sort-created">
+                            <input type="radio" v-model="sortTarget" value="created_at" id="sort-created">
                             <label for="sort-created">作成日付</label>
-                            <input type="radio" v-model="sortTarget" value="updated" id="sort-updated">
+                            <input type="radio" v-model="sortTarget" value="updated_at" id="sort-updated">
                             <label for="sort-updated">更新日付</label>
                         </div>
                         <div>
@@ -73,13 +73,14 @@
                         </div>
                     </dd>
                 </div>
+                <button @click="getPreset()" class="btn-common add submit-search">検索</button>
             </dl>
         </div>
     </section>
 </template>
 <script lang="ts">
 import '../assets/scss/savedPrompt.scss'
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 
 export default {
     emits: ['getPresetData',],
@@ -99,10 +100,10 @@ export default {
         const sortOrder = ref<string>(props.order)
 
         // 検索ボックスの表示有無
-        const isDisplaySearchBox = ref<boolean>(true)
+        const isDisplaySearchBox = ref<boolean>(false)
         const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
 
-        watchEffect(() => {
+        const getPreset = () => {
             const postData = {
                 age: selectAge.value,
                 search_item: searchTarget.value,
@@ -111,7 +112,7 @@ export default {
                 order: sortOrder.value,
             }
             context.emit('getPresetData', postData)
-        })
+        }
 
         return {
             selectAge,
@@ -119,6 +120,7 @@ export default {
             searchWord,
             sortTarget,
             sortOrder,
+            getPreset,
 
             displaySearchBox,
             isDisplaySearchBox: isDisplaySearchBox,
