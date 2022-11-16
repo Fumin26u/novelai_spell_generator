@@ -15,7 +15,7 @@
             <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === 'Fumiya0719') { ?>
             <a href="<?= $home ?>master">マスタデータ一覧</a>
             <?php } ?>
-            <a href="<?= $home ?>">登録プロンプト一覧</a>
+            <a href="<?= $home ?>../saves/">登録プロンプト一覧</a>
             <a href="<?= $home ?>commands.php">プロンプト登録</a>
             <a href="<?= $home ?>?logout">ログアウト</a>
         <?php } ?>      
