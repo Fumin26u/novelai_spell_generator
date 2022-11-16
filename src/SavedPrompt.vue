@@ -21,8 +21,6 @@
                         <div>
                             <dt>年齢制限</dt>
                             <dd>
-                                <input type="checkbox" v-model="selectAge" value="allItems" id="allItems">
-                                <label for="allItems">全て選択</label>
                                 <input type="checkbox" v-model="selectAge" value="noLimit" id="noLimit">
                                 <label for="noLimit">全年齢</label>
                                 <input type="checkbox" v-model="selectAge" value="nsfw" id="nsfw">
@@ -34,8 +32,6 @@
                             <dd>
                                 <div>
                                     <label>検索項目:</label>
-                                    <input type="checkbox" v-model="searchTarget" value="allItems" id="word-allItems">
-                                    <label for="word-allItems">全て選択</label>
                                     <input type="checkbox" v-model="searchTarget" value="description" id="description">
                                     <label for="description">タイトル</label>
                                     <input type="checkbox" v-model="searchTarget" value="prompt" id="prompt">
@@ -83,50 +79,51 @@
             </section>
             <section class="preset-list">
                 <div class="preset-content">
-                    <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectedPreset = savedPromptList[index]">
+                    <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectPreset(index)">
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
                 </div>
             </section>
             <section class="preset-detail">
-                <div class="title-area">
-                    <h2>{{ selectedPreset.description }}</h2>
-                    <button class="btn-common blue">編集</button>
-                    <button class="btn-common add" :style="'display:none;'">保存</button>
+                <div v-if="selectedPreset !== null">
+                    <div class="title-area">
+                        <h2>{{ selectedPreset.description }}</h2>
+                        <button class="btn-common blue">編集</button>
+                        <button class="btn-common add" :style="'display:none;'">保存</button>
+                    </div>
+                    <ul class="data-list">
+                        <li class="image">
+                            <img :src="selectedPreset.originalImage" alt="">
+                        </li>
+                        <li class="nsfw">
+                            <h3>nsfw</h3>
+                            <p>{{ selectedPreset.nsfw ? 'あり' : 'なし' }}</p>
+                        </li>
+                        <li class="prompt copy">
+                            <h3>プロンプト</h3>
+                            <button class="btn-common blue"></button>
+                            <p>{{ selectedPreset.commands }}</p>
+                        </li>
+                        <li class="prompt-ban copy">
+                            <h3>BANプロンプト</h3>
+                            <button class="btn-common blue"></button>
+                            <p>{{ selectedPreset.commands_ban }}</p>
+                        </li>
+                        <li class="seed copy">
+                            <h3>シード値</h3>
+                            <p>{{ selectedPreset.seed }}</p>
+                        </li>
+                        <li class="resolution">
+                            <h3>解像度</h3>
+                            <p>{{ selectedPreset.resolution }}</p>
+                        </li>
+                        <li class="other">
+                            <h3>備考</h3>
+                            <p>{{ selectedPreset.others }}</p>
+                        </li>
+                    </ul>
                 </div>
-                <ul class="data-list">
-                    <li class="image">
-                        <img :src="selectedPreset.originalImage" alt="">
-                    </li>
-                    <li class="nsfw">
-                        <h3>nsfw</h3>
-                        <p>{{ selectedPreset.nsfw ? 'あり' : 'なし' }}</p>
-                    </li>
-                    <li class="prompt copy">
-                        <h3>プロンプト</h3>
-                        <button class="btn-common blue"></button>
-                        <p>{{ selectedPreset.commands }}</p>
-                    </li>
-                    <li class="prompt-ban copy">
-                        <h3>BANプロンプト</h3>
-                        <button class="btn-common blue"></button>
-                        <p>{{ selectedPreset.commands_ban }}</p>
-                    </li>
-                    <li class="seed copy">
-                        <h3>シード値</h3>
-                        <p>{{ selectedPreset.seed }}</p>
-                    </li>
-                    <li class="resolution">
-                        <h3>解像度</h3>
-                        <p>{{ selectedPreset.resolution }}</p>
-                    </li>
-                    <li class="other">
-                        <h3>備考</h3>
-                        <p>{{ selectedPreset.others }}</p>
-                    </li>
-                </ul>
-                {{selectedPreset}}
             </section>
         </div>
     </div>
@@ -145,9 +142,7 @@ export default {
     setup() {
         // ログインユーザーの登録プリセット一覧
         const savedPromptList = ref<any>([])
-        // 選択されたプリセット
-        const selectedPreset = ref<any>({})
-
+        
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
             savedPromptList.value = presets
@@ -166,14 +161,18 @@ export default {
                 savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
             })
         }
-
+        
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(true)
         const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
+        // プリセット一覧から選択されたプリセットを読み込む
+        const selectedPreset = ref<any>(null)
+        const selectPreset = (index: number) => selectedPreset.value = savedPromptList.value[index]
+        
 
         // 検索ボックスの入力内容
-        const selectAge = ref<string[]>(['allItems'])
-        const searchTarget = ref<string[]>(['allItems'])
+        const selectAge = ref<string[]>(['noLimit', 'nsfw'])
+        const searchTarget = ref<string[]>(['description', 'prompt'])
         const searchWord = ref<string>('')
         const sortTarget = ref<string>('created')
         const sortOrder = ref<string>('asc')
@@ -234,6 +233,7 @@ export default {
             savedPromptList,
             selectedPreset,
             isDisplaySearchBox: isDisplaySearchBox,
+            selectPreset,
             displaySearchBox,
 
             selectAge: selectAge,

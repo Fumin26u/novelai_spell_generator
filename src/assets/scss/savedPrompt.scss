@@ -5,6 +5,10 @@
     セーバートップ共通
 
 --------------------*/
+button {
+    font-family: 'Yu Gothic Medium';
+}
+
 .content {
     display: flex;
     justify-content: space-between;
@@ -25,7 +29,9 @@
         }
         > button {
             margin-left: 1em;
+            padding: 0 8px;
             font-weight: bold;
+            border-radius: 8px;
         }
     } 
 }
@@ -70,7 +76,7 @@
 
 --------------------*/
 .preset-list {
-    width: 68%;
+    width: 67.9%;
 }
 .preset-content {
     border-right: 1px solid #888;
@@ -119,13 +125,13 @@
     position: sticky;
     top: 1em;
     height: 96vh;
-    > .title-area {
-        font-size: 17px;
+    > div > .title-area {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         > h2 {
+            font-size: 17px;
             margin: 0;
             width: 86%;
         }
@@ -136,7 +142,7 @@
             font-weight: bold;
         }
     }
-    > ul li {
+    > div > ul li {
         padding: 0 0 8px;
         margin: 0 0 8px;
         border-bottom: 1px solid #888;
@@ -146,6 +152,9 @@
             display: inline-block;
             vertical-align: middle;
             margin: 0;
+        }
+        > h3 {
+            font-size: 16px;
         }
         > button {
             padding: 2px 0;
