@@ -120,7 +120,7 @@
                         <div class="button-area">
                             <div class="generate">
                                 <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
-                                <button @click="toggleTagsFor()" class="btn-common blue" :style="'padding: 6px;'">{{ selectedPromptFor }}</button>
+                                <button @click="toggleEnhanceBrace()" :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']">{{ enhanceBraceMessage }}</button>
                             </div>
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common copy">コピー</button>
@@ -147,7 +147,7 @@
 <script lang="ts">
 import master_data from './assets/ts/master_data'
 import { colorMulti, colorMono } from './assets/ts/colorVariation'
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/scss/promptGenerator.scss'
@@ -402,13 +402,8 @@ export default {
 
         // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
-        // どのアプリ用に生成するか判定するための配列とインデックス
-        const generatedPromptFor = [
-            'NovelAI',
-            'Stable Diffusion',
-        ]
-        const promptFor = ref<number>(0)
-        const selectedPromptFor = computed(() => generatedPromptFor[promptFor.value])
+        // 強化値の{}と()を切り替える
+        const enhanceBraceMessage = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
@@ -420,7 +415,7 @@ export default {
                     text.value += spell.tag
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    if (selectedPromptFor.value === 'Stable Diffusion') {
+                    if (enhanceBraceMessage.value === '( )に変換') {
                         text.value += '('.repeat(spell.enhance) + spell.tag + ')'.repeat(spell.enhance)
                     } else {
                         text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
@@ -435,24 +430,14 @@ export default {
             spellsNovelAI.value = text.value
         }
 
-        const togglePromptBrace = (serviceName: string): string => {
-            const returnStr = ref<string>('')
-            if (serviceName === 'NovelAI') {
-                returnStr.value = spellsNovelAI.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-            } else if (serviceName === 'Stable Diffusion') {
-                returnStr.value = spellsNovelAI.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-            }
-
-            return returnStr.value
-        }
-
-        const toggleTagsFor = (): void => {
-            if (promptFor.value === generatedPromptFor.length - 1) {
-                promptFor.value = 0
+        const toggleEnhanceBrace = () => {
+            if (enhanceBraceMessage.value === '( )に変換') {
+                enhanceBraceMessage.value = '{ }に変換'
+                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
             } else {
-                promptFor.value += 1
+                enhanceBraceMessage.value = '( )に変換'
+                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
             }
-            if (spellsNovelAI.value !== '') spellsNovelAI.value = togglePromptBrace(selectedPromptFor.value)
         }
 
         // DB保存モーダルの表示可否
@@ -506,7 +491,7 @@ export default {
             selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,
-            selectedPromptFor,
+            enhanceBraceMessage,
             isEditNAIPrompt: isEditNAIPrompt,
             displayNsfwContent,
             uploadSpell,
@@ -516,7 +501,7 @@ export default {
             enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
-            toggleTagsFor,
+            toggleEnhanceBrace,
             openSaveModal,
             copyToClipboard,
             updateAlertText,
