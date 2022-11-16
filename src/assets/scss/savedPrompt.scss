@@ -3,7 +3,29 @@
 .content {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
+
+.search-area {
+    width: 100%;
+    > .title {
+        > * {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        > button {
+            margin-left: 1em;
+        }
+    } 
+}
+
+.search-box {
+    border: 2px dashed #888;
+    padding: 1em 8px;
+    margin: 0 auto 1em;
+    text-align: center;
+}
+
 .preset-list {
     width: 68%;
 }
@@ -80,10 +102,12 @@
         > button {
             padding: 2px 0;
         }
-        &.image > img {
-            width: 100%;
+        &.image {
             max-height: 316px;
             overflow-y: auto;
+        }
+        &.image > img {
+            width: 100%;
             display: block;
             object-fit: cover;
         }
