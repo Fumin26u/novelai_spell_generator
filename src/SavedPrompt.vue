@@ -41,7 +41,7 @@ export default {
         }
 
         const setImages = presets => {
-            const imgPath = './assets/'
+            const imgPath = './assets/images/preset/'
             presets.map((preset, index) => {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
