@@ -2,81 +2,14 @@
     <div class="main">
         <HeaderComponent></HeaderComponent> 
         <div class="content">
-            <section class="search-area">
-                <div class="title">
-                    <h2>検索フォーム</h2>
-                    <button 
-                        class="btn-common add" 
-                        @click="displaySearchBox(true)" 
-                        :style="[!isDisplaySearchBox ? 'display: inline-block':'display: none']"
-                    >▽開く</button>
-                    <button 
-                        class="btn-common delete" 
-                        @click="displaySearchBox(false)" 
-                        :style="[isDisplaySearchBox ? 'display: inline-block':'display: none']"
-                    >△閉じる</button>
-                </div>
-                <div class="search-box" v-if="isDisplaySearchBox">
-                    <dl>
-                        <div>
-                            <dt>年齢制限</dt>
-                            <dd>
-                                <input type="checkbox" v-model="selectAge" value="noLimit" id="noLimit">
-                                <label for="noLimit">全年齢</label>
-                                <input type="checkbox" v-model="selectAge" value="nsfw" id="nsfw">
-                                <label for="nsfw">R-18</label>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>ワード検索</dt>
-                            <dd>
-                                <div>
-                                    <label>検索項目:</label>
-                                    <input type="checkbox" v-model="searchTarget" value="description" id="description">
-                                    <label for="description">タイトル</label>
-                                    <input type="checkbox" v-model="searchTarget" value="prompt" id="prompt">
-                                    <label for="prompt">プロンプト</label>
-                                    <input type="checkbox" v-model="searchTarget" value="prompt_ban" id="prompt_ban">
-                                    <label for="prompt_ban">BANプロンプト</label>
-                                    <input type="checkbox" v-model="searchTarget" value="seed" id="seed">
-                                    <label for="seed">シード値</label>
-                                    <input type="checkbox" v-model="searchTarget" value="resolution" id="resolution">
-                                    <label for="resolution">解像度</label>
-                                    <input type="checkbox" v-model="searchTarget" value="others" id="others">
-                                    <label for="others">備考</label>
-                                </div>
-                                <div>
-                                    <label for="search-word">検索ワード:</label>
-                                    <input type="text" v-model="searchWord" id="search-word">
-                                </div>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>ソート</dt>
-                            <dd>
-                                <div>
-                                    <input type="radio" v-model="sortTarget" value="description" id="sort-description">
-                                    <label for="sort-description">説明</label>
-                                    <input type="radio" v-model="sortTarget" value="seed" id="sort-seed">
-                                    <label for="sort-seed">シード値</label>
-                                    <input type="radio" v-model="sortTarget" value="resolution" id="sort-resolution">
-                                    <label for="sort-resolution">解像度</label>
-                                    <input type="radio" v-model="sortTarget" value="created" id="sort-created">
-                                    <label for="sort-created">作成日付</label>
-                                    <input type="radio" v-model="sortTarget" value="updated" id="sort-updated">
-                                    <label for="sort-updated">更新日付</label>
-                                </div>
-                                <div>
-                                    <input type="radio" v-model="sortOrder" value="asc" id="sort-asc">
-                                    <label for="sort-asc">昇順</label>
-                                    <input type="radio" v-model="sortOrder" value="desc" id="sort-desc">
-                                    <label for="sort-desc">降順</label>
-                                </div>
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </section>
+            <searchBoxComponent
+                :age="selectAge"
+                :target="searchTarget"
+                :word="searchWord"
+                :sort="sortTarget"
+                :order="sortOrder"
+                @getPresetData="getPresetData"
+            />
             <section class="preset-list">
                 <div class="preset-content">
                     <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectPreset(index)">
@@ -131,6 +64,7 @@
 <script lang="ts">
 import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
+import SearchBoxComponent from './components/SearchBoxComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted, watchEffect } from 'vue'
 import axios from 'axios'
@@ -138,6 +72,7 @@ import axios from 'axios'
 export default {
     components: {
         HeaderComponent,
+        SearchBoxComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
@@ -162,9 +97,6 @@ export default {
             })
         }
         
-        // 検索ボックスの表示有無
-        const isDisplaySearchBox = ref<boolean>(true)
-        const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
         // プリセット一覧から選択されたプリセットを読み込む
         const selectedPreset = ref<any>(null)
         const selectPreset = (index: number) => selectedPreset.value = savedPromptList.value[index]
@@ -232,9 +164,8 @@ export default {
         return {
             savedPromptList,
             selectedPreset,
-            isDisplaySearchBox: isDisplaySearchBox,
             selectPreset,
-            displaySearchBox,
+            getPresetData,
 
             selectAge: selectAge,
             searchTarget: searchTarget,
