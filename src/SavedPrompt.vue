@@ -126,6 +126,7 @@
                         <p>{{ selectedPreset.others }}</p>
                     </li>
                 </ul>
+                {{selectedPreset}}
             </section>
         </div>
     </div>
@@ -144,6 +145,8 @@ export default {
     setup() {
         // ログインユーザーの登録プリセット一覧
         const savedPromptList = ref<any>([])
+        // 選択されたプリセット
+        const selectedPreset = ref<any>({})
 
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
@@ -164,8 +167,6 @@ export default {
             })
         }
 
-        // 選択されたプリセット
-        const selectedPreset = ref<any>({})
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(true)
         const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
@@ -180,7 +181,7 @@ export default {
         // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
-        const getPresetData = async(postData: any) => {
+        const getPresetData = async(postData: {[key: string]: any}) => {
             const url = './register/api/getPreset.php'
             await axios.post(url, postData)
                 .then(response => {
