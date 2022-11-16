@@ -2,112 +2,209 @@
     <div class="main">
         <HeaderComponent></HeaderComponent> 
         <div class="content">
+            <searchBoxComponent
+                :searchBoxData="searchData"
+                @getPresetData="getPresetData"
+            />
+            <section class="preset-info">
+                <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
+                <p class="copy-alert">{{ copyAlertText }}</p>
+            </section>
             <section class="preset-list">
                 <div class="preset-content">
-                    <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectedPreset = savedPromptList[index]">
+                    <div 
+                        v-for="(prompt, index) in savedPromptList" 
+                        :key="prompt.preset_id" 
+                        :class="[selectedPresetIndex === index ? 'selected':'']"
+                        @click="selectPreset(index)"
+                    >
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
                 </div>
             </section>
             <section class="preset-detail">
-                <ul>
-                    <li>
-                        <!-- <img :src="prompt.originalImage" :alt="prompt.description"> -->
-                    </li>
-                    <p>{{ selectedPreset }}</p>
-                </ul>
+                <div v-if="selectedPreset !== null">
+                    <div class="title-area">
+                        <h2>{{ selectedPreset.description }}</h2>
+                        <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a>
+                        <!-- <button class="btn-common blue">編集</button>
+                        <button class="btn-common add" :style="'display:none;'">保存</button> -->
+                    </div>
+                    <ul class="data-list">
+                        <li class="image">
+                            <img :src="selectedPreset.originalImage" alt="">
+                        </li>
+                        <li class="nsfw">
+                            <h3>nsfw</h3>
+                            <p>{{ selectedPreset.nsfw ? 'あり' : 'なし' }}</p>
+                        </li>
+                        <li class="prompt copy">
+                            <h3>プロンプト</h3>
+                            <button 
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']" 
+                                @click="toggleEnhanceBrace()"
+                            >{{ enhanceBraceMessage }}</button>
+                            <p @click="copyText(selectedPreset.commands, 'プロンプト')">{{ selectedPreset.commands }}</p>
+                        </li>
+                        <li class="prompt-ban copy">
+                            <h3>BANプロンプト</h3>
+                            <button 
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']"  
+                                @click="toggleEnhanceBrace()"
+                            >{{ enhanceBraceMessage }}</button>
+                            <p @click="copyText(selectedPreset.commands_ban, 'BANプロンプト')">{{ selectedPreset.commands_ban }}</p>
+                        </li>
+                        <li class="seed copy">
+                            <h3>シード値</h3>
+                            <p @click="copyText(selectedPreset.seed, 'シード値')">{{ selectedPreset.seed }}</p>
+                        </li>
+                        <li class="resolution">
+                            <h3>解像度</h3>
+                            <p>{{ selectedPreset.resolution }}</p>
+                        </li>
+                        <li class="other">
+                            <h3>備考</h3>
+                            <p>{{ selectedPreset.others }}</p>
+                        </li>
+                    </ul>
+                </div>
             </section>
         </div>
     </div>
 </template>
-<script>
-import fetchData from './assets/ts/fetchData.ts'
+<script lang="ts">
+import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
-import './assets/scss/style.scss'
+import SearchBoxComponent from './components/SearchBoxComponent.vue'
+import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 export default {
     components: {
         HeaderComponent,
+        SearchBoxComponent,
     },
     setup() {
-        // 各プリセットに必要情報を追加
-        const setIsNsfw = presets => {
+        // ログインユーザーの登録プリセット一覧
+        const savedPromptList = ref<any>([])
+        
+        // 各プリセットに対応する画像とサムネイルのURLを取得
+        const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
+            const imgPath = currentPath === 'local' ? './images/preset/' : './register/images/preset/'
+            presets.map((preset, index) => {
+                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
+                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
+                savedPromptList.value[index]['thumbnail'] = thumbnailPath
+                savedPromptList.value[index]['originalImage'] = originalImagePath
+            })
+        }
+
+        // 各プリセットがnsfwかどうか判定
+        const setIsNsfw = (presets: {[key: string]: any}[]) => {
             presets.map((preset, index) => {
                 savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
             })
         }
-
-        const setImages = presets => {
-            const imgPath = './assets/'
-            presets.map((preset, index) => {
-                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
-                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
-                console.log(thumbnailPath === imgPath + 'noimage.png')
-                savedPromptList.value[index]['thumbnail'] = thumbnailPath
-                savedPromptList.value[index]['originalImage'] = originalImagePath
-                // savedPromptList.value[index]['thumbnail'] = require(thumbnailPath)
-                // savedPromptList.value[index]['originalImage'] = require(originalImagePath)
-            })
+        
+        // プリセット一覧から選択されたプリセットを読み込む
+        const selectedPreset = ref<any>(null)
+        const selectedPresetIndex = ref<number>(-1)
+        const selectPreset = (index: number) => {
+            selectedPreset.value = savedPromptList.value[index]
+            selectedPresetIndex.value = index
         }
 
-        const savedPromptList = ref({})
-        savedPromptList.value = fetchData
-        // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-        onMounted(async() => {
-            const url = './register/api/getPreset.php'
-            await axios.get(url)
-                .then(response => savedPromptList.value = response.data)
-                .catch(error => console.log(error))
+        // 検索ボックスの入力内容
+        const searchData = ref<any>({
+            age: ['A','C','Z'],
+            item: ['description', 'commands'],
+            word: '',
+            sort: 'created_at',
+            order: 'asc'
         })
-        setIsNsfw(savedPromptList.value)
-        setImages(savedPromptList.value)
+       
+        // ページの環境(プリセット取得場所参照に使用)
+        const currentPath = ref<string>('local')
+        // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
+        const getPresetData = async(postData: {[key: string]: any}) => {
+            const url = './register/api/getPreset.php'
+            // プリセットを初期化
+            savedPromptList.value = []
+            await axios.get(url, {
+                params: postData
+            }).then(response => {
+                    if (response.data !== '') { 
+                        switch (location.origin + location.pathname) {
+                            case 'https://fuminsv.sakura.ne.jp/sgtest/':
+                                currentPath.value = 'testServer'
+                                break
+                            case 'https://nai-pg.com/':
+                                currentPath.value = 'mainServer'
+                                break
+                            default:
+                                currentPath.value = 'local'
+                        }
+                        savedPromptList.value = response.data
+                        setImages(savedPromptList.value, currentPath.value)
+                        setIsNsfw(savedPromptList.value)
+                    }
+                })
+                .catch(error => {
+                    savedPromptList.value = fetchData
+                    setImages(savedPromptList.value, currentPath.value)
+                    setIsNsfw(savedPromptList.value)
+                    console.log(error) 
+                })
+        }
 
-        // 選択されたプリセット
-        const selectedPreset = ref({})
+        // 強化値の{}と()を切り替える
+        const enhanceBraceMessage = ref<string>('( )に変換')
+        const toggleEnhanceBrace = () => {
+            if (enhanceBraceMessage.value === '( )に変換') {
+                enhanceBraceMessage.value = '{ }に変換'
+                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+            } else {
+                enhanceBraceMessage.value = '( )に変換'
+                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+            }
+        }
+
+        // クリックした文字列をコピーする
+        const copyAlertText = ref<string>('')
+        const copyText = (text: string, name: string) => {
+            const href = location.href.substring(0,5)
+            if (href === 'https') {
+                navigator.clipboard.writeText(text)
+            } else if (href === 'http:') {
+                const input = document.createElement('input')
+                document.body.appendChild(input)
+                input.value = text
+                input.select()
+                document.execCommand('copy')
+                document.body.removeChild(input)
+            }
+            copyAlertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
+        }
+
+        // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
+        onMounted(() => getPresetData(searchData.value))
 
         return {
             savedPromptList,
             selectedPreset,
+            selectedPresetIndex,
+            searchData: searchData,
+            enhanceBraceMessage: enhanceBraceMessage,
+            copyAlertText,
+            selectPreset,
+            getPresetData,
+            toggleEnhanceBrace,
+            copyText,
         }
     }
 }
 </script>
-<style lang="scss" scoped>
-.content {
-    display: flex;
-    justify-content: space-between;
-}
-.preset-list {
-    width: 68%;
-}
-.preset-content {
-    border-right: 1px solid #888;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    > div {
-        cursor: pointer;
-        width: 23%;
-        border: 1px solid #888;
-        border-radius: 8px;
-        margin: 1em auto;
-        > img {
-            max-width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 8px 8px 0 0;
-            margin: 0 auto;
-            border-bottom: 1px solid #888;
-            display: block;
-        }
-    }
-}
-
-.preset-detail {
-    width: 32%;
-}
-</style>

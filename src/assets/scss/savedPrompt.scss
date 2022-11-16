@@ -1,0 +1,211 @@
+@import "./style.scss";
+
+/*--------------------
+
+    セーバートップ共通
+
+--------------------*/
+button {
+    font-family: 'Yu Gothic Medium';
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+/*--------------------
+
+    検索フォーム
+
+--------------------*/
+.search-area {
+    width: 100%;
+    > .title {
+        > * {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        > button {
+            margin-left: 1em;
+            padding: 0 8px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+    } 
+}
+
+.search-box {
+    border: 2px dashed #888;
+    padding: 0 8px 1em;
+    margin: 0 auto 1em;
+    text-align: center;
+    > dl > div {
+        margin: 4px;
+        padding: 12px 2px;
+        border-bottom: 1px solid #888;
+        text-align: left;
+        > dt, > dd {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        > dt {
+            font-weight: bold;
+            width: 96px;
+            text-align: right;
+        }
+        > dd {
+            margin-left: 16px;
+        }
+        > dd input[type=radio], > dd input[type=checkbox] {
+            transform: scale(1.1);
+        }
+        > dd input[type=text] {
+            margin-left: 8px;
+            padding: 4px 8px;
+            width: 540px;
+            font-size: 16px;
+        }
+    }
+    > dl > .submit-search {
+        width: 180px;
+        margin: 12px 0 0;
+        padding: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+}
+
+/*--------------------
+
+    プリセット一覧
+
+--------------------*/
+.preset-list {
+    width: 67.9%;
+}
+.preset-content {
+    border-right: 1px solid #888;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    > div {
+        cursor: pointer;
+        width: 22%;
+        border: 1px solid #888;
+        margin: 0 1em 2em 0;
+        padding: 8px 0;
+        box-shadow: 2px 2px 4px #aaa;
+        &.selected {
+            border: 2px solid lightgreen;
+            padding: 7px 0;
+            margin: 0 15px 2em -1px;
+        }
+        > * {
+            margin: 0 auto;
+            max-width: 92%;
+            @include mq(xl) {
+                max-width: 216px;   
+            }
+        }
+        > img {
+            height: 135px;
+            object-fit: cover;
+            border-bottom: 1px solid #888;
+            display: block;
+        }
+        > p {
+            overflow-y: auto;
+            height: 52px;
+        }
+    }
+}
+
+/*--------------------
+
+    プリセット情報
+
+--------------------*/
+.preset-info {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/*--------------------
+
+    プリセット詳細
+
+--------------------*/
+.preset-detail {
+    width: 31%;
+    margin-left: 1em;
+    position: sticky;
+    top: 1em;
+    height: 96vh;
+    > div > .title-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+        > h2 {
+            font-size: 17px;
+            margin: 0;
+            width: 86%;
+        }
+        > button, a {
+            padding: 2px 0;
+            width: 12%;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+    }
+    > div > ul li {
+        padding: 0 0 8px;
+        margin: 0 0 8px;
+        border-bottom: 1px solid #888;
+        display: block;
+        width: 100%;
+        > h3, button {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0;
+        }
+        > h3 {
+            font-size: 16px;
+        }
+        > button {
+            margin-left: 8px;
+            padding: 0 8px;
+            font-weight: bold;
+        }
+        &.image {
+            max-height: 316px;
+            overflow-y: auto;
+        }
+        &.image > img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+        }
+        &.copy > p {
+            color: #cc8c00;
+            cursor: pointer;
+            overflow-y: auto;
+            max-height: 100px;
+            display: block;
+            font-size: 13px;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        &.seed > p {
+            font-size: 16px;
+        }
+    }
+}

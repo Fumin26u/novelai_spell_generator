@@ -7,7 +7,7 @@
         <a href="<?= $home ?>t/privacy_policy.php">プライバシーポリシー</a>
     </div>
     <div class="header-right">
-            <a href="http://localhost:8080/" target="_blank">プロンプトジェネレーター</a>
+            <a href="https://nai-pg.com/" target="_blank">プロンプトジェネレーター</a>
         <?php if (!isset($_SESSION['user_id'])) { ?>
             <a href="<?= $home ?>login.php">ログイン</a>
             <a href="<?= $home ?>register.php">アカウント登録</a>
@@ -15,7 +15,7 @@
             <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === 'Fumiya0719') { ?>
             <a href="<?= $home ?>master">マスタデータ一覧</a>
             <?php } ?>
-            <a href="<?= $home ?>">登録プロンプト一覧</a>
+            <a href="<?= $home ?>../saves/">登録プロンプト一覧</a>
             <a href="<?= $home ?>commands.php">プロンプト登録</a>
             <a href="<?= $home ?>?logout">ログアウト</a>
         <?php } ?>      

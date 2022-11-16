@@ -12,11 +12,17 @@ try {
     $pdo = dbConnect();
     $pdo->beginTransaction();
 
+    // nsfwにチェックが付いているか、プロンプトセットにnsfwが入っていればnsfw指定にする
+    $isNsfw = 
+        strpos($_POST['commands'], 'nsfw') !== false || 
+        (isset($_POST['nsfw']) && $_POST['nsfw'] === 'on')
+        ? 'Z' : 'A';
+
     $sql = <<<SQL
     INSERT INTO preset 
-    (user_id, commands, commands_ban, description, seed, resolution, others, created_at, updated_at)
+    (user_id, commands, commands_ban, description, nsfw, seed, resolution, others, created_at, updated_at)
     VALUES 
-    (:user_id, :commands, :commands_ban, :description, :seed, :resolution, :others, NOW(), NOW())
+    (:user_id, :commands, :commands_ban, :description, :nsfw, :seed, :resolution, :others, NOW(), NOW())
     SQL;
 
     $st = $pdo->prepare($sql);
@@ -25,6 +31,7 @@ try {
     $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
     $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
     $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
+    $st->bindValue(':nsfw', $isNsfw, PDO::PARAM_STR);
     $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
     $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
     $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);

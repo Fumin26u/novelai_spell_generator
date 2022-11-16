@@ -6,7 +6,7 @@ $message = [];
 $err = [];
 
 if (!isset($_SESSION['user_id'])) {
-    header('location: ./', true, 303);
+    header('location: ./login.php', true, 303);
     exit;
 }
 
@@ -59,7 +59,7 @@ if (isset($_GET['preset_id'])) {
     $preset_id = h($_GET['preset_id']);
 
     if ($preset_id === null || $preset_id === '') {
-        header('location: ./', true, 303);
+        header('location: ../saves/', true, 303);
         exit;
     }
 
@@ -73,7 +73,7 @@ if (isset($_GET['preset_id'])) {
 
         $rows = $st->fetch(PDO::FETCH_ASSOC);
         if (empty($rows)) {
-            header('location: ./index.php', true, 303);
+            header('location: ../saves/', true, 303);
             exit;
         }
         $pdo->commit();
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $isNsfw = 
                 strpos($_POST['commands'], 'nsfw') !== false || 
                 (isset($_POST['nsfw']) && $_POST['nsfw'] === 'on')
-                ? 1 : 0;
+                ? 'Z' : 'A';
 
             $pdo = dbConnect();
             $pdo->beginTransaction();

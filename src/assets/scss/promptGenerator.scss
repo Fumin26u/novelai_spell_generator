@@ -1,13 +1,15 @@
+@import "./style.scss";
+
 .content {
     position: relative;
     display: flex;
     justify-content: space-between;
     > .main-content {
-        width: 68%;
+        width: 67.9%;
         border-right: 1px solid #888;
     }
     > .spell-settings {
-        width: 32%;
+        width: 31%;
     }
 }
 
