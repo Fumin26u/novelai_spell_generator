@@ -34,8 +34,8 @@
                             <dd>
                                 <div>
                                     <label>検索項目:</label>
-                                    <input type="checkbox" v-model="searchTarget" value="allItems" id="allItems">
-                                    <label for="allItems">全て選択</label>
+                                    <input type="checkbox" v-model="searchTarget" value="allItems" id="word-allItems">
+                                    <label for="word-allItems">全て選択</label>
                                     <input type="checkbox" v-model="searchTarget" value="description" id="description">
                                     <label for="description">タイトル</label>
                                     <input type="checkbox" v-model="searchTarget" value="prompt" id="prompt">
@@ -134,7 +134,7 @@
 import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
 import './assets/scss/savedPrompt.scss'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watchEffect } from 'vue'
 import axios from 'axios'
 
 export default {
@@ -164,13 +164,26 @@ export default {
             })
         }
 
+        // 選択されたプリセット
+        const selectedPreset = ref<any>({})
+        // 検索ボックスの表示有無
+        const isDisplaySearchBox = ref<boolean>(true)
+        const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
+
+        // 検索ボックスの入力内容
+        const selectAge = ref<string[]>(['allItems'])
+        const searchTarget = ref<string[]>(['allItems'])
+        const searchWord = ref<string>('')
+        const sortTarget = ref<string>('created')
+        const sortOrder = ref<string>('asc')
+       
         // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
-        // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-        onMounted(async() => {
+        // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
+        const getPresetData = async(postData: any) => {
             const url = './register/api/getPreset.php'
-            await axios.get(url)
-                .then(response => { 
+            await axios.post(url, postData)
+                .then(response => {
                     if (response.data !== '') { 
                         switch (location.origin + location.pathname) {
                             case 'https://fuminsv.sakura.ne.jp/sgtest/':
@@ -186,24 +199,35 @@ export default {
                         setIsNsfw(response.data)
                     }
                 })
-                .catch(error => { 
+                .catch(error => {
                     setImages(fetchData, currentPath.value)
                     setIsNsfw(fetchData)
-                    console.log(error)
+                    console.log(error) 
                 })
+        }
+
+        // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
+        onMounted(() => {
+            const postData = {
+                age: selectAge.value,
+                search_item: searchTarget.value,
+                search_word: searchWord.value,
+                sort: sortTarget.value,
+                order: sortOrder.value,
+            }
+            getPresetData(postData)
         })
-
-        // 選択されたプリセット
-        const selectedPreset = ref<any>({})
-        // 検索ボックスの表示有無
-        const isDisplaySearchBox = ref<boolean>(true)
-        const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
-
-        // 検索ボックスの入力内容
-        const selectAge = ref<string>('')
-        const searchTarget = ref<string>('')
-        const sortTarget = ref<string>('')
-        const sortOrder = ref<string>('')
+        // 検索ボックスの入力内容が変化した場合、指定された内容で表示するプリセットを抽出
+        watchEffect(() => {
+            const postData = {
+                age: selectAge.value,
+                search_item: searchTarget.value,
+                search_word: searchWord.value,
+                sort: sortTarget.value,
+                order: sortOrder.value,
+            } 
+            getPresetData(postData)
+        })
 
         return {
             savedPromptList,
@@ -213,6 +237,7 @@ export default {
 
             selectAge: selectAge,
             searchTarget: searchTarget,
+            searchWord: searchWord,
             sortTarget: sortTarget,
             sortOrder: sortOrder,
         }
