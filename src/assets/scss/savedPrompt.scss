@@ -1,0 +1,95 @@
+@import "./style.scss";
+
+.content {
+    display: flex;
+    justify-content: space-between;
+}
+.preset-list {
+    width: 68%;
+}
+.preset-content {
+    border-right: 1px solid #888;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    > div {
+        cursor: pointer;
+        width: 22%;
+        border: 1px solid #888;
+        margin: 0 1em 2em 0;
+        padding: 8px 0;
+        box-shadow: 2px 2px 4px #aaa;
+        &.selected {
+
+        }
+        > * {
+            margin: 0 auto;
+            max-width: 92%;
+            @include mq(xl) {
+                max-width: 216px;   
+            }
+        }
+        > img {
+            height: 135px;
+            object-fit: cover;
+            border-bottom: 1px solid #888;
+            display: block;
+        }
+        > p {
+            overflow-y: auto;
+            height: 52px;
+        }
+    }
+}
+
+.preset-detail {
+    width: 31%;
+    margin-left: 1em;
+    position: sticky;
+    top: 1em;
+    height: 96vh;
+    > .title-area {
+        font-size: 17px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        > h2 {
+            margin: 0;
+            width: 86%;
+        }
+        > button {
+            padding: 2px 0;
+            width: 12%;
+            font-size: 14px;
+        }
+    }
+    > ul li {
+        padding: 0 0 8px;
+        margin: 0 0 8px;
+        border-bottom: 1px solid #888;
+        display: block;
+        width: 100%;
+        > h3, button {
+            display: inline-block;
+        }
+        &.image > img {
+            width: 100%;
+            max-height: 316px;
+            overflow-y: auto;
+            display: block;
+            object-fit: cover;
+        }
+        &.copy > p {
+            color: #cc8c00;
+            cursor: pointer;
+            overflow-y: auto;
+            max-height: 100px;
+            display: block;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

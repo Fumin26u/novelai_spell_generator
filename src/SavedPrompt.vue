@@ -11,12 +11,42 @@
                 </div>
             </section>
             <section class="preset-detail">
-                <ul>
-                    <li>
-                        <!-- <img :src="prompt.originalImage" :alt="prompt.description"> -->
+                <div class="title-area">
+                    <h2>{{ selectedPreset.description }}</h2>
+                    <button class="btn-common blue">編集</button>
+                </div>
+                <ul class="data-list">
+                    <li class="image">
+                        <img :src="selectedPreset.originalImage" alt="">
                     </li>
-                    <p>{{ selectedPreset }}</p>
+                    <li class="nsfw">
+                        <h3>nsfw</h3>
+                        <p>{{ selectedPreset.nsfw ? 'あり' : 'なし' }}</p>
+                    </li>
+                    <li class="prompt copy">
+                        <h3>プロンプト</h3>
+                        <button></button>
+                        <p>{{ selectedPreset.commands }}</p>
+                    </li>
+                    <li class="prompt-ban copy">
+                        <h3>BANプロンプト</h3>
+                        <button></button>
+                        <p>{{ selectedPreset.commands_ban }}</p>
+                    </li>
+                    <li class="seed copy">
+                        <h3>シード値</h3>
+                        <p>{{ selectedPreset.seed }}</p>
+                    </li>
+                    <li class="resolution">
+                        <h3>解像度</h3>
+                        <p>{{ selectedPreset.resolution }}</p>
+                    </li>
+                    <li class="other">
+                        <h3>備考</h3>
+                        <p>{{ selectedPreset.others }}</p>
+                    </li>
                 </ul>
+                {{selectedPreset}}
             </section>
         </div>
     </div>
@@ -24,7 +54,7 @@
 <script lang="ts">
 import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
-import './assets/scss/style.scss'
+import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
@@ -33,9 +63,10 @@ export default {
         HeaderComponent,
     },
     setup() {
+        // ログインユーザーの登録プリセット一覧
         const savedPromptList = ref<any>([])
 
-        // 各プリセットに必要情報を追加
+        // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
             savedPromptList.value = presets
             const imgPath = currentPath === 'local' ? './images/preset/' : './register/images/preset/'
@@ -47,12 +78,14 @@ export default {
             })
         }
 
+        // 各プリセットがnsfwかどうか判定
         const setIsNsfw = (presets: {[key: string]: any}[]) => {
             presets.map((preset, index) => {
                 savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
             })
         }
 
+        // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(async() => {
@@ -82,7 +115,7 @@ export default {
         })
 
         // 選択されたプリセット
-        const selectedPreset = ref({})
+        const selectedPreset = ref<any>({})
 
         return {
             savedPromptList,
@@ -91,39 +124,3 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-.content {
-    display: flex;
-    justify-content: space-between;
-}
-.preset-list {
-    width: 68%;
-}
-.preset-content {
-    border-right: 1px solid #888;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    > div {
-        cursor: pointer;
-        width: 23%;
-        border: 1px solid #888;
-        border-radius: 8px;
-        margin: 1em auto;
-        > img {
-            max-width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 8px 8px 0 0;
-            margin: 0 auto;
-            border-bottom: 1px solid #888;
-            display: block;
-        }
-    }
-}
-
-.preset-detail {
-    width: 32%;
-}
-</style>
