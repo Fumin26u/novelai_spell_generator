@@ -1,5 +1,10 @@
 const versions = [
     {
+        date: '2022年11月17日',
+        version: '1.5.0',
+        detail: 'セーバートップーページのリニューアル、その他細かい画面表示修正',
+    },
+    {
         date: '2022年11月15日',
         version: '1.4.1',
         detail: '生成したプロンプトをStable Diffusion WebUI用に変更可能に',
