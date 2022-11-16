@@ -8,7 +8,7 @@
                         <div class="upload">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
                             <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
-                            <button @click="uploadSpell(spellsByUser)" class="btn-common add">アップロード</button>
+                            <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
                             <button @click="displayNsfw = displayNsfw ? false:true, displayNsfwContent()" :class="[displayNsfw ? 'btn-common pink': 'btn-common blue']">
@@ -58,7 +58,7 @@
                         <div class="manual-input-area">
                             <label :for="'manual-input'">手動追加</label>
                             <input type="text" :id="'manual-input'" v-model="manualInput">
-                            <button class="btn-common add" @click="addManualPromptToList(manualInput)">追加</button>
+                            <button class="btn-common green" @click="addManualPromptToList(manualInput)">追加</button>
                         </div>
                     </div>
                     <draggable 
@@ -98,12 +98,12 @@
                                     </div>
                                 </div>
                                 <div class="enhance-area">
-                                    <button @click="enhanceSpell(index, -1)" class="btn-common delete">－</button>
+                                    <button @click="enhanceSpell(index, -1)" class="btn-common red">－</button>
                                     <span>{{ element.enhance }}</span>
-                                    <button @click="enhanceSpell(index, 1)" class="btn-common add">＋</button>
+                                    <button @click="enhanceSpell(index, 1)" class="btn-common green">＋</button>
                                 </div>
                                 <div class="delete-area">
-                                    <button @click="deleteSetPromptList(index)" class="btn-common delete">削除</button>
+                                    <button @click="deleteSetPromptList(index)" class="btn-common red">削除</button>
                                 </div>
                             </div>
                         </template>
@@ -119,11 +119,11 @@
                         </div>
                         <div class="button-area">
                             <div class="generate">
-                                <button @click="convertToNovelAITags(setSpells)" class="btn-common add">呪文生成</button>
-                                <button @click="toggleEnhanceBrace()" :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']">{{ enhanceBraceMessage }}</button>
+                                <button @click="convertToNovelAITags(setSpells)" class="btn-common green">呪文生成</button>
+                                <button @click="toggleEnhanceBrace()" :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']">{{ enhanceBraceMessage }}</button>
                             </div>
                             <div class="save">
-                                <button @click="copyToClipboard(spellsNovelAI)" class="btn-common copy">コピー</button>
+                                <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
                                 <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
                             </div>                          
                         </div>
@@ -343,8 +343,10 @@ export default {
                         enhanceCount.value = tag.match(/\{/g)!.length
                     } else if (tag.match(/\[/g) !== null) {
                         enhanceCount.value = tag.match(/\[/g)!.length * -1 
-                    }
-                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "")
+                    } else if (tag.match(/\(/g) !== null) {
+                        enhanceCount.value = tag.match(/\(/g)!.length
+                    } 
+                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
 
                     // 設定プロンプトリストに必要情報を挿入 
                     const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
@@ -415,11 +417,8 @@ export default {
                     text.value += spell.tag
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    if (enhanceBraceMessage.value === '( )に変換') {
-                        text.value += '('.repeat(spell.enhance) + spell.tag + ')'.repeat(spell.enhance)
-                    } else {
-                        text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
-                    }
+                    text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
+                    
                 } else if (spell.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = spell.enhance * -1
@@ -433,10 +432,10 @@ export default {
         const toggleEnhanceBrace = () => {
             if (enhanceBraceMessage.value === '( )に変換') {
                 enhanceBraceMessage.value = '{ }に変換'
-                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
             } else {
                 enhanceBraceMessage.value = '( )に変換'
-                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+                spellsNovelAI.value = spellsNovelAI.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
             }
         }
 

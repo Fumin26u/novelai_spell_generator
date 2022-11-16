@@ -3,12 +3,12 @@
         <div class="title">
             <h2>検索フォーム</h2>
             <button 
-                class="btn-common add" 
+                class="btn-common green" 
                 @click="displaySearchBox(true)" 
                 :style="[!isDisplaySearchBox ? 'display: inline-block':'display: none']"
             >▽開く</button>
             <button 
-                class="btn-common delete" 
+                class="btn-common red" 
                 @click="displaySearchBox(false)" 
                 :style="[isDisplaySearchBox ? 'display: inline-block':'display: none']"
             >△閉じる</button>

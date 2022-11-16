@@ -38,7 +38,7 @@
                     <dt>その他</dt>
                     <dd><textarea v-model="promptForDB.others"></textarea></dd>
                 </div>
-                <button @click="savePrompt(promptForDB)" class="btn-common add">登録</button>
+                <button @click="savePrompt(promptForDB)" class="btn-common green">登録</button>
             </dl>
         </div>
     </div>

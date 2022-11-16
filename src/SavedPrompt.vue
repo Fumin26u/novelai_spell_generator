@@ -29,7 +29,7 @@
                         <h2>{{ selectedPreset.description }}</h2>
                         <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a>
                         <!-- <button class="btn-common blue">編集</button>
-                        <button class="btn-common add" :style="'display:none;'">保存</button> -->
+                        <button class="btn-common green" :style="'display:none;'">保存</button> -->
                     </div>
                     <ul class="data-list">
                         <li class="image">
@@ -42,7 +42,7 @@
                         <li class="prompt copy">
                             <h3>プロンプト</h3>
                             <button 
-                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']" 
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
                                 @click="toggleEnhanceBrace()"
                             >{{ enhanceBraceMessage }}</button>
                             <p @click="copyText(selectedPreset.commands, 'プロンプト')">{{ selectedPreset.commands }}</p>
@@ -50,7 +50,7 @@
                         <li class="prompt-ban copy">
                             <h3>BANプロンプト</h3>
                             <button 
-                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']"  
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
                                 @click="toggleEnhanceBrace()"
                             >{{ enhanceBraceMessage }}</button>
                             <p @click="copyText(selectedPreset.commands_ban, 'BANプロンプト')">{{ selectedPreset.commands_ban }}</p>
