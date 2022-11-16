@@ -14,6 +14,7 @@
                 <div class="title-area">
                     <h2>{{ selectedPreset.description }}</h2>
                     <button class="btn-common blue">編集</button>
+                    <button class="btn-common add" :style="'display:none;'">保存</button>
                 </div>
                 <ul class="data-list">
                     <li class="image">
@@ -25,12 +26,12 @@
                     </li>
                     <li class="prompt copy">
                         <h3>プロンプト</h3>
-                        <button></button>
+                        <button class="btn-common blue"></button>
                         <p>{{ selectedPreset.commands }}</p>
                     </li>
                     <li class="prompt-ban copy">
                         <h3>BANプロンプト</h3>
-                        <button></button>
+                        <button class="btn-common blue"></button>
                         <p>{{ selectedPreset.commands_ban }}</p>
                     </li>
                     <li class="seed copy">
@@ -46,7 +47,6 @@
                         <p>{{ selectedPreset.others }}</p>
                     </li>
                 </ul>
-                {{selectedPreset}}
             </section>
         </div>
     </div>
