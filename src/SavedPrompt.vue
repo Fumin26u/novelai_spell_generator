@@ -12,7 +12,12 @@
             />
             <section class="preset-list">
                 <div class="preset-content">
-                    <div v-for="(prompt, index) in savedPromptList" :key="prompt.preset_id" @click="selectPreset(index)">
+                    <div 
+                        v-for="(prompt, index) in savedPromptList" 
+                        :key="prompt.preset_id" 
+                        :class="[selectedPresetIndex === index ? 'selected':'']"
+                        @click="selectPreset(index)"
+                    >
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
@@ -98,8 +103,11 @@ export default {
         
         // プリセット一覧から選択されたプリセットを読み込む
         const selectedPreset = ref<any>(null)
-        const selectPreset = (index: number) => selectedPreset.value = savedPromptList.value[index]
-        
+        const selectedPresetIndex = ref<number>(-1)
+        const selectPreset = (index: number) => {
+            selectedPreset.value = savedPromptList.value[index]
+            selectedPresetIndex.value = index
+        }
 
         // 検索ボックスの入力内容
         const selectAge = ref<string[]>(['A','C','Z'])
@@ -157,6 +165,7 @@ export default {
         return {
             savedPromptList,
             selectedPreset,
+            selectedPresetIndex,
             selectPreset,
             getPresetData,
 
