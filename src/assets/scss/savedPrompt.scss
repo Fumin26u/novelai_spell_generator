@@ -126,6 +126,18 @@ button {
 
 /*--------------------
 
+    プリセット情報
+
+--------------------*/
+.preset-info {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/*--------------------
+
     プリセット詳細
 
 --------------------*/
@@ -145,11 +157,12 @@ button {
             margin: 0;
             width: 86%;
         }
-        > button {
+        > button, a {
             padding: 2px 0;
             width: 12%;
             font-size: 14px;
             font-weight: bold;
+            text-align: center;
         }
     }
     > div > ul li {
@@ -167,7 +180,9 @@ button {
             font-size: 16px;
         }
         > button {
-            padding: 2px 0;
+            margin-left: 8px;
+            padding: 0 8px;
+            font-weight: bold;
         }
         &.image {
             max-height: 316px;

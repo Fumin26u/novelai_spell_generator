@@ -6,6 +6,10 @@
                 :searchBoxData="searchData"
                 @getPresetData="getPresetData"
             />
+            <section class="preset-info">
+                <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
+                <p class="copy-alert">{{ copyAlertText }}</p>
+            </section>
             <section class="preset-list">
                 <div class="preset-content">
                     <div 
@@ -23,8 +27,9 @@
                 <div v-if="selectedPreset !== null">
                     <div class="title-area">
                         <h2>{{ selectedPreset.description }}</h2>
-                        <button class="btn-common blue">編集</button>
-                        <button class="btn-common add" :style="'display:none;'">保存</button>
+                        <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a>
+                        <!-- <button class="btn-common blue">編集</button>
+                        <button class="btn-common add" :style="'display:none;'">保存</button> -->
                     </div>
                     <ul class="data-list">
                         <li class="image">
@@ -36,17 +41,23 @@
                         </li>
                         <li class="prompt copy">
                             <h3>プロンプト</h3>
-                            <button class="btn-common blue"></button>
-                            <p>{{ selectedPreset.commands }}</p>
+                            <button 
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']" 
+                                @click="toggleEnhanceBrace()"
+                            >{{ enhanceBraceMessage }}</button>
+                            <p @click="copyText(selectedPreset.commands, 'プロンプト')">{{ selectedPreset.commands }}</p>
                         </li>
                         <li class="prompt-ban copy">
                             <h3>BANプロンプト</h3>
-                            <button class="btn-common blue"></button>
-                            <p>{{ selectedPreset.commands_ban }}</p>
+                            <button 
+                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common add']"  
+                                @click="toggleEnhanceBrace()"
+                            >{{ enhanceBraceMessage }}</button>
+                            <p @click="copyText(selectedPreset.commands_ban, 'BANプロンプト')">{{ selectedPreset.commands_ban }}</p>
                         </li>
                         <li class="seed copy">
                             <h3>シード値</h3>
-                            <p>{{ selectedPreset.seed }}</p>
+                            <p @click="copyText(selectedPreset.seed, 'シード値')">{{ selectedPreset.seed }}</p>
                         </li>
                         <li class="resolution">
                             <h3>解像度</h3>
@@ -148,6 +159,37 @@ export default {
                 })
         }
 
+        // 強化値の{}と()を切り替える
+        const enhanceBraceMessage = ref<string>('( )に変換')
+        const toggleEnhanceBrace = () => {
+            if (enhanceBraceMessage.value === '( )に変換') {
+                enhanceBraceMessage.value = '{ }に変換'
+                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+            } else {
+                enhanceBraceMessage.value = '( )に変換'
+                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+            }
+        }
+
+        // クリックした文字列をコピーする
+        const copyAlertText = ref<string>('')
+        const copyText = (text: string, name: string) => {
+            const href = location.href.substring(0,5)
+            if (href === 'https') {
+                navigator.clipboard.writeText(text)
+            } else if (href === 'http:') {
+                const input = document.createElement('input')
+                document.body.appendChild(input)
+                input.value = text
+                input.select()
+                document.execCommand('copy')
+                document.body.removeChild(input)
+            }
+            copyAlertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
+        }
+
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => getPresetData(searchData.value))
 
@@ -155,10 +197,13 @@ export default {
             savedPromptList,
             selectedPreset,
             selectedPresetIndex,
+            searchData: searchData,
+            enhanceBraceMessage: enhanceBraceMessage,
+            copyAlertText,
             selectPreset,
             getPresetData,
-
-            searchData: searchData,
+            toggleEnhanceBrace,
+            copyText,
         }
     }
 }
