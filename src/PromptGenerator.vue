@@ -145,15 +145,15 @@
 </template>
 
 <script lang="ts">
-import master_data from './master_data'
+import master_data from './assets/ts/master_data'
+import { colorMulti, colorMono } from './assets/ts/colorVariation'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import draggable from 'vuedraggable'
-import './assets/style.scss'
-import './assets/promptGenerator.scss'
+import './assets/scss/style.scss'
+import './assets/scss/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import ModalDBComponent from './components/ModalDBComponent.vue'
-import { colorMulti, colorMono } from './colorVariation'
 
 export default {
     components: {

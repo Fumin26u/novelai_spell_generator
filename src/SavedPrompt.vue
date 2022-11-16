@@ -22,9 +22,9 @@
     </div>
 </template>
 <script>
-import fetchData from './fetchData.ts'
+import fetchData from './assets/ts/fetchData.ts'
 import HeaderComponent from './components/HeaderComponent.vue'
-import './assets/style.scss'
+import './assets/scss/style.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
