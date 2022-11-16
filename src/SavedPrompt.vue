@@ -3,11 +3,7 @@
         <HeaderComponent></HeaderComponent> 
         <div class="content">
             <searchBoxComponent
-                :age="selectAge"
-                :target="searchTarget"
-                :word="searchWord"
-                :sort="sortTarget"
-                :order="sortOrder"
+                :searchBoxData="searchData"
                 @getPresetData="getPresetData"
             />
             <section class="preset-list">
@@ -110,11 +106,13 @@ export default {
         }
 
         // 検索ボックスの入力内容
-        const selectAge = ref<string[]>(['A','C','Z'])
-        const searchTarget = ref<string[]>(['description', 'commands'])
-        const searchWord = ref<string>('')
-        const sortTarget = ref<string>('created_at')
-        const sortOrder = ref<string>('asc')
+        const searchData = ref<any>({
+            age: ['A','C','Z'],
+            target: ['description', 'commands'],
+            word: '',
+            sort: 'created_at',
+            order: 'asc'
+        })
        
         // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
@@ -123,6 +121,7 @@ export default {
             const url = './register/api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
+            console.log(postData)
             await axios.get(url, {
                 params: postData
             }).then(response => {
@@ -151,16 +150,7 @@ export default {
         }
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-        onMounted(() => {
-            const postData = {
-                age: selectAge.value,
-                search_item: searchTarget.value,
-                search_word: searchWord.value,
-                sort: sortTarget.value,
-                order: sortOrder.value,
-            }
-            getPresetData(postData)
-        })
+        onMounted(() => getPresetData(searchData.value))
 
         return {
             savedPromptList,
@@ -169,11 +159,7 @@ export default {
             selectPreset,
             getPresetData,
 
-            selectAge: selectAge,
-            searchTarget: searchTarget,
-            searchWord: searchWord,
-            sortTarget: sortTarget,
-            sortOrder: sortOrder,
+            searchData: searchData,
         }
     }
 }
