@@ -121,7 +121,6 @@ export default {
             const url = './register/api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
-            console.log(postData)
             await axios.get(url, {
                 params: postData
             }).then(response => {

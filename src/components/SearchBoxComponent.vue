@@ -73,14 +73,13 @@
                         </div>
                     </dd>
                 </div>
-                <button @click="getPreset()" class="btn-common add submit-search">検索</button>
             </dl>
         </div>
     </section>
 </template>
 <script lang="ts">
 import '../assets/scss/savedPrompt.scss'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 export default {
     emits: ['getPresetData',],
@@ -95,14 +94,10 @@ export default {
         const isDisplaySearchBox = ref<boolean>(false)
         const displaySearchBox = (state: boolean) => isDisplaySearchBox.value = state
 
-        const getPreset = () => {
-            console.log(searchData.value)
-            context.emit('getPresetData', searchData.value)
-        }
+        watchEffect(() => context.emit('getPresetData', searchData.value))
 
         return {
             searchData,
-            getPreset,
 
             displaySearchBox,
             isDisplaySearchBox: isDisplaySearchBox,
