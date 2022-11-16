@@ -2,7 +2,6 @@
 $home = '../';
 require_once($home . 'database/commonlib.php');
 
-
 // データベースから全マスタデータを取得
 function getMasterData() {
     try {
