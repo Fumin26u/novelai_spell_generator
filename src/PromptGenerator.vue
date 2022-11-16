@@ -220,7 +220,7 @@ export default {
             const url = './register/api/getMasterData.php?from=spell_generator'
             await axios.get(url)
                 .then(response => {
-                    tagsList.value = convertJsonToTagList(response.data)
+                    tagsList.value = convertJsonToTagList(response.data.user_id)
                 })
                 .catch(error => {
                     tagsList.value = convertJsonToTagList(master_data)
