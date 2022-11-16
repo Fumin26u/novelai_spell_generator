@@ -18,9 +18,11 @@
                 <div>
                     <dt>年齢制限</dt>
                     <dd>
-                        <input type="checkbox" v-model="selectAge" value="noLimit" id="noLimit">
+                        <input type="checkbox" v-model="selectAge" value="A" id="noLimit">
                         <label for="noLimit">全年齢</label>
-                        <input type="checkbox" v-model="selectAge" value="nsfw" id="nsfw">
+                        <input type="checkbox" v-model="selectAge" value="C" id="r15">
+                        <label for="r15">R-15</label>
+                        <input type="checkbox" v-model="selectAge" value="Z" id="nsfw">
                         <label for="nsfw">R-18</label>
                     </dd>
                 </div>

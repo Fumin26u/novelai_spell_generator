@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $isNsfw = 
                 strpos($_POST['commands'], 'nsfw') !== false || 
                 (isset($_POST['nsfw']) && $_POST['nsfw'] === 'on')
-                ? 1 : 0;
+                ? 'Z' : 'A';
 
             $pdo = dbConnect();
             $pdo->beginTransaction();

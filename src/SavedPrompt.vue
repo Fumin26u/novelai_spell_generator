@@ -114,7 +114,7 @@ export default {
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
         const getPresetData = async(postData: {[key: string]: any}) => {
             const url = './register/api/getPreset.php'
-            await axios.post(url, postData)
+            await axios.get(url, postData)
                 .then(response => {
                     if (response.data !== '') { 
                         switch (location.origin + location.pathname) {
