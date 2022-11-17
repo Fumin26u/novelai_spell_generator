@@ -7,5 +7,4 @@ $home = '../';
 require_once($home . 'database/commonlib.php');
 require_once($home . 'api/setPreset.php');
 setPreset($post);
-echo json_encode(['test' => 'aaaaa'], JSON_UNESCAPED_UNICODE);
 ?>

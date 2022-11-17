@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="modal-cover" @click="updateModal(false)"></div>
-        <div class="modal-window">
+        <form class="modal-window">
             <div>
                 <h3>データをDBに登録</h3>
                 <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。非ログイン時は登録ボタンを押しても登録されません。</small>
@@ -10,10 +10,10 @@
                 <span @click="updateModal(false)" class="btn-close"></span>
             </div>
             <dl class="db-form">
-                <div>
+                <!-- <div>
                     <dt>画像</dt>
                     <dd><input type="file" @change="uploadImage"></dd>
-                </div>
+                </div> -->
                 <div>
                     <dt>プロンプト</dt>
                     <dd><input type="text" v-model="promptForDB.commands"></dd>
@@ -44,7 +44,7 @@
                 <div>
                     <dt>解像度</dt>
                     <dd>
-                        <select v-model="resolution">
+                        <select v-model="promptForDB.resolution">
                             <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
                         </select>
                     </dd>
@@ -53,9 +53,9 @@
                     <dt>その他</dt>
                     <dd><textarea v-model="promptForDB.others"></textarea></dd>
                 </div>
-                <button @click="savePrompt(promptForDB)" class="btn-common green">登録</button>
+                <button @click="savePrompt()" class="btn-common green">登録</button>
             </dl>
-        </div>
+        </form>
     </div>
 </template>
 <script lang="ts">
@@ -77,12 +77,13 @@ export default {
         // DB保存用のデータ
         const promptForDB = ref<{[key: string]: any}>({
             image: '',
+            from: 'generator',
             commands: '',
             commands_ban: '',
             description: '',
             nsfw: 'A',
             seed: '',
-            resolution: '',
+            resolution: 'Portrait (Normal) 512x768',
             others: '',
         })
         watchEffect(() => promptForDB.value.commands = props.prompts)
@@ -91,22 +92,22 @@ export default {
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
         // プロンプトをDBに保存する
-        const savePrompt = (promptForDB: {[key: string]: any}) => {
-            if (promptForDB.commands === '') {
+        const savePrompt = () => {
+            if (promptForDB.value.commands === '') {
                 updateText('コマンドが入力されていません。')
                 updateModal(false)
                 return
             }
-            if (typeof promptForDB.seed === 'number') {
+            if (typeof promptForDB.value.seed === 'number') {
                 updateText('Seed値が数値で入力されていません。')
                 updateModal(false)
                 return
             }
 
-            const url = './register/api/setPreset.php?from=generator'
-            axios.post(url, promptForDB, {
-                headers: {'content-type': 'multipart/form-data'}
-            }).then((response) => {
+            const sendData = JSON.stringify(promptForDB.value)
+            
+            const url = './register/api/registerPreset.php'
+            axios.post(url, sendData).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
@@ -119,14 +120,13 @@ export default {
         // 画像データを取得
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
-                promptForDB.value.image = event.target.files
+                promptForDB.value.image = event.target.files[0]
             }
         }
 
         return {
             promptForDB,
             isOpenSaveModal,
-            resolution: 'Portrait (Normal) 512x768',
             resolutionList: [
                 'Portrait (Normal) 512x768',
                 'LandScape (Normal) 768x512',

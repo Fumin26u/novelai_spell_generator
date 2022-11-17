@@ -21,19 +21,14 @@
     </div>
 </template>
 <script lang="ts">
-import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 
 export default {
-    setup() {
-        const user_id = ref<string>('')
-
-        const url = './register/api/getUserInfo.php'
-        onMounted(async() => {
-            axios.get(url)
-                .then(response => user_id.value = response.data.user_id)
-                .catch(error => console.log(error))
-        })
+    props: {
+        user: String,
+    },
+    setup(props: any) {
+        const user_id = computed(() => props.user)
 
         return {
             user_id,

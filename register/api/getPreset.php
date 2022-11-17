@@ -1,7 +1,4 @@
 <?php
-// header('Content-Type: application.json; charset=utf-8');
-// $_GET = json_decode(file_get_contents('php://input'), true);
-
 $home = '../';
 require_once($home . 'database/commonlib.php');
 
