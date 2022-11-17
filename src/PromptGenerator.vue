@@ -11,9 +11,9 @@
                             <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
-                            <button @click="displayNsfw = displayNsfw ? false:true, displayNsfwContent()" :class="[displayNsfw ? 'btn-common pink': 'btn-common blue']">
-                                {{ displayNsfw ? 'R-18' : '全年齢' }}
-                            </button>
+                            <button @click="toggleDisplayNsfw('C')" v-if="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
+                            <button @click="toggleDisplayNsfw('Z')" v-if="displayNsfw === 'C'" class="btn-common green">R-15</button>
+                            <button @click="toggleDisplayNsfw('A')" v-if="displayNsfw === 'Z'" class="btn-common pink">R-18</button>            
                         </div>
                     </section>
                     <section class="tag-list">
@@ -21,7 +21,7 @@
                             class="spell-list"
                             v-for="(genre, i) in tagsList"                 
                             :key="genre.slag"
-                            :style="[!genre.nsfw || displayNsfw ? 'display:block' : 'display:none']"
+                            :style="[genre.display ? 'display:block' : 'display:none']"
                         >
                             <div class="description">
                                 <div>
@@ -29,17 +29,21 @@
                                     <p class="caption">{{ genre.caption }}</p>
                                 </div>
                                 <div>
-                                    <span @click="tagsList[i]['display'] = true" v-if="!tagsList[i]['display']">▼</span>
-                                    <span @click="tagsList[i]['display'] = false" v-if="tagsList[i]['display']">▲</span>
+                                    <span @click="tagsList[i]['show_all'] = true" v-if="!tagsList[i]['show_all']">▼</span>
+                                    <span @click="tagsList[i]['show_all'] = false" v-if="tagsList[i]['show_all']">▲</span>
                                 </div>
                             </div>
-                            <div :style="[tagsList[i]['display'] ? 'max-height:none;' : 'max-height:240px;']">
+                            <div :style="[tagsList[i]['show_all'] ? 'max-height:none;' : 'max-height:240px;']">
                                 <div 
                                     v-for="(prompt, j) in genre.content" 
                                     :key="prompt.slag" 
                                     :style="[prompt.display ? 'display:block; position:relative;' : 'display:none']">
                                     <button 
-                                        :class="[prompt.selected ? 'btn-toggle selected' : 'btn-toggle', prompt.nsfw ? ' nsfw' : '']" 
+                                        :class="[
+                                            prompt.selected ? 'btn-toggle selected' : 'btn-toggle', 
+                                            prompt.nsfw === 'C' ? ' r-15' : '',
+                                            prompt.nsfw === 'Z' ? ' r-18' : ''
+                                        ]" 
                                         @click="toggleSetPromptList(i, j)"
                                         @mouseover="hoverPromptName = prompt.tag"
                                         @mouseleave="hoverPromptName = ''"
@@ -72,14 +76,24 @@
                                     <div class="prompt-name">
                                         <div>
                                             <span class="caption">{{ element.parentTag }}</span>
-                                            <p :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']">{{ element.jp }}</p>
+                                            <p :style="[
+                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
+                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
+                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
+                                            ]">
+                                                {{ element.jp }}
+                                            </p>
                                         </div>
                                     </div>
                                     <div v-if="element.variation !== null">
                                         <span class="caption">色の設定</span>
                                         <select 
                                             v-if="element.variation === 'CC'"
-                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            :style="[
+                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
+                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
+                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
+                                            ]" 
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -88,7 +102,11 @@
                                         </select>
                                         <select 
                                             v-if="element.variation === 'CM'"
-                                            :style="[element.nsfw ? 'color:tomato;' : 'color:blue;']" 
+                                            :style="[
+                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
+                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
+                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
+                                            ]" 
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -167,7 +185,7 @@ export default {
         // 表示するタグ一覧
         const tagsList = ref<{[key: string]: any}[]>([])
         // nsfwコンテンツの表示可否
-        const displayNsfw = ref<boolean>(false)
+        const displayNsfw = ref<string>('A')
         // Hover中のタグ
         const hoverPromptName = ref<string>('')
         // アップロード用プロンプト
@@ -190,6 +208,43 @@ export default {
             })
         }
 
+        // nsfwコンテンツの表示設定
+        const setDisplayNsfw = (limit: string): void => {
+            tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
+                console.log(tagsList.value[i].nsfw)
+                switch (limit) {
+                    case 'A':
+                        tagsList.value[i]['display'] = 
+                        tagsList.value[i].nsfw === 'A' ? true:false
+                        break
+                    case 'C':
+                        tagsList.value[i]['display'] = 
+                        tagsList.value[i].nsfw === 'A' || 
+                        tagsList.value[i].nsfw === 'C' ? true:false
+                        break
+                    case 'Z':
+                        tagsList.value[i]['display'] = true
+                        break
+                }
+                genre.content.map((_: any, j: number) => {
+                    switch (limit) {
+                        case 'A':
+                            tagsList.value[i].content[j]['display'] = 
+                            tagsList.value[i].content[j].nsfw === 'A' ? true:false
+                            break
+                        case 'C':
+                            tagsList.value[i].content[j]['display'] = 
+                            tagsList.value[i].content[j].nsfw === 'A' || 
+                            tagsList.value[i].content[j].nsfw === 'C' ? true:false
+                            break
+                        case 'Z':
+                            tagsList.value[i].content[j]['display'] = true
+                            break
+                    }
+                })
+            })
+        } 
+
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
         const convertJsonToTagList = (json: string | object): {[key: string]: any}[] => {
             const jsonObj = typeof json === 'string' ? JSON.parse(json) : json
@@ -199,7 +254,7 @@ export default {
             // 配列に表示に必要なデータを挿入
             const commandList: {[key: string]: any}[] = []
             commandListQueue.map((genre: {[key: string]: any}, i: number) => {
-                genre['display'] = false
+                genre['show_all'] = false
                 genre.caption = genre.caption === "" ? "-" : genre.caption
 
                 genre.content.map((prompt: {[key: string]: any}, j: number) => {  
@@ -208,7 +263,6 @@ export default {
                     prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
                     prompt['enhance'] = 0
-                    prompt['display'] = !prompt.nsfw || displayNsfw.value ? true : false
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
                 })
@@ -223,28 +277,21 @@ export default {
             const url = './register/api/getMasterData.php?from=spell_generator'
             await axios.get(url)
                 .then(response => {
-                    tagsList.value = convertJsonToTagList(response.data.user_id)
+                    tagsList.value = convertJsonToTagList(response.data)
+                    setDisplayNsfw(displayNsfw.value)
                 })
                 .catch(error => {
                     tagsList.value = convertJsonToTagList(master_data)
+                    setDisplayNsfw(displayNsfw.value)
                     console.log(error)
                 })
         }
         
-        // nsfwコンテンツの表示設定
-        const toggleDisplayNsfw = (): void => {
-            tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((_: any, j: number) => 
-                    tagsList.value[i].content[j]['display'] = 
-                        !tagsList.value[i].content[j].nsfw || displayNsfw.value ? true : false
-                )
-            })
-        } 
-
-        // nsfw表示切り替えボタンを押した際の処理
-        const displayNsfwContent = (): void => {
-            toggleDisplayNsfw()
+        // 年齢制限切り替えボタンを押した際の処理
+        const toggleDisplayNsfw = (limit: string): void => {
             setSpells.value.map(prompt => selectPromptFromSearch(prompt.tag))
+            displayNsfw.value = limit
+            setDisplayNsfw(displayNsfw.value)
         }
 
         // 手動入力でのプロンプトの追加
@@ -309,10 +356,12 @@ export default {
 
                         tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
-                        if (!displayNsfw.value && tagsList.value[i].content[j].nsfw) { 
-                            displayNsfw.value = true
-                            toggleDisplayNsfw()
+                        if (displayNsfw.value === 'A') {
+                            displayNsfw.value = tagsList.value[i].content[j].nsfw
+                        } else if (displayNsfw.value === 'C' && tagsList.value[i].content[j].nsfw === 'Z') {
+                            displayNsfw.value = 'Z'
                         }
+                        setDisplayNsfw(displayNsfw.value)
                         return setPrompt
                     } 
                 }
@@ -497,9 +546,9 @@ export default {
             colorMonochrome,
             enhanceBraceMessage,
             isEditNAIPrompt: isEditNAIPrompt,
-            displayNsfwContent,
             uploadSpell,
             toggleSetPromptList,
+            toggleDisplayNsfw,
             changePromptColor,
             addManualPromptToList,
             enhanceSpell,

@@ -140,9 +140,13 @@ button, input[type="submit"] {
     box-shadow: 2px 2px hsl(196, 100%, 40%);
     transition: all 0.03s;
 }
-.btn-toggle.nsfw {
+.btn-toggle.r-15 {
+    background: hsl(120, 80%, 90%);
+    box-shadow: 2px 2px hsl(120, 100%, 40%);
+}
+.btn-toggle.r-18 {
     background: hsl(20, 80%, 90%);
-    box-shadow: 2px 2px hsl(9, 100%, 64%);
+    box-shadow: 2px 2px hsl(9, 100%, 40%);
 }
 .btn-toggle.selected {
     padding: 4px 8px;
@@ -152,7 +156,11 @@ button, input[type="submit"] {
     border: none;
     transform: translate(2px, 2px);
 }
-.btn-toggle.nsfw.selected {
+.btn-toggle.r-15.selected {
+    background: hsl(120, 100%, 15%);
+    box-shadow: inset 3px 3px 3px hsl(120, 100%, 5%);
+}
+.btn-toggle.r-18.selected {
     background: hsl(9, 100%, 15%);
     box-shadow: inset 3px 3px 3px hsl(9, 100%, 5%);
 }

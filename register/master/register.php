@@ -195,6 +195,7 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                     <dt>ID</dt>
                     <dd>
                         <input 
+                            name="id"
                             type="number"
                             value="<?= isset($prompt_info['genre_id']) ? h($prompt_info['genre_id']) : $max_genre_id + 1 ?>"
                             readonly
