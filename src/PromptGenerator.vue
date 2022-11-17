@@ -1,7 +1,7 @@
 <template>
     <div class="top-content">
         <div class="main">
-            <HeaderComponent></HeaderComponent>
+            <HeaderComponent :user="user_id"></HeaderComponent>
             <div class="content">
                 <div class="main-content">
                     <section class="upload-prompt">
@@ -124,8 +124,11 @@
                             </div>
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
-                                <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
-                            </div>                          
+                                <button 
+                                    @click="openSaveModal(setSpells, true)" class="btn-common blue" 
+                                    v-if="user_id !== ''"
+                                >保存</button>
+                            </div>                
                         </div>
                         <span class="copy-alert">{{ copyAlert }}</span>           
                     </div>
@@ -133,7 +136,7 @@
             </div>
         </div>
         <ModalDBComponent
-            :prompts="promptForDB"
+            :prompts="spellsNovelAI"
             :copyMessage="copyAlert"
             :displayModalState="isOpenSaveModal"
             @updateModal="updateModalState"
@@ -441,19 +444,10 @@ export default {
 
         // DB保存モーダルの表示可否
         const isOpenSaveModal = ref(false)
-        // DB保存用のデータ
-        const promptForDB = ref({
-            commands: '',
-            commands_ban: '',
-            description: '',
-            seed: '',
-            resolution: '',
-            others: '',
-        })
         // DB保存用のモーダルを開く
-        const openSaveModal = (promptList: {[key: string]: any}[]): void => {
+        const openSaveModal = (promptList: {[key: string]: any}[], modalState: boolean): void => {
             convertToNovelAITags(promptList)
-            promptForDB.value.commands = spellsNovelAI.value
+            isOpenSaveModal.value = modalState
         }
         
         // プロンプトをコピーした際のアラート
@@ -472,12 +466,24 @@ export default {
         const isEditNAIPrompt = ref(false)
         const toggleIsEditNAIPrompt = (state: boolean): boolean => isEditNAIPrompt.value = state
         
+        // ログインユーザーIDを取得
+        const user_id = ref<string>('')
+        const getUserInfo = async() => {
+            const url = './register/api/getUserInfo.php'
+            axios.get(url)
+                .then(response => user_id.value = response.data.user_id)
+                .catch(error => console.log(error))
+        }
 
-        // 画面読み込み時、DBからマスタデータを取得。できない場合はローカルから取得。
-        onMounted(() => getMasterData())
+        // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
+        onMounted(() => {
+            getUserInfo()
+            getMasterData()
+        })
         
         return {
             tagsList,
+            user_id,
             hoverPromptName,
             setSpells,
             spellsNovelAI,
@@ -486,7 +492,6 @@ export default {
             displayNsfw: displayNsfw,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
-            promptForDB: promptForDB,
             selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,

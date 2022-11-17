@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <HeaderComponent></HeaderComponent> 
+        <HeaderComponent :user="user_id"></HeaderComponent> 
         <div class="content">
             <searchBoxComponent
                 :searchBoxData="searchData"
@@ -190,8 +190,20 @@ export default {
             copyAlertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
         }
 
+        // ログインユーザーIDを取得
+        const user_id = ref<string>('')
+        const getUserInfo = async() => {
+            const url = './register/api/getUserInfo.php'
+            axios.get(url)
+                .then(response => user_id.value = response.data.user_id)
+                .catch(error => console.log(error))
+        }
+
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-        onMounted(() => getPresetData(searchData.value))
+        onMounted(() => {
+            getUserInfo()
+            getPresetData(searchData.value)
+        })
 
         return {
             savedPromptList,
@@ -200,6 +212,7 @@ export default {
             searchData: searchData,
             enhanceBraceMessage: enhanceBraceMessage,
             copyAlertText,
+            user_id,
             selectPreset,
             getPresetData,
             toggleEnhanceBrace,
