@@ -5,8 +5,7 @@ $post = json_decode(file_get_contents('php://input'), true);
 
 $home = '../';
 require_once($home . 'database/commonlib.php');
-require_once($home . 'api/registerPreset.php');
+require_once($home . 'api/setPreset.php');
 setPreset($post);
-
-exit;
+echo json_encode(['test' => 'aaaaa'], JSON_UNESCAPED_UNICODE);
 ?>

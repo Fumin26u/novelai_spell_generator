@@ -99,8 +99,15 @@ function setPreset($post) {
             ];
         }
     } catch (PDOException $e) {
-        echo 'データベース接続に失敗しました。';
-        if (DEBUG) echo $e;
+        if ($_POST['from'] === 'saver') {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        } else if ($_POST['from'] === 'generator') {
+            $error = [
+                'response' => $e
+            ];
+            echo json_encode($error, JSON_UNESCAPED_UNICODE);
+        }
     }
 }
 ?>
