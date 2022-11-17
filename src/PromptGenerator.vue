@@ -124,8 +124,8 @@
                             </div>
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
-                                <button @click="openSaveModal(setSpells), isOpenSaveModal = true" class="btn-common blue">保存</button>
-                            </div>                          
+                                <button @click="openSaveModal(setSpells, true)" class="btn-common blue">保存</button>
+                            </div>                
                         </div>
                         <span class="copy-alert">{{ copyAlert }}</span>           
                     </div>
@@ -133,7 +133,7 @@
             </div>
         </div>
         <ModalDBComponent
-            :prompts="promptForDB"
+            :prompts="spellsNovelAI"
             :copyMessage="copyAlert"
             :displayModalState="isOpenSaveModal"
             @updateModal="updateModalState"
@@ -441,19 +441,10 @@ export default {
 
         // DB保存モーダルの表示可否
         const isOpenSaveModal = ref(false)
-        // DB保存用のデータ
-        const promptForDB = ref({
-            commands: '',
-            commands_ban: '',
-            description: '',
-            seed: '',
-            resolution: '',
-            others: '',
-        })
         // DB保存用のモーダルを開く
-        const openSaveModal = (promptList: {[key: string]: any}[]): void => {
+        const openSaveModal = (promptList: {[key: string]: any}[], modalState: boolean): void => {
             convertToNovelAITags(promptList)
-            promptForDB.value.commands = spellsNovelAI.value
+            isOpenSaveModal.value = modalState
         }
         
         // プロンプトをコピーした際のアラート
@@ -486,7 +477,6 @@ export default {
             displayNsfw: displayNsfw,
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
-            promptForDB: promptForDB,
             selectedColor: selectedColor,
             colorMultiColor,
             colorMonochrome,

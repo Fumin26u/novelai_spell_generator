@@ -375,6 +375,7 @@ $canonical = "https://nai-pg.com/register/";
         imageDnd.style.border = "2px solid #ccc";
         
         const file = e.dataTransfer.files;
+        console.log(file)
         if (file.length !== 1) return alert('複数ファイルのアップロードはできません。');
         imageFile.files = file;
         imagePreview.classList.add('on');
