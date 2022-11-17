@@ -167,6 +167,11 @@ try {
 $cToken = bin2hex(random_bytes(32));
 $_SESSION['cToken'] = $cToken;
 
+$age_list = [
+    'nsfw_a' => ['A', '全年齢'],
+    'nsfw_c' => ['C', 'R-15'],
+    'nsfw_z' => ['Z', 'R-18'],
+];
 $title = 'マスタデータ登録・編集 | NovelAI プロンプトセーバー';
 $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャンル登録・編集';
 ?>
@@ -232,30 +237,16 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                 <div>
                     <dt>年齢制限</dt>
                     <dd>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_a"
-                            value="A" 
-                            <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === 'A' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_a">全年齢</label>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_c"
-                            value="C" 
-                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'C' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_c">R-15</label>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_z"
-                            value="Z" 
-                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'Z' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_z">R-18</label>
+                        <?php foreach ($age_list as $id => $value) { ?>
+                            <input 
+                                type="radio" 
+                                name="nsfw" 
+                                id="<?= $id ?>"
+                                value="<?= $value[0] ?>" 
+                                <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === $value[0] ? ' checked' : '' ?>
+                            >
+                            <label for="<?= $id ?>"><?= $value[1] ?></label>
+                        <?php } ?>
                     </dd>
                 </div>
             </dl>
@@ -313,30 +304,16 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                 <div>
                     <dt>年齢制限</dt>
                     <dd>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_a"
-                            value="A" 
-                            <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === 'A' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_a">全年齢</label>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_c"
-                            value="C" 
-                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'C' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_c">R-15</label>
-                        <input 
-                            type="radio" 
-                            name="nsfw" 
-                            id="nsfw_z"
-                            value="Z" 
-                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'Z' ? ' checked' : '' ?>
-                        >
-                        <label for="nsfw_z">R-18</label>
+                        <?php foreach ($age_list as $id => $value) { ?>
+                            <input 
+                                type="radio" 
+                                name="nsfw" 
+                                id="<?= $id ?>"
+                                value="<?= $value[0] ?>" 
+                                <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === $value[0] ? ' checked' : '' ?>
+                            >
+                            <label for="<?= $id ?>"><?= $value[1] ?></label>
+                        <?php } ?>
                     </dd>
                 </div>
                 <div>
