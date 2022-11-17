@@ -211,7 +211,6 @@ export default {
         // nsfwコンテンツの表示設定
         const setDisplayNsfw = (limit: string): void => {
             tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
-                console.log(tagsList.value[i].nsfw)
                 switch (limit) {
                     case 'A':
                         tagsList.value[i]['display'] = 
