@@ -3,9 +3,9 @@
         <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
         <div class="link-area">
             <div class="main-link">
-                <a href="https://nai-pg.com/" target="_blank" class="prompt-generator">プロンプトジェネレーター</a>
-                <a href="https://nai-pg.com/#/saves/" target="_blank" class="prompt-saver">プロンプトセーバー</a>
-                <a href="https://nai-pg.com/register/commands.php" target="_blank" class="preset-register">プリセット登録</a>
+                <a href="https://nai-pg.com/" class="prompt-generator">プロンプトジェネレーター</a>
+                <a href="https://nai-pg.com/#/saves/" class="prompt-saver">プロンプトセーバー</a>
+                <a href="https://nai-pg.com/register/commands.php" class="preset-register">プリセット登録</a>
             </div>
             <div class="sub-link">
                 <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
