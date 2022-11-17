@@ -161,7 +161,7 @@ export default {
     transform: translate(-50%, -50%);
     max-width: 900px;
     width: 70%;
-    height: 72vh;
+    height: 64vh;
     overflow-y: auto;
     background: white;
     z-index: 99;
