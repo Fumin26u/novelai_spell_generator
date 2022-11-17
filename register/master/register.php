@@ -101,7 +101,7 @@ try {
                 $st->bindValue(':slag', h($_POST['slag']), PDO::PARAM_STR);
                 $st->bindValue(':jp', h($_POST['jp']), PDO::PARAM_STR);
                 $st->bindValue(':detail', isset($_POST['detail']) ? h($_POST['detail']) : null, PDO::PARAM_STR);
-                $st->bindValue(':nsfw', isset($_POST['nsfw']) ? 1 : 0, PDO::PARAM_INT);
+                $st->bindValue(':nsfw', isset($_POST['nsfw']) ? h($_POST['nsfw']) : 'A', PDO::PARAM_STR);
                 if ($content === 'command') {
                     $st->bindValue(':parent_group', h($_POST['parent_group']), PDO::PARAM_STR);
                     $st->bindValue(':variation', h($_POST['variation']) === 'none' ? null : h($_POST['variation']), PDO::PARAM_STR);
@@ -164,7 +164,6 @@ try {
     echo 'データベース接続に失敗しました。';
     if (DEBUG) echo $e;
 }
-
 $cToken = bin2hex(random_bytes(32));
 $_SESSION['cToken'] = $cToken;
 
@@ -234,12 +233,29 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                     <dt>年齢制限</dt>
                     <dd>
                         <input 
-                            type="checkbox" 
+                            type="radio" 
                             name="nsfw" 
-                            id="nsfw"
-                            value="<?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'on' ? ' checked' : '' ?>" 
+                            id="nsfw_a"
+                            value="A" 
+                            <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === 'A' ? ' checked' : '' ?>
                         >
-                        <label for="nsfw">R-18指定にする</label>
+                        <label for="nsfw_a">全年齢</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_c"
+                            value="C" 
+                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'C' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_c">R-15</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_z"
+                            value="Z" 
+                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'Z' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_z">R-18</label>
                     </dd>
                 </div>
             </dl>
@@ -298,12 +314,29 @@ $h2_title = $content === 'command' ? 'プロンプト登録・編集' : 'ジャ�
                     <dt>年齢制限</dt>
                     <dd>
                         <input 
-                            type="checkbox" 
+                            type="radio" 
                             name="nsfw" 
-                            id="nsfw"
-                            value="<?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'on' ? ' checked' : '' ?>" 
+                            id="nsfw_a"
+                            value="A" 
+                            <?= !isset($prompt_info['nsfw']) || $prompt_info['nsfw'] === 'A' ? ' checked' : '' ?>
                         >
-                        <label for="nsfw">R-18指定にする</label>
+                        <label for="nsfw_a">全年齢</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_c"
+                            value="C" 
+                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'C' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_c">R-15</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_z"
+                            value="Z" 
+                            <?= isset($prompt_info['nsfw']) && $prompt_info['nsfw'] === 'Z' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_z">R-18</label>
                     </dd>
                 </div>
                 <div>

@@ -35,7 +35,7 @@ function shapeMasterData($genres, $commands) {
             'jp' => $genre['genre_jp'],
             'slag' => $genre['genre_slag'],
             'caption' => $genre['caption'],
-            'nsfw' => $genre['nsfw'] === "1" ? true : false,
+            'nsfw' => $genre['nsfw'],
             'content' => [],
         ];
     }
@@ -45,7 +45,7 @@ function shapeMasterData($genres, $commands) {
             'id' => $command['command_id'],
             'tag' => $command['command_name'],
             'jp' => $command['command_jp'],
-            'nsfw' => $command['nsfw'] === "1" ? true : false,
+            'nsfw' => $command['nsfw'],
             'variation' => $command['variation'],
             'detail' => $command['detail'],
         ];

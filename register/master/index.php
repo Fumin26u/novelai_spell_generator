@@ -78,7 +78,22 @@ $title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
                         <td id="id"><?= $i ?></td>
                         <td id="jp"><?= $genres['jp'] ?></td>
                         <td id="slag"><?= $genres['slag'] ?></td>
-                        <td id="nsfw"><?= $genres['nsfw'] ? 'R-18' : '全年齢' ?></td>
+                        <td id="nsfw"><?php 
+                            switch ($genres['nsfw']) {
+                                case 'A':
+                                    echo '全年齢';
+                                    break;
+                                case 'C':
+                                    echo 'R-15';
+                                    break;
+                                case 'Z':
+                                    echo 'R-18';
+                                    break;
+                                default:
+                                    echo '全年齢';
+                                    break;
+                            }
+                        ?></td>
                         <td id="variation"></td>
                         <td id="edit">
                             <a href="./register.php?genre_id=<?= $i ?>">編集</a>
@@ -92,7 +107,22 @@ $title = 'マスタデータ一覧 | NovelAI プロンプトセーバー';
                             <td id="id"><?= $commands['id'] ?></td>
                             <td id="jp"><?= $commands['jp'] ?></td>
                             <td id="slag"><?= $commands['tag'] ?></td>
-                            <td id="nsfw"><?= $commands['nsfw'] ? 'R-18' : '全年齢' ?></td>
+                            <td id="nsfw"><?php 
+                                switch ($commands['nsfw']) {
+                                    case 'A':
+                                        echo '全年齢';
+                                        break;
+                                    case 'C':
+                                        echo 'R-15';
+                                        break;
+                                    case 'Z':
+                                        echo 'R-18';
+                                        break;
+                                    default:
+                                        echo '全年齢';
+                                        break;
+                                }
+                            ?></td>
                             <td id="variation">
                                 <?php
                                     switch ($commands['variation']) {
