@@ -1,6 +1,7 @@
 <?php
 $home = './';
 require_once($home . 'database/commonlib.php');
+require_once($home . 'api/setPreset.php');
 
 $message = [];
 $err = [];
@@ -8,50 +9,6 @@ $err = [];
 if (!isset($_SESSION['user_id'])) {
     header('location: ./login.php', true, 303);
     exit;
-}
-
-// アップロードされた画像からサムネイルを抽出し、ファイル名を変更した後指定フォルダに保存
-function setImages() {
-    $image = $_FILES['image']['name'];
-    $imageLocalPath = $_FILES['image']['tmp_name'];
-    $imageDirPath = './images/preset/original/';
-    
-    // ファイルを保存
-    move_uploaded_file($imageLocalPath, $imageDirPath . $image);
-
-    // ファイル名の変更
-    $imageFileName = uniqid("img") . '.png';
-    rename($imageDirPath . $image, $imageDirPath . $imageFileName);
-
-    // ファイルの解像度を取得
-    list($width, $height, $type, $attr) = getimagesize($imageDirPath . $imageFileName);
-    // サムネイル用にオリジナル画像を16:10の比率で切り取る
-    $cropWidth = $width;
-    $cropHeight = $height;
-    while (true) {
-        $h = ($cropWidth / 16) * 10;
-        if ($h < $cropHeight) {
-            $cropHeight = $h;
-            break;
-        } else {
-            $cropWidth -= 10;
-        }
-    }
-    // 画像の切り取る位置の0ベクトル地点
-    $cropX = ($width / 2) - ($cropWidth / 2);
-    $cropY = 0;
-    // 画像を切り取る
-    $croppedImage = imagecrop(
-        imagecreatefrompng($imageDirPath . $imageFileName),
-        ['x' => $cropX, 'y' => $cropY, 'width' => $cropWidth, 'height' => $cropHeight]
-    );
-    // 切り取った画像をthumbnailフォルダに出力
-    if ($croppedImage !== false) {
-        imagepng($croppedImage, './images/preset/thumbnail/' . $imageFileName);
-        imagedestroy($croppedImage);
-    }
-
-    return $imageFileName;
 }
 
 $presets = [];
@@ -83,7 +40,6 @@ if (isset($_GET['preset_id'])) {
         echo 'データベース接続に失敗しました。';
         if (DEBUG) echo $e;
     }
-    
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -109,69 +65,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (DEBUG) echo $e;
         }
     } else {
-        try {
-            $pdo = dbConnect();
-            $pdo->beginTransaction();
+        $response = setPreset($_POST);
+        $message[] = $response['message'];
+        $imageFileName = $response['imagePath'];
 
-            // 画像がアップロードされた場合、リネームとサムネイル抽出を行い特定フォルダに保存
-            $imageFileName = isset($presets['image']) ? $presets['image'] : '';
-            if ($_FILES['image']['name'] !== '') $imageFileName = setImages();
-
-            if (isset($_GET['preset_id'])) {
-                $sql = <<<SQL
-                    UPDATE preset SET
-                    commands = :commands,
-                    commands_ban = :commands_ban,
-                    description = :description,
-                    image = :image,
-                    nsfw = :nsfw,
-                    seed = :seed,
-                    resolution = :resolution,
-                    others = :others,
-                    updated_at = NOW()
-                    WHERE preset_id = :preset_id AND user_id = :user_id
-                SQL;
-            } else {
-                $sql = <<<SQL
-                INSERT INTO preset 
-                (user_id, commands, commands_ban, description, image, nsfw, seed, resolution, others, created_at, updated_at)
-                VALUES 
-                (:user_id, :commands, :commands_ban, :description, :image, :nsfw, :seed, :resolution, :others, NOW(), NOW())
-                SQL;
-            }
-            $st = $pdo->prepare($sql);
-            if (isset($_GET['preset_id'])) $st->bindValue(':preset_id', h($_GET['preset_id']), PDO::PARAM_INT); 
-            $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
-            $st->bindValue(':commands', h($_POST['commands']), PDO::PARAM_STR);
-            $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
-            $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
-            $st->bindValue(':image', $imageFileName !== '' ? $imageFileName : null, PDO::PARAM_STR);
-            $st->bindValue(':nsfw', isset($_POST['nsfw']) ? h($_POST['nsfw']) : 'A', PDO::PARAM_STR);
-            $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
-            $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
-            $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
-
-            $st->execute();
-            $pdo->commit();
-
-            $message[] = isset($_GET['preset_id']) ? '更新しました' : '登録しました';
-
-            $presets = [
-                'user_id' => h($_SESSION['user_id']),
-                'commands' => h($_POST['commands']),
-                'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
-                'image' => $imageFileName !== '' ? $imageFileName : null,
-                'description' => isset($_POST['description']) ? h($_POST['description']) : '',
-                'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
-                'nsfw' => $_POST['nsfw'],
-                'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
-                'others' => isset($_POST['others']) ? h($_POST['others']) : '',
-            ];
-
-        } catch (PDOException $e) {
-            echo 'データベース接続に失敗しました。';
-            if (DEBUG) echo $e;
-        }
+        $presets = [
+            'user_id' => h($_SESSION['user_id']),
+            'commands' => h($_POST['commands']),
+            'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
+            'image' => $imageFileName !== '' ? $imageFileName : null,
+            'description' => isset($_POST['description']) ? h($_POST['description']) : '',
+            'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
+            'nsfw' => $_POST['nsfw'],
+            'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
+            'others' => isset($_POST['others']) ? h($_POST['others']) : '',
+        ];
     }
 }
 
@@ -231,7 +139,7 @@ $canonical = "https://nai-pg.com/register/";
                         <input 
                             type="file" 
                             name="image"
-                            onchange="previewImage(this)"
+                            onchange="previewImage(event)"
                             accept="image/png"
                             id="image-file"
                         >
@@ -327,6 +235,7 @@ $canonical = "https://nai-pg.com/register/";
                     <dd><textarea name="others" cols="30" rows="10"><?= isset($presets['others']) ? h($presets['others']) : '' ?></textarea></dd>
                 </div>
                 <input type="hidden" name="cToken" value="<?= $cToken ?>">
+                <input type="hidden" name="from" value="saver">
                 <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
             </dl>
         </form>
@@ -363,11 +272,17 @@ $canonical = "https://nai-pg.com/register/";
     const imagePreview = document.getElementById('image-preview');
     const imagePreviewArea = document.getElementById('image-preview-area')
     const fileReader = new FileReader();
-    function previewImage(image) {
+    function displayImagePreview(image) {
         fileReader.onload = (() => {
             imagePreviewArea.src = fileReader.result;
         });
         fileReader.readAsDataURL(image);
+    }
+    
+    // ファイル選択から直接送られた画像をプレビューに反映
+    function previewImage(event) {
+        console.log(event.target.files[0])
+        if (event.target.files) displayImagePreview(event.target.files[0])
     }
 
     // 画像を取得しファイル名とプレビューに反映
@@ -375,7 +290,6 @@ $canonical = "https://nai-pg.com/register/";
         imageDnd.style.border = "2px solid #ccc";
         
         const file = e.dataTransfer.files;
-        console.log(file)
         if (file.length !== 1) return alert('複数ファイルのアップロードはできません。');
         imageFile.files = file;
         imagePreview.classList.add('on');
@@ -383,7 +297,8 @@ $canonical = "https://nai-pg.com/register/";
 
         e.stopPropagation();
         e.preventDefault();
-        previewImage(file[0]);
+        console.log(file[0])
+        displayImagePreview(file[0]);
     }
 
     // dndエリアに画像がドラッグされた際の処理

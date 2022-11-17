@@ -103,9 +103,15 @@ export default {
                 return
             }
 
-            const url = './register/api/registerPreset.php'
-            axios.post(url, promptForDB).catch(error => console.log(error))
-            updateText('プロンプトをデータベースに登録しました。')
+            const url = './register/api/setPreset.php?from=generator'
+            axios.post(url, promptForDB, {
+                headers: {'content-type': 'multipart/form-data'}
+            }).then(() => {
+                updateText('プロンプトをデータベースに登録しました。')
+            }).catch(error => {
+                updateText('データベース接続に失敗しました。')
+                console.log(error)
+            })
             updateModal(false)
         }
 
