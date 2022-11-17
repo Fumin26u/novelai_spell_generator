@@ -179,6 +179,11 @@ header .header-right a {
     width: auto;
     cursor: pointer;
 }
+.form-common dd input[type="radio"], .form-common dd label {
+    display: inline-block;
+    vertical-align: middle;
+    width: auto;
+}
  
 /* --------------------
 

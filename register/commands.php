@@ -110,12 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         try {
-            // nsfwにチェックが付いているか、プロンプトセットにnsfwが入っていればnsfw指定にする
-            $isNsfw = 
-                strpos($_POST['commands'], 'nsfw') !== false || 
-                (isset($_POST['nsfw']) && $_POST['nsfw'] === 'on')
-                ? 'Z' : 'A';
-
             $pdo = dbConnect();
             $pdo->beginTransaction();
 
@@ -152,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->bindValue(':commands_ban', isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : null, PDO::PARAM_STR);
             $st->bindValue(':description', isset($_POST['description']) ? h($_POST['description']) : null, PDO::PARAM_STR);
             $st->bindValue(':image', $imageFileName !== '' ? $imageFileName : null, PDO::PARAM_STR);
-            $st->bindValue(':nsfw', $isNsfw, PDO::PARAM_INT);
+            $st->bindValue(':nsfw', isset($_POST['nsfw']) ? h($_POST['nsfw']) : 'A', PDO::PARAM_STR);
             $st->bindValue(':seed', isset($_POST['seed']) ? h($_POST['seed']) : null, PDO::PARAM_STR);
             $st->bindValue(':resolution', isset($_POST['resolution']) ? h($_POST['resolution']) : null, PDO::PARAM_STR);
             $st->bindValue(':others', isset($_POST['others']) ? h($_POST['others']) : null, PDO::PARAM_STR);
@@ -169,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'image' => $imageFileName !== '' ? $imageFileName : null,
                 'description' => isset($_POST['description']) ? h($_POST['description']) : '',
                 'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
-                'nsfw' => $isNsfw === 1 ? true : false,
+                'nsfw' => $_POST['nsfw'],
                 'resolution' => isset($_POST['resolution']) ? h($_POST['resolution']) : '',
                 'others' => isset($_POST['others']) ? h($_POST['others']) : '',
             ];
@@ -260,7 +254,7 @@ $canonical = "https://nai-pg.com/register/";
                         <input 
                             type="text" 
                             name="commands_ban" 
-                            value="<?= isset($presets['commands_ban']) ? $presets['commands_ban'] : '{{extra fingers}}, poorly drawn hands, poorly drawn face, {mutation},{deformed}, bad anatomy ,bad proportions,{{extra limbs}},heterochromia' ?>"
+                            value="<?= isset($presets['commands_ban']) ? $presets['commands_ban'] : '' ?>"
                         >
                     </dd>
                 </div>
@@ -275,15 +269,32 @@ $canonical = "https://nai-pg.com/register/";
                     </dd>
                 </div>
                 <div>
-                    <dt>nsfw</dt>
+                    <dt>年齢制限</dt>
                     <dd>
                         <input 
-                            type="checkbox" 
+                            type="radio" 
                             name="nsfw" 
-                            id="nsfw"
-                            <?= isset($presets['nsfw']) && $presets['nsfw'] ? ' checked' : '' ?>
+                            id="nsfw_a"
+                            value="A"
+                            <?= !isset($presets['nsfw']) || $presets['nsfw'] === 'A' ? ' checked' : '' ?>
                         >
-                        <label for="nsfw">nsfwに設定する</label>
+                        <label for="nsfw_a">全年齢</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_c"
+                            value="C"
+                            <?= isset($presets['nsfw']) && $presets['nsfw'] === 'C' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_c">R-15</label>
+                        <input 
+                            type="radio" 
+                            name="nsfw" 
+                            id="nsfw_z"
+                            value="Z"
+                            <?= isset($presets['nsfw']) && $presets['nsfw'] === 'Z' ? ' checked' : '' ?>
+                        >
+                        <label for="nsfw_z">R-18</label>
                     </dd>
                 </div>
                 <div>
