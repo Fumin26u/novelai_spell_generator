@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $err[] = '入力されたユーザー名は存在しません。';
                 // パスワードの照合
             } else if(!password_verify(h($_POST['password']), $rows['password'])) {
-                v($rows);
                 $err[] = '入力されたパスワードが間違っています。';
             }
 
