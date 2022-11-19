@@ -222,12 +222,14 @@ button, input[type="submit"] {
     年齢別テキストカラー
 
 --------------------*/
-p.nsfw_A {
-    color: $color-age-a;
-}
-p.nsfw_C {
-    color: $color-age-c;
-}
-p.nsfw_Z {
-    color: $color-age-z;
+p, select {
+    &.nsfw_A {
+        color: $color-age-a;
+    }
+    &.nsfw_C {
+        color: $color-age-c;
+    }
+    &.nsfw_Z {
+        color: $color-age-z;
+    }
 }
