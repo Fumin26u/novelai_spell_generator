@@ -33,14 +33,14 @@
 }
 
 .search-box {
-    border: 2px dashed #888;
+    border: 2px dashed $border-color;
     padding: 0 8px 1em;
     margin: 0 auto 1em;
     text-align: center;
     > dl > div {
         margin: 4px;
         padding: 12px 2px;
-        border-bottom: 1px solid #888;
+        border-bottom: 1px solid $border-color;
         text-align: left;
         > dt, > dd {
             display: inline-block;
@@ -83,7 +83,7 @@
     width: 67.9%;
 }
 .preset-content {
-    border-right: 1px solid #888;
+    border-right: 1px solid $border-color;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -91,7 +91,7 @@
     > div {
         cursor: pointer;
         width: 22%;
-        border: 1px solid #888;
+        border: 1px solid $border-color;
         margin: 0 1em 2em 0;
         padding: 8px 0;
         box-shadow: 2px 2px 4px #aaa;
@@ -110,7 +110,7 @@
         > img {
             height: 135px;
             object-fit: cover;
-            border-bottom: 1px solid #888;
+            border-bottom: 1px solid $border-color;
             display: block;
         }
         > p {
@@ -164,7 +164,7 @@
     > div > ul li {
         padding: 0 0 8px;
         margin: 0 0 8px;
-        border-bottom: 1px solid #888;
+        border-bottom: 1px solid $border-color;
         display: block;
         width: 100%;
         > h3, button {
