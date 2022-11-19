@@ -197,37 +197,24 @@ export default {
         }
 
         // nsfwコンテンツの表示設定
+        const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
+            switch (limit) {
+                case 'A':
+                    return promptNsfw === 'A' ? true:false
+                case 'C':
+                    return promptNsfw === 'A' || promptNsfw === 'C' ? true:false          
+                case 'Z':
+                    return true
+                default:
+                    return promptNsfw === 'A' ? true:false
+            }
+        }
+        
         const setDisplayNsfw = (limit: string): void => {
             tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
-                switch (limit) {
-                    case 'A':
-                        tagsList.value[i]['display'] = 
-                        tagsList.value[i].nsfw === 'A' ? true:false
-                        break
-                    case 'C':
-                        tagsList.value[i]['display'] = 
-                        tagsList.value[i].nsfw === 'A' || 
-                        tagsList.value[i].nsfw === 'C' ? true:false
-                        break
-                    case 'Z':
-                        tagsList.value[i]['display'] = true
-                        break
-                }
+                tagsList.value[i]['display'] = judgeIsDisplay(limit, tagsList.value[i].nsfw)
                 genre.content.map((_: any, j: number) => {
-                    switch (limit) {
-                        case 'A':
-                            tagsList.value[i].content[j]['display'] = 
-                            tagsList.value[i].content[j].nsfw === 'A' ? true:false
-                            break
-                        case 'C':
-                            tagsList.value[i].content[j]['display'] = 
-                            tagsList.value[i].content[j].nsfw === 'A' || 
-                            tagsList.value[i].content[j].nsfw === 'C' ? true:false
-                            break
-                        case 'Z':
-                            tagsList.value[i].content[j]['display'] = true
-                            break
-                    }
+                    tagsList.value[i].content[j]['display'] = judgeIsDisplay(limit, tagsList.value[i].content[j].nsfw)
                 })
             })
         } 
