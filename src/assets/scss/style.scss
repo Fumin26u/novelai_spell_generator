@@ -155,11 +155,11 @@ button, input[type="submit"] {
     box-shadow: 2px 2px  $color-age-a;
     transition: all 0.03s;
 }
-.btn-toggle.r-15 {
+.btn-toggle.nsfw_C {
     background: hsl(120, 80%, 90%);
     box-shadow: 2px 2px $color-age-c;
 }
-.btn-toggle.r-18 {
+.btn-toggle.nsfw_Z {
     background: hsl(20, 80%, 90%);
     box-shadow: 2px 2px  $color-age-z;
 }
@@ -171,11 +171,11 @@ button, input[type="submit"] {
     border: none;
     transform: translate(2px, 2px);
 }
-.btn-toggle.r-15.selected {
+.btn-toggle.nsfw_C.selected {
     background: hsl(120, 100%, 15%);
     box-shadow: inset 3px 3px 3px hsl(120, 100%, 5%);
 }
-.btn-toggle.r-18.selected {
+.btn-toggle.nsfw_Z.selected {
     background: hsl(9, 100%, 15%);
     box-shadow: inset 3px 3px 3px hsl(9, 100%, 5%);
 }
@@ -222,14 +222,12 @@ button, input[type="submit"] {
     年齢別テキストカラー
 
 --------------------*/
-.nsfw_A {
+p.nsfw_A {
     color: $color-age-a;
 }
-
-.nsfw_C {
+p.nsfw_C {
     color: $color-age-c;
 }
-
-.nsfw_Z {
+p.nsfw_Z {
     color: $color-age-z;
 }

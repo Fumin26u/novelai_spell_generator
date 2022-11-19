@@ -7,7 +7,7 @@
                     <section class="user-setting-area">
                         <div class="upload-prompt">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
+                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser" @keyup.enter="uploadSpell(spellsByUser)">
                             <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
@@ -41,8 +41,7 @@
                                     <button 
                                         :class="[
                                             prompt.selected ? 'btn-toggle selected' : 'btn-toggle', 
-                                            prompt.nsfw === 'C' ? ' r-15' : '',
-                                            prompt.nsfw === 'Z' ? ' r-18' : ''
+                                            'nsfw_' + prompt.nsfw
                                         ]" 
                                         @click="toggleSetPromptList(i, j)"
                                         @mouseover="hoverPromptName = prompt.tag"
@@ -84,22 +83,13 @@
                                     <div v-if="element.variation !== null">
                                         <span class="caption">色の設定</span>
                                         <select 
-                                            v-if="element.variation === 'CC'"
+                                            v-if="element.color_list !== null"
                                             :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
                                             <option disabled :value="{}">(選択)</option>
-                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color">{{ color.jp }}</option>
-                                        </select>
-                                        <select 
-                                            v-if="element.variation === 'CM'"
-                                            :class="['nsfw_' + element.nsfw]"
-                                            v-model="selectedColor" 
-                                            @change="changePromptColor(selectedColor, index)"
-                                        >
-                                            <option disabled :value="{}">(選択)</option>
-                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
+                                            <option v-for="color in element.color_list" :key="color.prompt" :value="color">{{ color.jp }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -182,9 +172,7 @@ export default {
         const manualInputText = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref<{[key: string]: any}[]>([])
-        // カラー設定可能なプロンプトのカラーバリエーションと現在の値を格納する配列
-        const colorMultiColor = ref<{[key: string]: string}[]>(colorMulti)
-        const colorMonochrome = ref<{[key: string]: string}[]>(colorMono)
+        // カラー設定可能なプロンプトの選択されたカラーを格納する配列
         const selectedColor = ref<{[key: string]: string}>({})
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
@@ -280,7 +268,7 @@ export default {
                     detail: '',
                     slag: input.replace(' ', '_'),
                     enhance: enhanceCount,
-                    variation: null,
+                    color_list: null,
                     index: null,
                     nsfw: 'A'
                 })
@@ -295,14 +283,14 @@ export default {
             const colorTagJP = ref<string>('')
             // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
             if (promptBeforeSpace !== -1) {
-                colorMultiColor.value.map(color => {
+                colorMulti.map(color => {
                     if (promptBeforeSpace === color.prompt) {
                         colorTagJP.value = color.jp
                     }
                 })
             }
             
-            const setPrompt: {[key: string]: string | number} = {}
+            const setPrompt: {[key: string]: any} = {}
             for (let i = 0; i < tagsList.value.length; i++) {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
                     const prompt = tagsList.value[i].content[j]
@@ -318,16 +306,24 @@ export default {
                             setPrompt['jp'] = tagsList.value[i].content[j].jp
                         }
 
-                        setPrompt['original_name'] = tagname
-                        setPrompt['original_name_jp'] = tagsList.value[i].content[j].jp
                         setPrompt['parentTag'] = tagsList.value[i].jp
                         setPrompt['detail'] = ''
                         setPrompt['slag'] = tagname.replace(' ', '_')
                         setPrompt['enhance'] = enhanceCount
-                        setPrompt['variation'] = tagsList.value[i].content[j].variation
                         setPrompt['index'] = i + ',' + j
                         setPrompt['nsfw'] = tagsList.value[i].content[j].nsfw
                         setPrompt['error'] = ''
+                        switch (tagsList.value[i].content[j].variation) {
+                            case 'CC':
+                                setPrompt['color_list'] = colorMulti
+                                break
+                            case 'CM':
+                                setPrompt['color_list'] = colorMono
+                                break
+                            default:
+                                setPrompt['color_list'] = null
+                                break
+                        }
 
                         tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
@@ -371,7 +367,7 @@ export default {
                     } else if (tag.match(/\(/g) !== null) {
                         enhanceCount.value = tag.match(/\(/g)!.length
                     } 
-                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
+                    const tagname = tag.replace(/\{/g, "").replace(/\}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
 
                     // 設定プロンプトリストに必要情報を挿入 
                     const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
@@ -386,6 +382,17 @@ export default {
             
             queue['output_prompt'] = queue.tag
             queue['enhance'] = 0
+            switch (tagsList.value[i].content[j].variation) {
+                case 'CC':
+                    queue['color_list'] = colorMulti
+                    break
+                case 'CM':
+                    queue['color_list'] = colorMono
+                    break
+                default:
+                    queue['color_list'] = null
+                    break
+            }
             const selected = tagsList.value[i].content[j].selected
 
             if (!selected) {
@@ -487,7 +494,7 @@ export default {
 
         // 生成したプロンプトが編集状態か判定
         const isEditNAIPrompt = ref(false)
-        
+
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
@@ -515,8 +522,6 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             selectedColor: selectedColor,
-            colorMultiColor,
-            colorMonochrome,
             enhanceBraceMessage,
             isEditNAIPrompt: isEditNAIPrompt,
             uploadSpell,
