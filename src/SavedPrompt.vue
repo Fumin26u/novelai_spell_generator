@@ -118,7 +118,7 @@ export default {
 
         // 検索ボックスの入力内容
         const searchData = ref<any>({
-            age: ['A','C','Z'],
+            age: ['A'],
             item: ['description', 'commands'],
             word: '',
             sort: 'created_at',
