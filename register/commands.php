@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (DEBUG) echo $e;
         }
     } else {
-        $response = setPreset($_POST);
+        $response = setPreset($_POST, isset($presets['image']) ? $presets['image'] : '');
         $message[] = $response['message'];
         $imageFileName = $response['imagePath'];
 
