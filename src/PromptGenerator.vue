@@ -274,7 +274,7 @@ export default {
         }
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: any} => {            
+        const setPromptFromUploadText = (tagname: string, enhanceCount: number): void => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
             const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
             const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
@@ -329,12 +329,11 @@ export default {
                             displayNsfw.value = tagsList.value[i].content[j].nsfw
                         } 
                         setDisplayNsfw(displayNsfw.value)
-                        return setPrompt
+                        setSpells.value.push(setPrompt)
                     } 
                 }
             }
             addManualPromptToList(tagname, enhanceCount)
-            return {error: 'not found'}
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
@@ -368,8 +367,7 @@ export default {
                     const tagname = tag.replace(/\{/g, "").replace(/\}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
 
                     // 設定プロンプトリストに必要情報を挿入 
-                    const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
-                    if (searchedTags['error'] !== 'not found') setSpells.value.push(searchedTags)        
+                    setPromptFromUploadText(tagname, enhanceCount.value)      
                 }
             })
         }
