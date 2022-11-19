@@ -75,9 +75,7 @@
                                     <div class="prompt-name">
                                         <div>
                                             <span class="caption">{{ element.parentTag }}</span>
-                                            <p :class="['nsfw_' + element.nsfw]">
-                                                {{ element.jp }}
-                                            </p>
+                                            <p :class="['nsfw_' + element.nsfw]">{{ element.jp }}</p>
                                         </div>
                                     </div>
                                     <div v-if="element.variation !== null">
@@ -276,7 +274,7 @@ export default {
         }
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
+        const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: any} => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
             const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
             const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
