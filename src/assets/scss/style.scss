@@ -20,9 +20,9 @@ $mq-breakpoints: (
     smaller: 375px,
 ) !default;
 
-@mixin mediaQuery($breakpoint: md, $rule: min, $subtraction: false) {
+@mixin mediaQuery($breakpoint: md, $rule: min) {
     $breakpoint: map_get($mq-breakpoints, $breakpoint);
-    @if $rule == max and $subtraction {
+    @if $rule == max {
         $breakpoint: $breakpoint - 0.0625;
     }
 
