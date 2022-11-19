@@ -37,7 +37,7 @@
                         </li>
                         <li class="nsfw">
                             <h3>nsfw</h3>
-                            <p>{{ selectedPreset.nsfw ? 'あり' : 'なし' }}</p>
+                            <p>{{ selectedPreset.nsfw_display }}</p>
                         </li>
                         <li class="prompt copy">
                             <h3>プロンプト</h3>
@@ -103,8 +103,18 @@ export default {
 
         // 各プリセットがnsfwかどうか判定
         const setIsNsfw = (presets: {[key: string]: any}[]) => {
-            presets.map((preset, index) => {
-                savedPromptList.value[index]['nsfw'] = preset.commands.match(/nsfw/) ? true:false
+            presets.map((_, index) => {
+                switch (savedPromptList.value[index].nsfw) {
+                    case 'A':
+                        savedPromptList.value[index]['nsfw_display'] = '全年齢'
+                        break
+                    case 'C':
+                        savedPromptList.value[index]['nsfw_display'] = 'R-15'
+                        break
+                    case 'Z':
+                        savedPromptList.value[index]['nsfw_display'] = 'R-18'
+                        break
+                }
             })
         }
         
