@@ -45,14 +45,14 @@ function setImages() {
     return $imageFileName;
 }
 
-function setPreset($post) {
+function setPreset($post, $imagePath = '') {
     try {
         $pdo = dbConnect();
         $pdo->beginTransaction();
 
         // 画像がアップロードされた場合、リネームとサムネイル抽出を行い特定フォルダに保存
-        $imageFileName = isset($presets['image']) ? $presets['image'] : '';
-        if ($post['from'] === 'saver' && $_FILES['image']['name'] !== '') $imageFileName = setImages();
+        $imageFileName = $imagePath;
+        if ($post['from'] === 'saver' && $imagePath === '') $imageFileName = setImages();
     
         if (isset($_GET['preset_id'])) {
             $sql = <<<SQL

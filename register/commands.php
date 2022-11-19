@@ -58,14 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->execute();
 
             $pdo->commit();
-            header('location: ./', true, 303);
+            header('location: ../#/saves/', true, 303);
             exit;
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
             if (DEBUG) echo $e;
         }
     } else {
-        $response = setPreset($_POST);
+        $response = setPreset($_POST, isset($presets['image']) ? $presets['image'] : '');
         $message[] = $response['message'];
         $imageFileName = $response['imagePath'];
 
@@ -236,7 +236,9 @@ $canonical = "https://nai-pg.com/register/";
                 </div>
                 <input type="hidden" name="cToken" value="<?= $cToken ?>">
                 <input type="hidden" name="from" value="saver">
+                <?php if ($_SERVER['REQUEST_METHOD'] !== 'POST') { ?>
                 <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
+                <?php } ?>
             </dl>
         </form>
         <div class="preview">
