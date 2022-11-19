@@ -104,9 +104,9 @@
                                     </div>
                                 </div>
                                 <div class="enhance-area">
-                                    <button @click="enhanceSpell(index, -1)" class="btn-common red">－</button>
+                                    <button @click="setSpells[index].enhance -= 1" class="btn-common red">－</button>
                                     <span>{{ element.enhance }}</span>
-                                    <button @click="enhanceSpell(index, 1)" class="btn-common green">＋</button>
+                                    <button @click="setSpells[index].enhance += 1" class="btn-common green">＋</button>
                                 </div>
                                 <div class="delete-area">
                                     <button @click="deleteSetPromptList(index)" class="btn-common red">削除</button>
@@ -117,11 +117,11 @@
                     <div class="output-area">
                         <div class="text-area">
                             <p class="output"><b>出力値</b> (クリックで編集可)<br>
-                                <span v-if="!isEditNAIPrompt" @click="toggleIsEditNAIPrompt(true)">
+                                <span v-if="!isEditNAIPrompt" @click="isEditNAIPrompt = true">
                                     {{ spellsNovelAI }}
                                 </span>
                             </p>
-                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
+                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="isEditNAIPrompt = false"></textarea>
                         </div>
                         <div class="button-area">
                             <div class="generate">
@@ -428,13 +428,8 @@ export default {
             setSpells.value.splice(index, 1)
         }
 
-        // タグ(プロンプト)の強化
-        const enhanceSpell = (index: number, num: number): void => setSpells.value[index].enhance += num
-
         // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
-        // 強化値の{}と()を切り替える
-        const enhanceBraceMessage = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
@@ -446,8 +441,7 @@ export default {
                     text.value += spell.output_prompt
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance)
-                    
+                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance) 
                 } else if (spell.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = spell.enhance * -1
@@ -459,6 +453,7 @@ export default {
         }
 
         // 強化値の()と{}を切り替える
+        const enhanceBraceMessage = ref<string>('( )に変換')
         const toggleEnhanceBrace = () => {
             if (enhanceBraceMessage.value === '( )に変換') {
                 enhanceBraceMessage.value = '{ }に変換'
@@ -487,11 +482,11 @@ export default {
 
         // コンポーネントから受け取ったアラートテキストを更新する
         const updateAlertText = (text: string): string => copyAlert.value = text
-        // モーダルの表示状態を行進する
+        // モーダルの表示状態を更新する
         const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
 
+        // 生成したプロンプトが編集状態か判定
         const isEditNAIPrompt = ref(false)
-        const toggleIsEditNAIPrompt = (state: boolean): boolean => isEditNAIPrompt.value = state
         
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
@@ -529,7 +524,6 @@ export default {
             toggleDisplayNsfw,
             changePromptColor,
             addManualPromptToList,
-            enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
             toggleEnhanceBrace,
@@ -537,7 +531,6 @@ export default {
             copyToClipboard,
             updateAlertText,
             updateModalState,
-            toggleIsEditNAIPrompt,
         }
     }
 }
