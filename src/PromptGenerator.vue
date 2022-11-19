@@ -7,7 +7,7 @@
                     <section class="user-setting-area">
                         <div class="upload-prompt">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
+                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser" @keyup.enter="uploadSpell(spellsByUser)">
                             <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
@@ -41,8 +41,7 @@
                                     <button 
                                         :class="[
                                             prompt.selected ? 'btn-toggle selected' : 'btn-toggle', 
-                                            prompt.nsfw === 'C' ? ' r-15' : '',
-                                            prompt.nsfw === 'Z' ? ' r-18' : ''
+                                            'nsfw_' + prompt.nsfw
                                         ]" 
                                         @click="toggleSetPromptList(i, j)"
                                         @mouseover="hoverPromptName = prompt.tag"
@@ -76,37 +75,25 @@
                                     <div class="prompt-name">
                                         <div>
                                             <span class="caption">{{ element.parentTag }}</span>
-                                            <p :class="['nsfw_' + element.nsfw]">
-                                                {{ element.jp }}
-                                            </p>
+                                            <p :class="['nsfw_' + element.nsfw]">{{ element.jp }}</p>
                                         </div>
                                     </div>
-                                    <div v-if="element.variation !== null">
+                                    <div v-if="element.color_list !== null">
                                         <span class="caption">色の設定</span>
                                         <select 
-                                            v-if="element.variation === 'CC'"
                                             :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
                                             <option disabled :value="{}">(選択)</option>
-                                            <option v-for="color in colorMultiColor" :key="color.prompt" :value="color">{{ color.jp }}</option>
-                                        </select>
-                                        <select 
-                                            v-if="element.variation === 'CM'"
-                                            :class="['nsfw_' + element.nsfw]"
-                                            v-model="selectedColor" 
-                                            @change="changePromptColor(selectedColor, index)"
-                                        >
-                                            <option disabled :value="{}">(選択)</option>
-                                            <option v-for="color in colorMonochrome" :key="color.prompt" :value="color">{{ color.jp }}</option>
+                                            <option v-for="color in element.color_list" :key="color.prompt" :value="color">{{ color.jp }}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="enhance-area">
-                                    <button @click="enhanceSpell(index, -1)" class="btn-common red">－</button>
+                                    <button @click="setSpells[index].enhance -= 1" class="btn-common red">－</button>
                                     <span>{{ element.enhance }}</span>
-                                    <button @click="enhanceSpell(index, 1)" class="btn-common green">＋</button>
+                                    <button @click="setSpells[index].enhance += 1" class="btn-common green">＋</button>
                                 </div>
                                 <div class="delete-area">
                                     <button @click="deleteSetPromptList(index)" class="btn-common red">削除</button>
@@ -117,11 +104,11 @@
                     <div class="output-area">
                         <div class="text-area">
                             <p class="output"><b>出力値</b> (クリックで編集可)<br>
-                                <span v-if="!isEditNAIPrompt" @click="toggleIsEditNAIPrompt(true)">
+                                <span v-if="!isEditNAIPrompt" @click="isEditNAIPrompt = true">
                                     {{ spellsNovelAI }}
                                 </span>
                             </p>
-                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="toggleIsEditNAIPrompt(false)"></textarea>
+                            <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="isEditNAIPrompt = false"></textarea>
                         </div>
                         <div class="button-area">
                             <div class="generate">
@@ -182,9 +169,7 @@ export default {
         const manualInputText = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
         const setSpells = ref<{[key: string]: any}[]>([])
-        // カラー設定可能なプロンプトのカラーバリエーションと現在の値を格納する配列
-        const colorMultiColor = ref<{[key: string]: string}[]>(colorMulti)
-        const colorMonochrome = ref<{[key: string]: string}[]>(colorMono)
+        // カラー設定可能なプロンプトの選択されたカラーを格納する配列
         const selectedColor = ref<{[key: string]: string}>({})
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
@@ -197,37 +182,24 @@ export default {
         }
 
         // nsfwコンテンツの表示設定
+        const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
+            switch (limit) {
+                case 'A':
+                    return promptNsfw === 'A' ? true:false
+                case 'C':
+                    return promptNsfw === 'A' || promptNsfw === 'C' ? true:false          
+                case 'Z':
+                    return true
+                default:
+                    return promptNsfw === 'A' ? true:false
+            }
+        }
+        
         const setDisplayNsfw = (limit: string): void => {
             tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
-                switch (limit) {
-                    case 'A':
-                        tagsList.value[i]['display'] = 
-                        tagsList.value[i].nsfw === 'A' ? true:false
-                        break
-                    case 'C':
-                        tagsList.value[i]['display'] = 
-                        tagsList.value[i].nsfw === 'A' || 
-                        tagsList.value[i].nsfw === 'C' ? true:false
-                        break
-                    case 'Z':
-                        tagsList.value[i]['display'] = true
-                        break
-                }
-                genre.content.map((_: any, j: number) => {
-                    switch (limit) {
-                        case 'A':
-                            tagsList.value[i].content[j]['display'] = 
-                            tagsList.value[i].content[j].nsfw === 'A' ? true:false
-                            break
-                        case 'C':
-                            tagsList.value[i].content[j]['display'] = 
-                            tagsList.value[i].content[j].nsfw === 'A' || 
-                            tagsList.value[i].content[j].nsfw === 'C' ? true:false
-                            break
-                        case 'Z':
-                            tagsList.value[i].content[j]['display'] = true
-                            break
-                    }
+                tagsList.value[i]['display'] = judgeIsDisplay(limit, tagsList.value[i].nsfw)
+                genre.content.map((_: {[key: string]: any}, j: number) => {
+                    tagsList.value[i].content[j]['display'] = judgeIsDisplay(limit, tagsList.value[i].content[j].nsfw)
                 })
             })
         } 
@@ -246,10 +218,7 @@ export default {
 
                 genre.content.map((prompt: {[key: string]: any}, j: number) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
-                    prompt['original_name'] = prompt.tag
-                    prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
-                    prompt['enhance'] = 0
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
                 })
@@ -292,37 +261,39 @@ export default {
                 setSpells.value.push({
                     tag: input,
                     jp: input,
+                    output_prompt: input,
                     parentTag: '手動',
                     detail: '',
                     slag: input.replace(' ', '_'),
                     enhance: enhanceCount,
-                    variation: null,
+                    color_list: null,
                     index: null,
-                    nsfw: false
+                    nsfw: 'A'
                 })
             }
         }
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const searchTagsFromSpell = (tagname: string, enhanceCount: number): {[key: string]: string | number} => {            
+        const setPromptFromUploadText = (tagname: string, enhanceCount: number): void => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
             const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
             const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
             const colorTagJP = ref<string>('')
             // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
             if (promptBeforeSpace !== -1) {
-                colorMultiColor.value.map(color => {
+                colorMulti.map(color => {
                     if (promptBeforeSpace === color.prompt) {
                         colorTagJP.value = color.jp
                     }
                 })
             }
             
-            const setPrompt: {[key: string]: string | number} = {}
+            const setPrompt: {[key: string]: any} = {}
             for (let i = 0; i < tagsList.value.length; i++) {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
                     const prompt = tagsList.value[i].content[j]
                     if (prompt.tag === tagname || (colorTagJP.value.trim() !== '' && promptAfterSpace === prompt.tag)) {
+
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             setPrompt['tag'] = promptAfterSpace
                             setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
@@ -330,31 +301,40 @@ export default {
                             setPrompt['tag'] = tagname
                             setPrompt['jp'] = tagsList.value[i].content[j].jp
                         }
-                        setPrompt['original_name'] = tagname
-                        setPrompt['original_name_jp'] = tagsList.value[i].content[j].jp
+                        
+                        setPrompt['output_prompt'] = tagname
                         setPrompt['parentTag'] = tagsList.value[i].jp
                         setPrompt['detail'] = ''
                         setPrompt['slag'] = tagname.replace(' ', '_')
                         setPrompt['enhance'] = enhanceCount
-                        setPrompt['variation'] = tagsList.value[i].content[j].variation
                         setPrompt['index'] = i + ',' + j
                         setPrompt['nsfw'] = tagsList.value[i].content[j].nsfw
                         setPrompt['error'] = ''
+                        switch (tagsList.value[i].content[j].variation) {
+                            case 'CC':
+                                setPrompt['color_list'] = colorMulti
+                                break
+                            case 'CM':
+                                setPrompt['color_list'] = colorMono
+                                break
+                            default:
+                                setPrompt['color_list'] = null
+                                break
+                        }
 
                         tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
-                        if (displayNsfw.value === 'A') {
+                        if (displayNsfw.value === 'A' || (displayNsfw.value === 'C' && tagsList.value[i].content[j].nsfw === 'Z')) {
                             displayNsfw.value = tagsList.value[i].content[j].nsfw
-                        } else if (displayNsfw.value === 'C' && tagsList.value[i].content[j].nsfw === 'Z') {
-                            displayNsfw.value = 'Z'
-                        }
+                        } 
                         setDisplayNsfw(displayNsfw.value)
-                        return setPrompt
+                        setSpells.value.push(setPrompt)
+                        return
                     } 
                 }
             }
             addManualPromptToList(tagname, enhanceCount)
-            return {error: 'not found'}
+            return
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
@@ -385,11 +365,10 @@ export default {
                     } else if (tag.match(/\(/g) !== null) {
                         enhanceCount.value = tag.match(/\(/g)!.length
                     } 
-                    const tagname = tag.replace(/{/g, "").replace(/}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
+                    const tagname = tag.replace(/\{/g, "").replace(/\}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
 
                     // 設定プロンプトリストに必要情報を挿入 
-                    const searchedTags = searchTagsFromSpell(tagname, enhanceCount.value)
-                    if (searchedTags['error'] !== 'not found') setSpells.value.push(searchedTags)        
+                    setPromptFromUploadText(tagname, enhanceCount.value)      
                 }
             })
         }
@@ -397,6 +376,20 @@ export default {
         // タグのセットキューに挿入
         const toggleSetPromptList = (i: number, j: number): void => { 
             const queue = tagsList.value[i].content[j]
+            
+            queue['output_prompt'] = queue.tag
+            queue['enhance'] = 0
+            switch (tagsList.value[i].content[j].variation) {
+                case 'CC':
+                    queue['color_list'] = colorMulti
+                    break
+                case 'CM':
+                    queue['color_list'] = colorMono
+                    break
+                default:
+                    queue['color_list'] = null
+                    break
+            }
             const selected = tagsList.value[i].content[j].selected
 
             if (!selected) {
@@ -416,12 +409,13 @@ export default {
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
         const changePromptColor = (colorTag: {[key: string]: string}, index: number): void => {
-            if (colorTag.prompt === 'none') {
-                setSpells.value[index].jp = setSpells.value[index].original_name_jp
-                setSpells.value[index].tag = setSpells.value[index].original_name
-            } else {
-                setSpells.value[index].jp = setSpells.value[index].original_name_jp + ' (' + colorTag.jp + ')'
-                setSpells.value[index].tag = colorTag.prompt + ' ' + setSpells.value[index].original_name
+            const braceIndex = setSpells.value[index].jp.indexOf('(')
+            if (braceIndex !== -1) {
+                setSpells.value[index].jp = setSpells.value[index].jp.substring(0, braceIndex-1)
+            }
+            if (colorTag.prompt !== 'none')  {
+                setSpells.value[index].jp = setSpells.value[index].jp + ' (' + colorTag.jp + ')'
+                setSpells.value[index].output_prompt = colorTag.prompt + ' ' + setSpells.value[index].tag
             }
             selectedColor.value = {}
         } 
@@ -438,13 +432,8 @@ export default {
             setSpells.value.splice(index, 1)
         }
 
-        // タグ(プロンプト)の強化
-        const enhanceSpell = (index: number, num: number): void => setSpells.value[index].enhance += num
-
         // 生成されたNovelAI形式のプロンプト
         const spellsNovelAI = ref('')
-        // 強化値の{}と()を切り替える
-        const enhanceBraceMessage = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToNovelAITags = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
@@ -453,21 +442,22 @@ export default {
                 // タグの付与
                 // 強化値が0の場合そのまま追加
                 if (spell.enhance === 0) {
-                    text.value += spell.tag
+                    text.value += spell.output_prompt
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
-                    
+                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance) 
                 } else if (spell.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = spell.enhance * -1
-                    text.value += '['.repeat(num) + spell.tag + ']'.repeat(num)
+                    text.value += '['.repeat(num) + spell.output_prompt + ']'.repeat(num)
                 }
                 text.value += ', '
             })         
             spellsNovelAI.value = text.value
         }
 
+        // 強化値の()と{}を切り替える
+        const enhanceBraceMessage = ref<string>('( )に変換')
         const toggleEnhanceBrace = () => {
             if (enhanceBraceMessage.value === '( )に変換') {
                 enhanceBraceMessage.value = '{ }に変換'
@@ -496,12 +486,12 @@ export default {
 
         // コンポーネントから受け取ったアラートテキストを更新する
         const updateAlertText = (text: string): string => copyAlert.value = text
-        // モーダルの表示状態を行進する
+        // モーダルの表示状態を更新する
         const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
 
+        // 生成したプロンプトが編集状態か判定
         const isEditNAIPrompt = ref(false)
-        const toggleIsEditNAIPrompt = (state: boolean): boolean => isEditNAIPrompt.value = state
-        
+
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
@@ -529,8 +519,6 @@ export default {
             manualInput: manualInputText,
             spellsByUser: spellsByUserText,
             selectedColor: selectedColor,
-            colorMultiColor,
-            colorMonochrome,
             enhanceBraceMessage,
             isEditNAIPrompt: isEditNAIPrompt,
             uploadSpell,
@@ -538,7 +526,6 @@ export default {
             toggleDisplayNsfw,
             changePromptColor,
             addManualPromptToList,
-            enhanceSpell,
             deleteSetPromptList,
             convertToNovelAITags,
             toggleEnhanceBrace,
@@ -546,7 +533,6 @@ export default {
             copyToClipboard,
             updateAlertText,
             updateModalState,
-            toggleIsEditNAIPrompt,
         }
     }
 }
