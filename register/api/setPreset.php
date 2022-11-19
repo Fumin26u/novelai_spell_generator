@@ -52,7 +52,7 @@ function setPreset($post, $imagePath = '') {
 
         // 画像がアップロードされた場合、リネームとサムネイル抽出を行い特定フォルダに保存
         $imageFileName = $imagePath;
-        if ($post['from'] === 'saver' && !isset($presets['image']) && $_FILES['image']['name'] !== '') $imageFileName = setImages();
+        if ($post['from'] === 'saver' && $imagePath === '') $imageFileName = setImages();
     
         if (isset($_GET['preset_id'])) {
             $sql = <<<SQL

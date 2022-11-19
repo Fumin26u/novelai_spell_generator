@@ -236,7 +236,9 @@ $canonical = "https://nai-pg.com/register/";
                 </div>
                 <input type="hidden" name="cToken" value="<?= $cToken ?>">
                 <input type="hidden" name="from" value="saver">
+                <?php if ($_SERVER['REQUEST_METHOD'] !== 'POST') { ?>
                 <input type="submit" value="<?= isset($_GET['preset_id']) ? '更新' : '登録' ?>" class="btn-common submit">
+                <?php } ?>
             </dl>
         </form>
         <div class="preview">
