@@ -131,6 +131,7 @@
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
                                 <button 
+                                    v-if="user_id !== ''"
                                     @click="openSaveModal(setSpells, true)" class="btn-common blue open-save-modal"
                                 >保存</button>
                             </div>                
