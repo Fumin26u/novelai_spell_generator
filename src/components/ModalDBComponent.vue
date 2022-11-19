@@ -4,7 +4,7 @@
         <div class="modal-window">
             <div>
                 <h3>データをDBに登録</h3>
-                <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。非ログイン時は登録ボタンを押しても登録されません。</small>
+                <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
             </div>
             <div class="close-modal">
                 <span @click="updateModal(false)" class="btn-close"></span>

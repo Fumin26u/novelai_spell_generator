@@ -76,11 +76,7 @@
                                     <div class="prompt-name">
                                         <div>
                                             <span class="caption">{{ element.parentTag }}</span>
-                                            <p :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]">
+                                            <p :class="['nsfw_' + element.nsfw]">
                                                 {{ element.jp }}
                                             </p>
                                         </div>
@@ -89,11 +85,7 @@
                                         <span class="caption">色の設定</span>
                                         <select 
                                             v-if="element.variation === 'CC'"
-                                            :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]" 
+                                            :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -102,11 +94,7 @@
                                         </select>
                                         <select 
                                             v-if="element.variation === 'CM'"
-                                            :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]" 
+                                            :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -143,7 +131,7 @@
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
                                 <button 
-                                    @click="openSaveModal(setSpells, true)" class="btn-common blue"
+                                    @click="openSaveModal(setSpells, true)" class="btn-common blue open-save-modal"
                                 >保存</button>
                             </div>                
                         </div>

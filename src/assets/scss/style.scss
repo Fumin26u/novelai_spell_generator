@@ -11,6 +11,7 @@
     共通メディアクエリ・変数
 
 --------------------*/
+// メディアクエリの設定
 $mq-breakpoints: (
     larger: 1560px,
     large: 1280px,
@@ -31,7 +32,11 @@ $mq-breakpoints: (
     }
 }
 
+// カラー初期値
 $border-color: #888;
+$color-age-a: hsl(196, 100%, 40%);
+$color-age-c: hsl(120, 100%, 40%);
+$color-age-z: hsl(9, 100%, 40%);
 
 /*--------------------
 
@@ -147,16 +152,16 @@ button, input[type="submit"] {
     margin: 0 auto 12px;
     background: hsl(196, 61%, 88%);
     color: hsl(196, 100%, 10%);
-    box-shadow: 2px 2px hsl(196, 100%, 40%);
+    box-shadow: 2px 2px  $color-age-a;
     transition: all 0.03s;
 }
 .btn-toggle.r-15 {
     background: hsl(120, 80%, 90%);
-    box-shadow: 2px 2px hsl(120, 100%, 40%);
+    box-shadow: 2px 2px $color-age-c;
 }
 .btn-toggle.r-18 {
     background: hsl(20, 80%, 90%);
-    box-shadow: 2px 2px hsl(9, 100%, 40%);
+    box-shadow: 2px 2px  $color-age-z;
 }
 .btn-toggle.selected {
     padding: 4px 8px;
@@ -210,4 +215,21 @@ button, input[type="submit"] {
     &:after {
         transform: translate(-50%, -50%) rotate(-45deg);
     }
+}
+
+/*--------------------
+
+    年齢別テキストカラー
+
+--------------------*/
+.nsfw_A {
+    color: $color-age-a;
+}
+
+.nsfw_C {
+    color: $color-age-c;
+}
+
+.nsfw_Z {
+    color: $color-age-z;
 }
