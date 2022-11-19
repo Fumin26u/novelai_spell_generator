@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
-        <div class="link-area">
+        <div :class="[isOpenHBGMenu ? 'link-area open':'link-area' ]">
             <div class="main-link">
                 <a href="https://nai-pg.com/" class="prompt-generator">プロンプトジェネレーター</a>
                 <a href="https://nai-pg.com/#/saves/" class="prompt-saver">プロンプトセーバー</a>
@@ -18,10 +18,19 @@
                 <a href="./register/index.php?logout" v-if="user_id !== ''">ログアウト</a>
             </div>
         </div>
+        <div 
+            :class="[isOpenHBGMenu ? 'hbg-menu open':'hbg-menu']" 
+            @click="isOpenHBGMenu = isOpenHBGMenu ? false:true"
+        >
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
     </div>
 </template>
 <script lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import '../assets/scss/header.scss'
 
 export default {
     props: {
@@ -29,39 +38,12 @@ export default {
     },
     setup(props: any) {
         const user_id = computed(() => props.user)
+        const isOpenHBGMenu = ref<boolean>(false)
 
         return {
             user_id,
+            isOpenHBGMenu: isOpenHBGMenu,
         }
     }
 }
 </script>
-<style lang="scss" scoped>
-.header {
-    border-bottom: 2px dashed #888;
-    padding: 8px 0;
-    margin: 0 0 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    > h1 {
-        width: 20%;
-    }
-    > .link-area {
-        width: 80%;
-        display: flex;
-        justify-content: space-between;
-        > div a { margin: 0 12px; }
-        > div p { display: inline-block; }
-        > .main-link {
-            width: 44%;
-        }
-        > .main-link a {
-            font-weight: bold;
-            font-size: 16px;
-        }
-        > .sub-link { width: 22%; }
-        > .sub-link a { font-size: 14px; }
-    }
-}
-</style>

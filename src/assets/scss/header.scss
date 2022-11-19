@@ -1,0 +1,107 @@
+@import "./style.scss";
+
+.header {
+    border-bottom: 2px dashed $border-color;
+    margin: 0 0 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @include mediaQuery(medium, max) {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 100;
+    }
+
+    > h1 {
+        width: 20%;
+        min-width: 290px;
+        margin-left: 8px;
+        @include mediaQuery(larger) {
+            margin-left: none;
+        }
+    }
+    > .link-area {
+        display: none;
+        &.open {
+            display: block;
+            position: absolute;
+            padding: 8px 0 16px;
+            top: 47px;
+            right: 0;
+            width: 240px;
+            background-color: #fafafa;
+            > div a {
+                display: block;
+                width: 90%;
+                padding: 4px 0;
+                margin: 4px auto;
+                border-bottom: 1px solid $border-color;
+            }
+            > .main-link a {
+                font-weight: bold;
+            }
+        }
+
+        @include mediaQuery(medium) {
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+            > div a { 
+                margin: 0 8px; 
+            }
+            > div p { 
+                display: inline-block; 
+            }
+            > .main-link {
+                width: 70%;
+            }
+            > .main-link a {
+                font-weight: bold;
+                font-size: 16px;
+            }
+            > .sub-link { 
+                display: none;
+            }
+            > .sub-link a { 
+                font-size: 14px; 
+            }
+        }
+
+        @include mediaQuery(larger) {
+            > .main-link {
+                width: 44%;
+            }
+            > .sub-link {
+                width: 22%;
+                display: block;
+            }
+        }
+    }
+
+    > .hbg-menu {
+        > .bar {
+            display: block;
+            width: 30px;
+            height: 3px;
+            margin: 8px;
+            background-color: #444;
+            transition: all .2s;
+        }
+        @include mediaQuery(medium) {
+            display: none;
+        }
+        &.open {
+            > .bar:first-child {
+                transform: translateY(5.5px) rotate(45deg);
+            }
+            > .bar:nth-child(2) {
+                display: none;
+            }
+            > .bar:last-child {
+                transform: translateY(-5.5px) rotate(-45deg);
+            }
+        }
+    }
+}

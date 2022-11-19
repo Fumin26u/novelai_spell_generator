@@ -4,8 +4,8 @@
             <HeaderComponent :user="user_id"></HeaderComponent>
             <div class="content">
                 <div class="main-content">
-                    <section class="upload-prompt">
-                        <div class="upload">
+                    <section class="user-setting-area">
+                        <div class="upload-prompt">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
                             <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
                             <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
@@ -55,7 +55,7 @@
                         </div>
                     </section>
                 </div>
-                <div class="spell-settings">
+                <div class="prompt-settings">
                     <div class="description">
                         <h2>設定プロンプト一覧</h2>
                         <small>選択中: {{hoverPromptName}}</small>
@@ -66,21 +66,17 @@
                         </div>
                     </div>
                     <draggable 
-                        class="spells" 
+                        class="prompt" 
                         v-model="setSpells"
                         item-key="index"
                     >
                         <template #item="{element, index}">
-                            <div>
+                            <div class="draggable">
                                 <div class="prompt-variation-select">
                                     <div class="prompt-name">
                                         <div>
                                             <span class="caption">{{ element.parentTag }}</span>
-                                            <p :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]">
+                                            <p :class="['nsfw_' + element.nsfw]">
                                                 {{ element.jp }}
                                             </p>
                                         </div>
@@ -89,11 +85,7 @@
                                         <span class="caption">色の設定</span>
                                         <select 
                                             v-if="element.variation === 'CC'"
-                                            :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]" 
+                                            :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -102,11 +94,7 @@
                                         </select>
                                         <select 
                                             v-if="element.variation === 'CM'"
-                                            :style="[
-                                                element.nsfw === 'A' ? 'color:hsl(196, 100%, 40%);' : '',
-                                                element.nsfw === 'C' ? 'color:hsl(120, 100%, 40%);' : '',
-                                                element.nsfw === 'Z' ? 'color:hsl(9, 100%, 40%);' : ''
-                                            ]" 
+                                            :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
                                         >
@@ -143,8 +131,8 @@
                             <div class="save">
                                 <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
                                 <button 
-                                    @click="openSaveModal(setSpells, true)" class="btn-common blue" 
                                     v-if="user_id !== ''"
+                                    @click="openSaveModal(setSpells, true)" class="btn-common blue open-save-modal"
                                 >保存</button>
                             </div>                
                         </div>

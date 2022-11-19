@@ -1,20 +1,29 @@
+/* 
+[記述ルール]
+入れ子構造は3段階まで。但し3段階目の関数やセレクタはこれに含めない。
+複数の関数・セレクタの入れ子はしない
+書く順序は直書き→セレクタ→関数→子要素
+レスポンシブは375px以上に対応
+*/
+
 /*--------------------
 
-    共通メディアクエリ
+    共通メディアクエリ・変数
 
 --------------------*/
+// メディアクエリの設定
 $mq-breakpoints: (
-    xl: 1560px,
-    lg: 1280px,
-    md: 1024px,
-    tb: 768px,
-    sm: 576px,
-    xs: 375px,
+    larger: 1560px,
+    large: 1280px,
+    medium: 1024px,
+    tablet: 768px,
+    small: 540px,
+    smaller: 375px,
 ) !default;
 
-@mixin mq($breakpoint: md, $rule: min, $subtraction: false) {
+@mixin mediaQuery($breakpoint: md, $rule: min) {
     $breakpoint: map_get($mq-breakpoints, $breakpoint);
-    @if $rule == max and $subtraction {
+    @if $rule == max {
         $breakpoint: $breakpoint - 0.0625;
     }
 
@@ -22,6 +31,12 @@ $mq-breakpoints: (
         @content;
     }
 }
+
+// カラー初期値
+$border-color: #888;
+$color-age-a: hsl(196, 100%, 40%);
+$color-age-c: hsl(120, 100%, 40%);
+$color-age-z: hsl(9, 100%, 40%);
 
 /*--------------------
 
@@ -34,19 +49,22 @@ $mq-breakpoints: (
     padding: 0 0 1em;
 }
 
+button, input, textarea, select {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+}
+
 a {
     text-decoration: none;
     &:hover {
         text-decoration: underline;
     }
 }
-h2, h3 {
-    margin: 8px 0;
-    padding: 0;
+
+h1, h2, h3 {
+    margin: 8px 0; font-size: 18px;
 }
-h1 {margin: 0; font-size: 18px;}
-h2 {font-size: 20px;}
-ul, p {
+
+ul, p, dl {
     margin: 0;
     padding: 0;
 }
@@ -55,9 +73,6 @@ li {
     list-style: none;
 }
 
-input {
-    padding: 4px;
-}
 input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
 }
@@ -72,7 +87,6 @@ button, input[type="submit"] {
 
 --------------------*/
 .btn-common {
-    font-family: 'Yu Gothic Medium';
     background-color: white;
     border-radius: 4px;
     padding: 4px 8px;
@@ -128,25 +142,26 @@ button, input[type="submit"] {
 
 --------------------*/
 .btn-toggle {
-    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    display: block;
     border: none;
     outline: none;
-    width: 144px;
+    width: 94%;
+    min-width: 144px;
     font-size: 16px;
     padding: 4px;
-    margin: 2px 6px 2px 0;
+    margin: 0 auto 12px;
     background: hsl(196, 61%, 88%);
     color: hsl(196, 100%, 10%);
-    box-shadow: 2px 2px hsl(196, 100%, 40%);
+    box-shadow: 2px 2px  $color-age-a;
     transition: all 0.03s;
 }
 .btn-toggle.r-15 {
     background: hsl(120, 80%, 90%);
-    box-shadow: 2px 2px hsl(120, 100%, 40%);
+    box-shadow: 2px 2px $color-age-c;
 }
 .btn-toggle.r-18 {
     background: hsl(20, 80%, 90%);
-    box-shadow: 2px 2px hsl(9, 100%, 40%);
+    box-shadow: 2px 2px  $color-age-z;
 }
 .btn-toggle.selected {
     padding: 4px 8px;
@@ -200,4 +215,21 @@ button, input[type="submit"] {
     &:after {
         transform: translate(-50%, -50%) rotate(-45deg);
     }
+}
+
+/*--------------------
+
+    年齢別テキストカラー
+
+--------------------*/
+.nsfw_A {
+    color: $color-age-a;
+}
+
+.nsfw_C {
+    color: $color-age-c;
+}
+
+.nsfw_Z {
+    color: $color-age-z;
 }

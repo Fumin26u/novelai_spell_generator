@@ -4,7 +4,7 @@
         <div class="modal-window">
             <div>
                 <h3>データをDBに登録</h3>
-                <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。非ログイン時は登録ボタンを押しても登録されません。</small>
+                <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
             </div>
             <div class="close-modal">
                 <span @click="updateModal(false)" class="btn-close"></span>
@@ -61,6 +61,8 @@
 <script lang="ts">
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
+import '../assets/scss/modalDB.scss'
+
 export default {
     emits: ['updateModal', 'updateText'],
     props: {
@@ -145,84 +147,3 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-    .modal-cover {
-    width: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 90;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-}
-.modal-window {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 900px;
-    width: 70%;
-    height: 64vh;
-    overflow-y: auto;
-    background: white;
-    z-index: 99;
-    box-sizing: border-box;
-    > div {
-        h3 { 
-            margin: 8px;
-            display: inline-block;
-        }
-        p {
-            display: inline-block;
-            margin-left: 8px;
-            vertical-align: bottom;
-        }
-    }
-}
-
-.db-form {
-    margin: 8px;
-    display: block;
-    text-align: center;
-    > div {
-        margin: 8px;
-        padding: 8px;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        font-size: 18px;
-        border-bottom: 1px solid #888;
-        dt {
-            width: 16%;
-            text-align: right;
-        }
-        dd {
-            width: 78%;
-            text-align: left;
-            margin: 0;
-        }
-    }
-    input, select, textarea {
-        padding: 4px 8px;
-        width: 94%;
-        font-size: 16px;
-        font-family: 'Yu Gothic Medium';
-    }
-    input[type=radio], label {
-        width: auto;
-    }
-    label {
-        margin-right: 8px;
-    }
-    textarea {
-        height: 80px;
-    }
-    > button {
-        width: 180px;
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-family: 'Yu Gothic Medium';
-    }
-}
-</style>
