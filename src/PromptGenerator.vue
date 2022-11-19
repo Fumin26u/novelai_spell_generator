@@ -55,7 +55,7 @@
                         </div>
                     </section>
                 </div>
-                <div class="spell-settings">
+                <div class="prompt-settings">
                     <div class="description">
                         <h2>設定プロンプト一覧</h2>
                         <small>選択中: {{hoverPromptName}}</small>
@@ -66,12 +66,12 @@
                         </div>
                     </div>
                     <draggable 
-                        class="spells" 
+                        class="prompt" 
                         v-model="setSpells"
                         item-key="index"
                     >
                         <template #item="{element, index}">
-                            <div>
+                            <div class="draggable">
                                 <div class="prompt-variation-select">
                                     <div class="prompt-name">
                                         <div>
