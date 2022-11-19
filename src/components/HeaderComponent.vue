@@ -22,6 +22,7 @@
 </template>
 <script lang="ts">
 import { computed } from 'vue'
+import '../assets/scss/header.scss'
 
 export default {
     props: {
@@ -36,32 +37,3 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-.header {
-    border-bottom: 2px dashed #888;
-    padding: 8px 0;
-    margin: 0 0 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    > h1 {
-        width: 20%;
-    }
-    > .link-area {
-        width: 80%;
-        display: flex;
-        justify-content: space-between;
-        > div a { margin: 0 12px; }
-        > div p { display: inline-block; }
-        > .main-link {
-            width: 44%;
-        }
-        > .main-link a {
-            font-weight: bold;
-            font-size: 16px;
-        }
-        > .sub-link { width: 22%; }
-        > .sub-link a { font-size: 14px; }
-    }
-}
-</style>

@@ -4,15 +4,15 @@
 
 --------------------*/
 $mq-breakpoints: (
-    xl: 1560px,
-    lg: 1280px,
-    md: 1024px,
-    tb: 768px,
-    sm: 576px,
-    xs: 375px,
+    larger: 1560px,
+    large: 1280px,
+    medium: 1024px,
+    tablet: 768px,
+    small: 576px,
+    smaller: 375px,
 ) !default;
 
-@mixin mq($breakpoint: md, $rule: min, $subtraction: false) {
+@mixin mediaQuery($breakpoint: md, $rule: min, $subtraction: false) {
     $breakpoint: map_get($mq-breakpoints, $breakpoint);
     @if $rule == max and $subtraction {
         $breakpoint: $breakpoint - 0.0625;
@@ -34,19 +34,22 @@ $mq-breakpoints: (
     padding: 0 0 1em;
 }
 
+button, input, textarea, select {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+}
+
 a {
     text-decoration: none;
     &:hover {
         text-decoration: underline;
     }
 }
-h2, h3 {
-    margin: 8px 0;
-    padding: 0;
+
+h1, h2, h3 {
+    margin: 8px 0; font-size: 18px;
 }
-h1 {margin: 0; font-size: 18px;}
-h2 {font-size: 20px;}
-ul, p {
+
+ul, p, dl {
     margin: 0;
     padding: 0;
 }
@@ -72,7 +75,6 @@ button, input[type="submit"] {
 
 --------------------*/
 .btn-common {
-    font-family: 'Yu Gothic Medium';
     background-color: white;
     border-radius: 4px;
     padding: 4px 8px;

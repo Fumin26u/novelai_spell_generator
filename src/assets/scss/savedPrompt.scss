@@ -5,10 +5,6 @@
     セーバートップ共通
 
 --------------------*/
-button {
-    font-family: 'Yu Gothic Medium';
-}
-
 .content {
     display: flex;
     justify-content: space-between;
@@ -107,7 +103,7 @@ button {
         > * {
             margin: 0 auto;
             max-width: 92%;
-            @include mq(xl) {
+            @include mediaQuery(larger) {
                 max-width: 216px;   
             }
         }
