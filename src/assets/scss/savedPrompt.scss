@@ -80,7 +80,7 @@
 
 --------------------*/
 .preset-list {
-    width: 67.9%;
+    width: 66%;
 }
 .preset-content {
     border-right: 1px solid $border-color;
@@ -90,11 +90,16 @@
     flex-wrap: wrap;
     > div {
         cursor: pointer;
-        width: 22%;
+        width: 30%;
         border: 1px solid $border-color;
         margin: 0 1em 2em 0;
         padding: 8px 0;
         box-shadow: 2px 2px 4px #aaa;
+
+        @include mediaQuery(larger) {
+            width: 22%;
+        }
+
         &.selected {
             border: 2px solid lightgreen;
             padding: 7px 0;
@@ -103,9 +108,6 @@
         > * {
             margin: 0 auto;
             max-width: 92%;
-            @include mediaQuery(larger) {
-                max-width: 216px;   
-            }
         }
         > img {
             height: 135px;
@@ -138,7 +140,7 @@
 
 --------------------*/
 .preset-detail {
-    width: 31%;
+    width: 32%;
     margin-left: 1em;
     position: sticky;
     top: 1em;

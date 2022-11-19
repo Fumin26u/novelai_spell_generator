@@ -3,8 +3,8 @@
         <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
         <div :class="[isOpenHBGMenu ? 'link-area open':'link-area' ]">
             <div class="main-link">
-                <a href="https://nai-pg.com/" class="prompt-generator">プロンプトジェネレーター</a>
-                <a href="https://nai-pg.com/#/saves/" class="prompt-saver">プロンプトセーバー</a>
+                <a href="./" class="prompt-generator">プロンプトジェネレーター</a>
+                <a href="./#/saves/" class="prompt-saver">プロンプトセーバー</a>
                 <a href="https://nai-pg.com/register/commands.php" class="preset-register">プリセット登録</a>
             </div>
             <div class="sub-link">
