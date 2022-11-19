@@ -8,21 +8,33 @@
     align-items: center;
     > h1 {
         width: 20%;
+        min-width: 290px;
     }
     > .link-area {
         width: 80%;
         display: flex;
         justify-content: space-between;
-        > div a { margin: 0 12px; }
+        > div a { margin: 0 8px; }
         > div p { display: inline-block; }
         > .main-link {
-            width: 44%;
+            width: 70%;
         }
         > .main-link a {
             font-weight: bold;
             font-size: 16px;
         }
-        > .sub-link { width: 22%; }
+        > .sub-link { 
+            display: none;
+        }
         > .sub-link a { font-size: 14px; }
+        @include mediaQuery(larger) {
+            > .main-link {
+                width: 44%;
+            }
+            > .sub-link {
+                width: 22%;
+                display: block;
+            }
+        }
     }
 }
