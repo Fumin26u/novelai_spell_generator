@@ -246,10 +246,7 @@ export default {
 
                 genre.content.map((prompt: {[key: string]: any}, j: number) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
-                    prompt['original_name'] = prompt.tag
-                    prompt['original_name_jp'] = prompt.jp
                     prompt['selected'] = false
-                    prompt['enhance'] = 0
                     prompt['parentTag'] = genre.jp
                     prompt['index'] = i + ',' + j                    
                 })
@@ -298,7 +295,7 @@ export default {
                     enhance: enhanceCount,
                     variation: null,
                     index: null,
-                    nsfw: false
+                    nsfw: 'A'
                 })
             }
         }
@@ -323,13 +320,17 @@ export default {
                 for (let j = 0; j < tagsList.value[i].content.length; j++) {
                     const prompt = tagsList.value[i].content[j]
                     if (prompt.tag === tagname || (colorTagJP.value.trim() !== '' && promptAfterSpace === prompt.tag)) {
+
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             setPrompt['tag'] = promptAfterSpace
+                            setPrompt['output_prompt'] = tagname
                             setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
                         } else {
                             setPrompt['tag'] = tagname
+                            setPrompt['output_prompt'] = tagname
                             setPrompt['jp'] = tagsList.value[i].content[j].jp
                         }
+
                         setPrompt['original_name'] = tagname
                         setPrompt['original_name_jp'] = tagsList.value[i].content[j].jp
                         setPrompt['parentTag'] = tagsList.value[i].jp
@@ -343,11 +344,9 @@ export default {
 
                         tagsList.value[i].content[j].selected = true
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
-                        if (displayNsfw.value === 'A') {
+                        if (displayNsfw.value === 'A' || (displayNsfw.value === 'C' && tagsList.value[i].content[j].nsfw === 'Z')) {
                             displayNsfw.value = tagsList.value[i].content[j].nsfw
-                        } else if (displayNsfw.value === 'C' && tagsList.value[i].content[j].nsfw === 'Z') {
-                            displayNsfw.value = 'Z'
-                        }
+                        } 
                         setDisplayNsfw(displayNsfw.value)
                         return setPrompt
                     } 
@@ -397,6 +396,9 @@ export default {
         // タグのセットキューに挿入
         const toggleSetPromptList = (i: number, j: number): void => { 
             const queue = tagsList.value[i].content[j]
+            
+            queue['output_prompt'] = queue.tag
+            queue['enhance'] = 0
             const selected = tagsList.value[i].content[j].selected
 
             if (!selected) {
@@ -416,12 +418,13 @@ export default {
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
         const changePromptColor = (colorTag: {[key: string]: string}, index: number): void => {
-            if (colorTag.prompt === 'none') {
-                setSpells.value[index].jp = setSpells.value[index].original_name_jp
-                setSpells.value[index].tag = setSpells.value[index].original_name
-            } else {
-                setSpells.value[index].jp = setSpells.value[index].original_name_jp + ' (' + colorTag.jp + ')'
-                setSpells.value[index].tag = colorTag.prompt + ' ' + setSpells.value[index].original_name
+            const braceIndex = setSpells.value[index].jp.indexOf('(')
+            if (braceIndex !== -1) {
+                setSpells.value[index].jp = setSpells.value[index].jp.substring(0, braceIndex-1)
+            }
+            if (colorTag.prompt !== 'none')  {
+                setSpells.value[index].jp = setSpells.value[index].jp + ' (' + colorTag.jp + ')'
+                setSpells.value[index].output_prompt = colorTag.prompt + ' ' + setSpells.value[index].tag
             }
             selectedColor.value = {}
         } 
@@ -453,21 +456,22 @@ export default {
                 // タグの付与
                 // 強化値が0の場合そのまま追加
                 if (spell.enhance === 0) {
-                    text.value += spell.tag
+                    text.value += spell.output_prompt
                 } else if (spell.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(spell.enhance) + spell.tag + '}'.repeat(spell.enhance)
+                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance)
                     
                 } else if (spell.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = spell.enhance * -1
-                    text.value += '['.repeat(num) + spell.tag + ']'.repeat(num)
+                    text.value += '['.repeat(num) + spell.output_prompt + ']'.repeat(num)
                 }
                 text.value += ', '
             })         
             spellsNovelAI.value = text.value
         }
 
+        // 強化値の()と{}を切り替える
         const toggleEnhanceBrace = () => {
             if (enhanceBraceMessage.value === '( )に変換') {
                 enhanceBraceMessage.value = '{ }に変換'
