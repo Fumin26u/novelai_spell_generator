@@ -78,10 +78,9 @@
                                             <p :class="['nsfw_' + element.nsfw]">{{ element.jp }}</p>
                                         </div>
                                     </div>
-                                    <div v-if="element.variation !== null">
+                                    <div v-if="element.color_list !== null">
                                         <span class="caption">色の設定</span>
                                         <select 
-                                            v-if="element.color_list !== null"
                                             :class="['nsfw_' + element.nsfw]"
                                             v-model="selectedColor" 
                                             @change="changePromptColor(selectedColor, index)"
@@ -199,7 +198,7 @@ export default {
         const setDisplayNsfw = (limit: string): void => {
             tagsList.value.map ((genre: {[key: string]: any}, i: number) => {
                 tagsList.value[i]['display'] = judgeIsDisplay(limit, tagsList.value[i].nsfw)
-                genre.content.map((_: any, j: number) => {
+                genre.content.map((_: {[key: string]: any}, j: number) => {
                     tagsList.value[i].content[j]['display'] = judgeIsDisplay(limit, tagsList.value[i].content[j].nsfw)
                 })
             })
@@ -262,6 +261,7 @@ export default {
                 setSpells.value.push({
                     tag: input,
                     jp: input,
+                    output_prompt: input,
                     parentTag: '手動',
                     detail: '',
                     slag: input.replace(' ', '_'),
@@ -296,14 +296,13 @@ export default {
 
                         if (tagsList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
                             setPrompt['tag'] = promptAfterSpace
-                            setPrompt['output_prompt'] = tagname
                             setPrompt['jp'] = tagsList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
                         } else {
                             setPrompt['tag'] = tagname
-                            setPrompt['output_prompt'] = tagname
                             setPrompt['jp'] = tagsList.value[i].content[j].jp
                         }
-
+                        
+                        setPrompt['output_prompt'] = tagname
                         setPrompt['parentTag'] = tagsList.value[i].jp
                         setPrompt['detail'] = ''
                         setPrompt['slag'] = tagname.replace(' ', '_')
@@ -330,10 +329,12 @@ export default {
                         } 
                         setDisplayNsfw(displayNsfw.value)
                         setSpells.value.push(setPrompt)
+                        return
                     } 
                 }
             }
             addManualPromptToList(tagname, enhanceCount)
+            return
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
