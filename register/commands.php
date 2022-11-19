@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->execute();
 
             $pdo->commit();
-            header('location: ./', true, 303);
+            header('location: ../#/saves/', true, 303);
             exit;
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
