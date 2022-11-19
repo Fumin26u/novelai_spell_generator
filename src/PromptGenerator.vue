@@ -4,8 +4,8 @@
             <HeaderComponent :user="user_id"></HeaderComponent>
             <div class="content">
                 <div class="main-content">
-                    <section class="upload-prompt">
-                        <div class="upload">
+                    <section class="user-setting-area">
+                        <div class="upload-prompt">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
                             <input type="text" :id="'upload-prompt'" v-model="spellsByUser">
                             <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>

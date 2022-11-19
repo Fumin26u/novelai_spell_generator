@@ -2,7 +2,7 @@
 [記述ルール]
 入れ子構造は3段階まで。但し3段階目の関数やセレクタはこれに含めない。
 複数の関数・セレクタの入れ子はしない
-書く順序は直書き→セレクタ→関数
+書く順序は直書き→セレクタ→関数→子要素
 レスポンシブは375px以上に対応
 */
 
@@ -16,7 +16,7 @@ $mq-breakpoints: (
     large: 1280px,
     medium: 1024px,
     tablet: 768px,
-    small: 576px,
+    small: 540px,
     smaller: 375px,
 ) !default;
 
@@ -68,9 +68,6 @@ li {
     list-style: none;
 }
 
-input {
-    padding: 4px;
-}
 input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
 }
@@ -140,13 +137,14 @@ button, input[type="submit"] {
 
 --------------------*/
 .btn-toggle {
-    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    display: block;
     border: none;
     outline: none;
-    width: 144px;
+    width: 94%;
+    min-width: 144px;
     font-size: 16px;
     padding: 4px;
-    margin: 2px 6px 2px 0;
+    margin: 0 auto 12px;
     background: hsl(196, 61%, 88%);
     color: hsl(196, 100%, 10%);
     box-shadow: 2px 2px hsl(196, 100%, 40%);
