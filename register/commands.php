@@ -69,23 +69,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imageFileName = null;
         $imageDirPath = './images/preset/original/';
 
-        if (!empty($_FILES) && !empty($_FILES['image'])) {
-            $imageFileName = saveImageWithUniqueName();
-            makeThumbnail($imageDirPath, $imageFileName);
-        } else if (isset($presets['image'])) {
-            // プリセット編集時に画像を更新しない場合は保持
+        // プリセット編集時に画像を更新しない場合は保持
+        if (isset($presets['image'])) {
             $imageFileName = $presets['image'];
-        }
-
+        } else if (!empty($_FILES) && !empty($_FILES['image'])) {
+            $imageFileName = saveImageWithUniqueName();
+            makeThumbnail($imageDirPath, $imageFileName, './');
+        }  
+        
         $response = setPreset($_POST, $imageFileName);
-        $message[] = $response['message'];
-        $imageFileName = $response['imagePath'];
+        $message[] = $response;
 
         $presets = [
             'user_id' => h($_SESSION['user_id']),
             'commands' => h($_POST['commands']),
             'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
-            'image' => !is_null($imageFileName) ? $imageDirPath . $imageFileName : '',
+            'image' => $imageFileName,
             'description' => isset($_POST['description']) ? h($_POST['description']) : '',
             'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
             'nsfw' => $_POST['nsfw'],
@@ -257,7 +256,7 @@ $canonical = "https://nai-pg.com/register/";
         <div class="preview">
             <div id="image-preview">
                 <p>アップロード画像</p>
-                <img src="<?= $presets['image'] ?>" id="image-preview-area">
+                <img src="<?= isset($presets['image']) && !is_null($presets['image']) ? $home . 'images/preset/original/' . $presets['image'] : '' ?>" id="image-preview-area">
                 <div class="delete-image" onclick="deleteImage(event)">
                     <span>×</span>
                 </div>
@@ -294,10 +293,16 @@ $canonical = "https://nai-pg.com/register/";
         fileReader.readAsDataURL(image);
     }
     
+    // 画像がセットされた際にプレビューエリアを更新する
+    function changeImageAreaStyle() {
+        imagePreview.classList.add('on');
+        imageDnd.style.display = "none";
+    }
+    
     // ファイル選択から直接送られた画像をプレビューに反映
     function previewImage(event) {
-        console.log(event.target.files[0])
-        if (event.target.files) displayImagePreview(event.target.files[0])
+        if (event.target.files) displayImagePreview(event.target.files[0]);
+        changeImageAreaStyle()
     }
 
     // 画像を取得しファイル名とプレビューに反映
@@ -307,8 +312,7 @@ $canonical = "https://nai-pg.com/register/";
         const file = e.dataTransfer.files;
         if (file.length !== 1) return alert('複数ファイルのアップロードはできません。');
         imageFile.files = file;
-        imagePreview.classList.add('on');
-        imageDnd.style.display = "none";
+        changeImageAreaStyle()
 
         e.stopPropagation();
         e.preventDefault();
@@ -339,8 +343,7 @@ $canonical = "https://nai-pg.com/register/";
     // 画面読み込み時、画像が同時に読み込まれていた場合はその画像を表示
     window.onload = () => {
         if (imagePreviewArea.src.slice(-4) === '.png') {
-            imagePreview.classList.add('on');
-            imageDnd.style.display = "none";
+            changeImageAreaStyle()
         }
     }
 }

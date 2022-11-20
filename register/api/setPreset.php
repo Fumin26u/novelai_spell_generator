@@ -2,7 +2,7 @@
 if (!isset($_SESSION['user_id'])) exit;
 
 // 画像からサムネイルを作成し保存
-function makeThumbnail($imageDirPath, $imageName) {
+function makeThumbnail($imageDirPath, $imageName, $homeDir) {
     // ファイルの解像度を取得
     list($width, $height, $type, $attr) = getimagesize($imageDirPath . $imageName);
     // サムネイル用にオリジナル画像を16:10の比率で切り取る
@@ -27,9 +27,14 @@ function makeThumbnail($imageDirPath, $imageName) {
     );
     // 切り取った画像をthumbnailフォルダに出力
     if ($croppedImage !== false) {
-        imagepng($croppedImage, './images/preset/thumbnail/' . $imageName);
+        imagepng($croppedImage, $homeDir . 'images/preset/thumbnail/' . $imageName);
         imagedestroy($croppedImage);
     }
+}
+
+// UniqueIDの生成
+function makeUniqueID() {
+    return uniqid("img") . '.png';
 }
 
 // アップロードされた画像を指定されたPathに移動
@@ -42,11 +47,8 @@ function saveImageWithUniqueName() {
     move_uploaded_file($imageLocalPath, $imageDirPath . $image);
 
     // ファイル名の変更
-    $imageFileName = uniqid("img") . '.png';
+    $imageFileName = makeUniqueID();
     rename($imageDirPath . $image, $imageDirPath . $imageFileName);
-
-    // ファイルの解像度を取得
-    makeThumbnail($imageDirPath, $imageFileName);
 
     return $imageFileName;
 }
@@ -95,10 +97,7 @@ function setPreset($post, $imageFileName) {
         $pdo->commit();
 
         if ($_POST['from'] === 'saver') {
-            return [
-                'message' => isset($_GET['preset_id']) ? '更新しました' : '登録しました',
-                'imagePath' => $imageFileName
-            ];
+            return isset($_GET['preset_id']) ? '更新しました' : '登録しました';
         }
     } catch (PDOException $e) {
         if ($_POST['from'] === 'saver') {
