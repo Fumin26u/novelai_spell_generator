@@ -112,10 +112,9 @@ export default {
             const formConfig = {
                 headers: {
                     'content-type': 'multipart/form-data',
-                    // 'X-HTTP-Method-Override': 'PUT',
+                    'X-HTTP-Method-Override': 'PUT',
                 }
             }
-            console.log(postImage.value)
             
             formData.append('text_content', JSON.stringify(promptForDB.value))
             formData.append('image', postImage.value)

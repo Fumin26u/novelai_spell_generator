@@ -10,6 +10,7 @@ $file = [
     'file_name' => $_FILES['image']['name'],
     'tmp_file' => $_FILES['image']['tmp_name'],
     'error' => $_FILES['image']['error'],
+    'content' => json_decode($_POST['text_content']),
 ];
 
 // setPreset(json_decode($_POST['text_content']));
