@@ -78,6 +78,7 @@ export default {
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // DB保存用のデータ
         const promptForDB = ref<{[key: string]: any}>({
+            image: '',
             from: 'generator',
             commands: '',
             commands_ban: '',
@@ -89,7 +90,7 @@ export default {
         })
         watchEffect(() => promptForDB.value.commands = props.prompts)
         // DB保存用の画像
-        const postImage = ref<any>({})
+        // const postImage = ref<any>({})
 
         const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
@@ -116,12 +117,7 @@ export default {
                 }
             }
             
-            const imageBlob = new Blob([postImage.value], {type: 'image/png'})
-            promptForDB.value['image'] = imageBlob
-            
-            console.log(promptForDB.value.image)
             formData.append('content', JSON.stringify(promptForDB.value))
-            // formData.append('image', imageBlob)
             console.log(formData.get('content'))
             
             axios.post(formUrl, formData, formConfig).then((response) => {
@@ -138,7 +134,14 @@ export default {
         // 画像データを取得
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
-                postImage.value = event.target.files[0]
+                const base64Image = event.target.files[0]
+                const reader = new FileReader()
+
+                reader.onloadend = () => {
+                    console.log(reader.result)
+                }
+                reader.readAsDataURL(base64Image)
+                promptForDB.value.image = base64Image
             }
         }
 
