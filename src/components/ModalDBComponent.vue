@@ -116,9 +116,10 @@ export default {
                 }
             }
             
-            formData.append('text_content', JSON.stringify(promptForDB.value))
+            formData.append('content', JSON.stringify(promptForDB.value))
             formData.append('image', postImage.value)
             console.log(formData.get('image'))
+            console.log(formData.get('content'))
 
             axios.post(formUrl, formData, formConfig).then((response) => {
                 console.log(response)
@@ -134,7 +135,6 @@ export default {
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
                 postImage.value = event.target.files[0]
-                console.log(postImage.value)
             }
         }
 
