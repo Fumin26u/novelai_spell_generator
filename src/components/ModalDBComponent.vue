@@ -78,6 +78,7 @@ export default {
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // DB保存用のデータ
         const promptForDB = ref<{[key: string]: any}>({
+            image: '',
             from: 'generator',
             commands: '',
             commands_ban: '',
@@ -108,20 +109,21 @@ export default {
             }
 
             const formUrl = './register/api/registerPreset.php'
-            const formData = new FormData()
-            const formConfig = {
-                headers: {
-                    'content-type': 'multipart/form-data',
-                    // 'X-HTTP-Method-Override': 'PUT',
-                }
-            }
+            const imageBlob = new Blob([postImage.value], {type: "image/png"})
+            promptForDB.value.image = imageBlob
+            const formData = JSON.stringify(promptForDB.value)
+            // const formConfig = {
+            //     headers: {
+            //         'content-type': 'multipart/form-data',
+            //         'X-HTTP-Method-Override': 'PUT',
+            //     }
+            // }
             
-            formData.append('content', JSON.stringify(promptForDB.value))
-            formData.append('image', new Blob(postImage.value, {type: "image/png"}))
-            console.log(formData.get('image'))
-            console.log(formData.get('content'))
+            // formData.append('content', JSON.stringify(promptForDB.value))
+            // formData.append('image', JSON.stringify(imageBlob))
+            console.log(formData)
 
-            axios.post(formUrl, formData, formConfig).then((response) => {
+            axios.post(formUrl, formData).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
