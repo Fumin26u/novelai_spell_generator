@@ -10,10 +10,10 @@
                 <span @click="updateModal(false)" class="btn-close"></span>
             </div>
             <dl class="db-form">
-                <!-- <div>
+                <div>
                     <dt>画像</dt>
-                    <dd><input type="file" @change="uploadImage"></dd>
-                </div> -->
+                    <dd><input type="file" @change="uploadImage" accept="image/*"></dd>
+                </div>
                 <div>
                     <dt>プロンプト</dt>
                     <dd><input type="text" v-model="promptForDB.commands"></dd>
@@ -100,29 +100,36 @@ export default {
                 updateModal(false)
                 return
             }
-            if (typeof promptForDB.value.seed === 'number') {
+            if (promptForDB.value.seed !== '' && isNaN(parseInt(promptForDB.value.seed))) {
                 updateText('Seed値が数値で入力されていません。')
                 updateModal(false)
                 return
             }
 
-            const sendData = JSON.stringify(promptForDB.value)
+            const formUrl = './register/api/registerPreset.php'
+            const formData = JSON.stringify(promptForDB.value)
             
-            const url = './register/api/registerPreset.php'
-            axios.post(url, sendData).then((response) => {
+            axios.post(formUrl, formData).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
                 updateText('データベース接続に失敗しました。')
                 console.log(error)
             })
+
             updateModal(false)
         }
 
         // 画像データを取得
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
-                promptForDB.value.image = event.target.files[0]
+                const file = event.target.files[0]
+                const reader = new FileReader()
+                
+                reader.onloadend = () => {
+                    promptForDB.value.image = reader.result
+                }
+                reader.readAsDataURL(file)
             }
         }
 

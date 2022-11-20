@@ -1,8 +1,11 @@
 <?php
-// declare(strict_types = 1);
-require_once("system-conf.php");
 header("Access-Control-Allow-Origin: *");
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');   
+
+// ClickJacking対策
+header('X-FRAME-OPTIONS: SAMEORIGIN');
+
+require_once("system-conf.php");
 
 // タイムゾーン設定
 date_default_timezone_set('Asia/Tokyo');
@@ -11,9 +14,6 @@ function dbConnect() {
     $pdo = new PDO(DSN, DBUSER, DBPASS);
     return $pdo;
 }
-
-// ClickJacking対策
-header('X-FRAME-OPTIONS: SAMEORIGIN');
 
 // タイムアウト制限時間
 ini_set("max_execution_time", 600);

@@ -56,11 +56,19 @@
     text-align: center;
     margin-right: 1px;
 }
+#image-preview #image-preview-area {
+    display: none;
+    margin-top: 1em;
+}
+#image-preview.on #image-preview-area {
+    display: block;
+}
 
 #image-dnd {
     width: 100%;
-    border: 2px solid #ccc;
     height: 600px;
+    margin-top: 1em;
+    border: 2px solid #ccc;
     position: relative;
 }
 #image-dnd > div {

@@ -1,25 +1,14 @@
 <?php
 if (!isset($_SESSION['user_id'])) exit;
 
-// アップロードされた画像からサムネイルを抽出し、ファイル名を変更した後指定フォルダに保存
-function setImages() {
-    $image = $_FILES['image']['name'];
-    $imageLocalPath = $_FILES['image']['tmp_name'];
-    $imageDirPath = './images/preset/original/';
-    
-    // ファイルを保存
-    move_uploaded_file($imageLocalPath, $imageDirPath . $image);
-
-    // ファイル名の変更
-    $imageFileName = uniqid("img") . '.png';
-    rename($imageDirPath . $image, $imageDirPath . $imageFileName);
-
+// 画像からサムネイルを作成し保存
+function makeThumbnail($imageDirPath, $imageName, $homeDir) {
     // ファイルの解像度を取得
-    list($width, $height, $type, $attr) = getimagesize($imageDirPath . $imageFileName);
+    list($width, $height, $type, $attr) = getimagesize($imageDirPath . $imageName);
     // サムネイル用にオリジナル画像を16:10の比率で切り取る
     $cropWidth = $width;
     $cropHeight = $height;
-    while (true) {
+    for ($i = 0; $i < 50; $i++) {
         $h = ($cropWidth / 16) * 10;
         if ($h < $cropHeight) {
             $cropHeight = $h;
@@ -33,26 +22,41 @@ function setImages() {
     $cropY = 0;
     // 画像を切り取る
     $croppedImage = imagecrop(
-        imagecreatefrompng($imageDirPath . $imageFileName),
+        imagecreatefrompng($imageDirPath . $imageName),
         ['x' => $cropX, 'y' => $cropY, 'width' => $cropWidth, 'height' => $cropHeight]
     );
     // 切り取った画像をthumbnailフォルダに出力
     if ($croppedImage !== false) {
-        imagepng($croppedImage, './images/preset/thumbnail/' . $imageFileName);
+        imagepng($croppedImage, $homeDir . 'images/preset/thumbnail/' . $imageName);
         imagedestroy($croppedImage);
     }
+}
+
+// UniqueIDの生成
+function makeUniqueID() {
+    return uniqid("img") . '.png';
+}
+
+// アップロードされた画像を指定されたPathに移動
+function saveImageWithUniqueName() {
+    $image = $_FILES['image']['name'];
+    $imageLocalPath = $_FILES['image']['tmp_name'];
+    $imageDirPath = './images/preset/original/';
+    
+    // ファイルを保存
+    move_uploaded_file($imageLocalPath, $imageDirPath . $image);
+
+    // ファイル名の変更
+    $imageFileName = makeUniqueID();
+    rename($imageDirPath . $image, $imageDirPath . $imageFileName);
 
     return $imageFileName;
 }
 
-function setPreset($post, $imagePath = '') {
+function setPreset($post, $imageFileName) {
     try {
         $pdo = dbConnect();
         $pdo->beginTransaction();
-
-        // 画像がアップロードされた場合、リネームとサムネイル抽出を行い特定フォルダに保存
-        $imageFileName = $imagePath;
-        if ($post['from'] === 'saver' && $imagePath === '') $imageFileName = setImages();
     
         if (isset($_GET['preset_id'])) {
             $sql = <<<SQL
@@ -93,10 +97,7 @@ function setPreset($post, $imagePath = '') {
         $pdo->commit();
 
         if ($_POST['from'] === 'saver') {
-            return [
-                'message' => isset($_GET['preset_id']) ? '更新しました' : '登録しました',
-                'imagePath' => $imageFileName
-            ];
+            return isset($_GET['preset_id']) ? '更新しました' : '登録しました';
         }
     } catch (PDOException $e) {
         if ($_POST['from'] === 'saver') {
