@@ -48,7 +48,6 @@ export default {
     setup() {
         // ログインユーザーの登録プリセット一覧
         const savedPromptList = ref<any>([])
-        console.log(JSON.stringify(savedPromptList.value))
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
@@ -87,7 +86,7 @@ export default {
         }
 
         // 検索ボックスの入力内容
-        const searchData = ref<any>({
+        const searchData = ref<object>({
             age: ['A'],
             item: ['description', 'commands'],
             word: '',

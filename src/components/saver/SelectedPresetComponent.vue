@@ -55,7 +55,6 @@ export default {
     props: {
         selected: {
             type: Object,
-            require: true,
         }
     },
     emits: ['setCopyAlertText', ],
