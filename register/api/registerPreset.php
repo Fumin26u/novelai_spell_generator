@@ -11,9 +11,9 @@ require_once($home . 'database/commonlib.php');
 require_once($home . 'api/setPreset.php');
 
 $file = [
-    'file_name' => $_FILES['image']['name'],
-    'tmp_file' => $_FILES['image']['tmp_name'],
-    'error' => $_FILES['image']['error'],
+    // 'file_name' => $_FILES['image']['name'],
+    // 'tmp_file' => $_FILES['image']['tmp_name'],
+    // 'error' => $_FILES['image']['error'],
     'content' => $_POST,
 ];
 
