@@ -128,8 +128,8 @@ export default {
                 console.log(error)
             })
                   
-            const imageBlob = new Blob([postImage.value], {type: "image/png"})
-            const formImage = JSON.stringify(imageBlob)
+            const imageBlob = JSON.stringify(postImage.value)
+            const formImage = new Blob([imageBlob], {type: "text/plain"})
             console.log(formImage)
 
             axios.post(formUrl, formImage).then((response) => {
