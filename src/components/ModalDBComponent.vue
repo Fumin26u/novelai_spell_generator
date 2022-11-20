@@ -89,8 +89,6 @@ export default {
             others: '',
         })
         watchEffect(() => promptForDB.value.commands = props.prompts)
-        // DB保存用の画像
-        // const postImage = ref<any>({})
 
         const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
@@ -110,14 +108,6 @@ export default {
 
             const formUrl = './register/api/registerPreset.php'
             const formData = JSON.stringify(promptForDB.value)
-            // const formConfig = {
-            //     headers: {
-            //         'content-type': 'multipart/form-data',
-            //         'X-HTTP-Method-Override': 'PUT',
-            //     }
-            // }
-            
-            console.log(formData)
             
             axios.post(formUrl, formData).then((response) => {
                 console.log(response)

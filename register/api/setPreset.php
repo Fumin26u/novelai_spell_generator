@@ -8,7 +8,7 @@ function makeThumbnail($imageDirPath, $imageName, $homeDir) {
     // サムネイル用にオリジナル画像を16:10の比率で切り取る
     $cropWidth = $width;
     $cropHeight = $height;
-    while (true) {
+    for ($i = 0; $i < 50; $i++) {
         $h = ($cropWidth / 16) * 10;
         if ($h < $cropHeight) {
             $cropHeight = $h;

@@ -69,12 +69,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imageFileName = null;
         $imageDirPath = './images/preset/original/';
 
-        // プリセット編集時に画像を更新しない場合は保持
-        if (isset($presets['image'])) {
-            $imageFileName = $presets['image'];
-        } else if (!empty($_FILES) && !empty($_FILES['image'])) {
+        if (isset($_FILES['image']) && $_FILES['image']['name'] !== '') {
+
             $imageFileName = saveImageWithUniqueName();
             makeThumbnail($imageDirPath, $imageFileName, './');
+
+        } else if (isset($presets['image'])) {
+
+            // プリセット編集時に画像を更新しない場合は保持
+            $imageFileName = $presets['image'];
+            
         }  
         
         $response = setPreset($_POST, $imageFileName);
@@ -106,7 +110,6 @@ $resolutions = [
     'Square (Large) 1024x1024',
 ];
 
-v($_FILES);
 $form_action = isset($_GET['preset_id']) ? $_SERVER['PHP_SELF'] . '?preset_id=' . h($_GET['preset_id']) : $_SERVER['PHP_SELF'];
 $cToken = bin2hex(random_bytes(32));
 $_SESSION['cToken'] = $cToken;
