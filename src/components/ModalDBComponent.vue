@@ -119,6 +119,7 @@ export default {
             
             formData.append('text_content', JSON.stringify(promptForDB.value))
             formData.append('image', postImage.value)
+            console.log(formData.get('image'))
 
             axios.post(formUrl, formData, formConfig).then((response) => {
                 console.log(response)
