@@ -14,8 +14,8 @@ $file = [
     // 'file_name' => $_FILES['image']['name'],
     // 'tmp_file' => $_FILES['image']['tmp_name'],
     // 'error' => $_FILES['image']['error'],
-    'content' => $_POST,
-    'image' => $_FILES,
+    'content' => $_POST['commands'],
+    'image' => $_POST['image'],
 ];
 
 // setPreset(json_decode($_POST['text_content']));

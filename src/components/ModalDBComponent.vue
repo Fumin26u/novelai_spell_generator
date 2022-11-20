@@ -134,14 +134,13 @@ export default {
         // 画像データを取得
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
-                const base64Image = event.target.files[0]
+                const file = event.target.files[0]
                 const reader = new FileReader()
-
+                
                 reader.onloadend = () => {
-                    console.log(reader.result)
+                    promptForDB.value.image = reader.result
                 }
-                reader.readAsDataURL(base64Image)
-                promptForDB.value.image = base64Image
+                reader.readAsDataURL(file)
             }
         }
 
