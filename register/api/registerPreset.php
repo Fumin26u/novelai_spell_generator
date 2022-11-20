@@ -2,7 +2,7 @@
 // データ登録リクエストがジェネレーターから来た場合のDB登録API
 $home = '../';
 
-header('Content-Type: application/json; charset=utf-8', true, 200);
+// header('Content-Type: application/json; charset=utf-8', true, 200);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST)) {
     $_POST = json_decode(file_get_contents('php://input'), true);
 }

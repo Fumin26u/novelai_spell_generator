@@ -108,31 +108,23 @@ export default {
             }
 
             const formUrl = './register/api/registerPreset.php'
-            const formData = JSON.stringify(promptForDB.value)
-            // const formConfig = {
-            //     headers: {
-            //         'content-type': 'multipart/form-data',
-            //         'X-HTTP-Method-Override': 'PUT',
-            //     }
-            // }
+            const formData = new FormData()
+            const formConfig = {
+                headers: {
+                    'content-type': 'multipart/form-data',
+                    'X-HTTP-Method-Override': 'PUT',
+                }
+            }
             
-            // formData.append('content', JSON.stringify(promptForDB.value))
-            // formData.append('image', JSON.stringify(imageBlob))
-            console.log(formData)
+            const imageBlob = new Blob([postImage.value], {type: 'image/png'})
+            promptForDB.value['image'] = imageBlob
             
-            axios.post(formUrl, formData).then((response) => {
-                console.log(response)
-                updateText('プロンプトをデータベースに登録しました。')
-            }).catch(error => {
-                updateText('データベース接続に失敗しました。')
-                console.log(error)
-            })
-                  
-            const imageBlob = JSON.stringify(postImage.value)
-            const formImage = new Blob([imageBlob], {type: "text/plain"})
-            console.log(formImage)
-
-            axios.post(formUrl, formImage).then((response) => {
+            console.log(promptForDB.value.image)
+            formData.append('content', JSON.stringify(promptForDB.value))
+            // formData.append('image', imageBlob)
+            console.log(formData.get('content'))
+            
+            axios.post(formUrl, formData, formConfig).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
