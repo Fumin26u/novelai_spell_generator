@@ -10,10 +10,10 @@
                 <span @click="updateModal(false)" class="btn-close"></span>
             </div>
             <dl class="db-form">
-                <!-- <div>
+                <div>
                     <dt>画像</dt>
-                    <dd><input type="file" @change="uploadImage"></dd>
-                </div> -->
+                    <dd><input type="file" @change="uploadImage" accept="image/*"></dd>
+                </div>
                 <div>
                     <dt>プロンプト</dt>
                     <dd><input type="text" v-model="promptForDB.commands"></dd>
@@ -78,7 +78,6 @@ export default {
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // DB保存用のデータ
         const promptForDB = ref<{[key: string]: any}>({
-            image: '',
             from: 'generator',
             commands: '',
             commands_ban: '',
@@ -89,6 +88,8 @@ export default {
             others: '',
         })
         watchEffect(() => promptForDB.value.commands = props.prompts)
+        // DB保存用の画像
+        const postImage = ref<any>({})
 
         const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
@@ -100,16 +101,26 @@ export default {
                 updateModal(false)
                 return
             }
-            if (typeof promptForDB.value.seed === 'number') {
+            if (promptForDB.value.seed !== '' && isNaN(parseInt(promptForDB.value.seed))) {
                 updateText('Seed値が数値で入力されていません。')
                 updateModal(false)
                 return
             }
 
-            const sendData = JSON.stringify(promptForDB.value)
+            const formUrl = './register/api/registerPreset.php'
+            const formData = new FormData()
+            const formConfig = {
+                headers: {
+                    'content-type': 'multipart/form-data',
+                    'X-HTTP-Method-Override': 'PUT',
+                }
+            }
+            console.log(postImage.value)
             
-            const url = './register/api/registerPreset.php'
-            axios.post(url, sendData).then((response) => {
+            formData.append('text_content', JSON.stringify(promptForDB.value))
+            formData.append('image', postImage)
+
+            axios.post(formUrl, formData, formConfig).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
@@ -122,7 +133,8 @@ export default {
         // 画像データを取得
         const uploadImage = (event: Event) => {
             if (event.target instanceof HTMLInputElement && event.target.files) {
-                promptForDB.value.image = event.target.files[0]
+                postImage.value = event.target.files[0]
+                console.log(postImage.value)
             }
         }
 
