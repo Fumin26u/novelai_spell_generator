@@ -65,7 +65,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (DEBUG) echo $e;
         }
     } else {
-        $response = setPreset($_POST, isset($presets['image']) ? $presets['image'] : '');
+        // 画像がアップロードされた場合指定フォルダに移動させ、サムネイルを抽出
+        $imageFileName = null;
+        $imageDirPath = './images/preset/original/';
+
+        if (!empty($_FILES) && !empty($_FILES['image'])) {
+            $imageFileName = saveImageWithUniqueName();
+            makeThumbnail($imageDirPath, $imageFileName);
+        } else if (isset($presets['image'])) {
+            // プリセット編集時に画像を更新しない場合は保持
+            $imageFileName = $presets['image'];
+        }
+
+        $response = setPreset($_POST, $imageFileName);
         $message[] = $response['message'];
         $imageFileName = $response['imagePath'];
 
@@ -73,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'user_id' => h($_SESSION['user_id']),
             'commands' => h($_POST['commands']),
             'commands_ban' => isset($_POST['commands_ban']) ? h($_POST['commands_ban']) : '',
-            'image' => $imageFileName !== '' ? $imageFileName : null,
+            'image' => !is_null($imageFileName) ? $imageDirPath . $imageFileName : '',
             'description' => isset($_POST['description']) ? h($_POST['description']) : '',
             'seed' => isset($_POST['seed']) ? h($_POST['seed']) : '',
             'nsfw' => $_POST['nsfw'],
@@ -245,7 +257,7 @@ $canonical = "https://nai-pg.com/register/";
         <div class="preview">
             <div id="image-preview">
                 <p>アップロード画像</p>
-                <img src="<?= isset($presets['image'])  ? './images/preset/original/' . $presets['image'] : '' ?>" id="image-preview-area">
+                <img src="<?= $presets['image'] ?>" id="image-preview-area">
                 <div class="delete-image" onclick="deleteImage(event)">
                     <span>×</span>
                 </div>

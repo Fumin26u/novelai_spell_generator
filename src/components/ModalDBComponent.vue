@@ -109,18 +109,17 @@ export default {
             }
 
             const formUrl = './register/api/registerPreset.php'
-            const formData = new FormData()
-            const formConfig = {
-                headers: {
-                    'content-type': 'multipart/form-data',
-                    'X-HTTP-Method-Override': 'PUT',
-                }
-            }
+            const formData = JSON.stringify(promptForDB.value)
+            // const formConfig = {
+            //     headers: {
+            //         'content-type': 'multipart/form-data',
+            //         'X-HTTP-Method-Override': 'PUT',
+            //     }
+            // }
             
-            formData.append('content', JSON.stringify(promptForDB.value))
-            console.log(formData.get('content'))
+            console.log(formData)
             
-            axios.post(formUrl, formData, formConfig).then((response) => {
+            axios.post(formUrl, formData).then((response) => {
                 console.log(response)
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
