@@ -95,6 +95,7 @@ $resolutions = [
     'Square (Large) 1024x1024',
 ];
 
+v($_FILES);
 $form_action = isset($_GET['preset_id']) ? $_SERVER['PHP_SELF'] . '?preset_id=' . h($_GET['preset_id']) : $_SERVER['PHP_SELF'];
 $cToken = bin2hex(random_bytes(32));
 $_SESSION['cToken'] = $cToken;
