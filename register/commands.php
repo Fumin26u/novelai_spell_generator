@@ -1,7 +1,7 @@
 <?php
 $home = './';
 require_once($home . 'database/commonlib.php');
-require_once($home . 'api/setPreset.php');
+require_once($home . 'api/PresetController.php');
 
 $message = [];
 $err = [];
@@ -11,7 +11,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
 $presets = [];
+$presetController = new PresetController();
 if (isset($_GET['preset_id'])) {
     $preset_id = h($_GET['preset_id']);
 
@@ -20,26 +22,7 @@ if (isset($_GET['preset_id'])) {
         exit;
     }
 
-    try {
-        $pdo = dbConnect();
-        $pdo->beginTransaction();
-
-        $st = $pdo->prepare('SELECT * FROM preset WHERE preset_id = :preset_id');
-        $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT);
-        $st->execute();
-
-        $rows = $st->fetch(PDO::FETCH_ASSOC);
-        if (empty($rows)) {
-            header('location: ../saves/', true, 303);
-            exit;
-        }
-        $pdo->commit();
-
-        $presets = $rows;
-    } catch (PDOException $e) {
-        echo 'データベース接続に失敗しました。';
-        if (DEBUG) echo $e;
-    }
+    $presets = $presetController->get($preset_id);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -71,8 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (isset($_FILES['image']) && $_FILES['image']['name'] !== '') {
 
-            $imageFileName = saveImageWithUniqueName();
-            makeThumbnail($imageDirPath, $imageFileName, './');
+            $imageController = new ImageController($imageDirPath);
+            $imageFileName = $imageController->saveImageWithUniqueName();
+            $imageController->makeThumbnail($home);
 
         } else if (isset($presets['image'])) {
 
@@ -81,7 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
         }  
         
-        $response = setPreset($_POST, $imageFileName);
+        $response = '';
+        if (isset($preset_id)) {
+            $response = $presetController->update($_POST, $imageFileName, $preset_id);
+        } else {
+            $response = $presetController->create($_POST, $imageFileName);
+        }
         $message[] = $response;
 
         $presets = [
