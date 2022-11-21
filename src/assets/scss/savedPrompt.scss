@@ -54,9 +54,6 @@
         > dd {
             margin-left: 16px;
         }
-        > dd input[type=radio], > dd input[type=checkbox] {
-            transform: scale(1.1);
-        }
         > dd input[type=text] {
             margin-left: 8px;
             padding: 4px 8px;
@@ -84,26 +81,28 @@
 }
 .preset-content {
     border-right: 1px solid $border-color;
+    padding-right: 1em;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
     > div {
+        box-sizing: border-box;
         cursor: pointer;
         width: 30%;
         border: 1px solid $border-color;
-        margin: 0 1em 2em 0;
+        margin: 1em 0;
         padding: 8px 0;
         box-shadow: 2px 2px 4px #aaa;
 
         @include mediaQuery(larger) {
-            width: 22%;
+            width: 23%;
         }
 
         &.selected {
             border: 2px solid lightgreen;
             padding: 7px 0;
-            margin: 0 15px 2em -1px;
+            margin: 1em 0;
         }
         > * {
             margin: 0 auto;
@@ -119,6 +118,19 @@
             overflow-y: auto;
             height: 52px;
         }
+    }
+
+    &::after, &::before {
+        content: "";
+        width: 30%;
+        display: block;
+        height: 0;
+        @include mediaQuery(larger) {
+            width: 23%;
+        }
+    }
+    &::before {
+        order: 1;
     }
 }
 
@@ -140,11 +152,12 @@
 
 --------------------*/
 .preset-detail {
-    width: 32%;
+    width: 32.4%;
     margin-left: 1em;
     position: sticky;
     top: 1em;
     height: 96vh;
+    overflow-y: auto;
     > div > .title-area {
         display: flex;
         justify-content: space-between;
@@ -205,5 +218,62 @@
         &.seed > p {
             font-size: 16px;
         }
+    }
+}
+
+/*--------------------
+
+    プリセット詳細(フォーム)
+
+--------------------*/
+.preset-detail.register {
+    h3 {
+        font-weight: bold;
+        margin: 0;
+        font-size: 16px;
+    }
+    input[type=text], input[type=file], select, textarea {
+        display: block;
+        width: 99%;
+        font-size: 16px;
+        padding: 1px 0;
+    }
+    textarea {
+        height: 80px;
+    }
+    label {
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    li {
+        margin: 8px 0;
+    }
+
+    .submit-area.top {
+        text-align: right;
+        > button {
+            margin: 0 0 8px 8px;
+            padding: 4px 1em;
+        }
+    }
+
+    .title-area {
+        display: block;
+    }
+
+    .image-preview > button {
+        margin: 8px 0;
+    }
+    .image-preview > img {
+        display: block;
+        width: 99%;
+    }
+
+    .submit-bottom {
+        width: 40%;
+        display: block;
+        margin: 0 auto;
+        padding: 8px 0;
+        font-size: 16px;
     }
 }

@@ -78,7 +78,7 @@
     </section>
 </template>
 <script lang="ts">
-import '../assets/scss/savedPrompt.scss'
+import '../../assets/scss/savedPrompt.scss'
 import { ref, watchEffect } from 'vue'
 
 export default {
