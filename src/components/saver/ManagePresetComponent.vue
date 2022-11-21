@@ -1,5 +1,5 @@
 <template lang="">
-    <section class="preset-register">
+    <section class="preset-detail register">
         <div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>

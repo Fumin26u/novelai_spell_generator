@@ -75,6 +75,11 @@ li {
 
 input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
+    margin: 0 4px;
+    vertical-align: middle;
+}
+label {
+    vertical-align: middle;
 }
 
 button, input[type="submit"] {

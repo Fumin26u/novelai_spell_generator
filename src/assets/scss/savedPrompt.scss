@@ -54,9 +54,6 @@
         > dd {
             margin-left: 16px;
         }
-        > dd input[type=radio], > dd input[type=checkbox] {
-            transform: scale(1.1);
-        }
         > dd input[type=text] {
             margin-left: 8px;
             padding: 4px 8px;
@@ -140,7 +137,7 @@
 
 --------------------*/
 .preset-detail {
-    width: 32%;
+    width: 32.4%;
     margin-left: 1em;
     position: sticky;
     top: 1em;
@@ -205,5 +202,36 @@
         &.seed > p {
             font-size: 16px;
         }
+    }
+}
+
+/*--------------------
+
+    プリセット詳細(フォーム)
+
+--------------------*/
+.preset-detail.register {
+    h3 {
+        font-weight: bold;
+        margin: 0;
+    }
+    input[type=text], input[type=file], select, textarea {
+        display: block;
+        width: 100%;
+        font-size: 16px;
+        padding: 1px 0;
+    }
+    textarea {
+        height: 120px;
+    }
+    label {
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    li {
+        margin: 1em 0;
+    }
+    > div > .title-area {
+        display: block;
     }
 }
