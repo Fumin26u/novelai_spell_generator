@@ -60,7 +60,7 @@
     </section>
 </template>
 <script lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import '../../assets/scss/savedPrompt.scss'
 
 export default {
@@ -78,15 +78,11 @@ export default {
         // Base64文字列に変換した画像
         const base64Image = ref<string | ArrayBuffer | null>('')
         // プレビューする画像
-        const previewImagePath = ref<string>('')
+        const previewImagePath = ref<string>(props.selected.originalImage)
         
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
         const promptForDB = ref<{[key: string]: any}>(props.selected)
-        watch(() => promptForDB.value.originalImage, () => {
-            previewImagePath.value = promptForDB.value.originalImage
-            isDisplayPreview.value = false
-        })
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
         const setImage = (file: Blob) => {
