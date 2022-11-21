@@ -19,7 +19,7 @@
                     <div v-if="promptForDB.image !== null && promptForDB.image !== ''" class="image-preview">
                         <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
                         <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
-                        <img v-if="isDisplayPreview" :src="'./register/images/preset/original/' + promptForDB.originalImage" :alt="promptForDB.description">
+                        <img v-if="isDisplayPreview" :src="promptForDB.originalImage" :alt="promptForDB.description">
                     </div>
                 </li>
                 <li class="nsfw">
@@ -83,8 +83,7 @@ export default {
             const reader = new FileReader()
             reader.onloadend = () => {
                 promptForDB.value.image = reader.result
-                promptForDB.value.originalImage = reader.result
-                console.log(promptForDB.value.image)
+                promptForDB.value.originalImage = URL.createObjectURL(file)
             }
             reader.readAsDataURL(file)
         }
