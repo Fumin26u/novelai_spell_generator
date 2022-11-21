@@ -16,10 +16,10 @@
                         @change="uploadImage" 
                         @drop="dragImage"
                     >
-                    <div v-if="promptForDB.image !== null && promptForDB.image !== ''" class="image-preview">
+                    <div v-if="previewImagePath !== null && previewImagePath !== ''" class="image-preview">
                         <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
                         <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
-                        <img v-if="isDisplayPreview" :src="promptForDB.originalImage" :alt="promptForDB.description">
+                        <img v-if="isDisplayPreview" :src="previewImagePath" :alt="promptForDB.description">
                     </div>
                 </li>
                 <li class="nsfw">
@@ -60,7 +60,7 @@
     </section>
 </template>
 <script lang="ts">
-import { ref, computed } from 'vue'
+import { ref, watch } from 'vue'
 import '../../assets/scss/savedPrompt.scss'
 
 export default {
@@ -73,17 +73,27 @@ export default {
     setup(props:any) {
         // 画像プレビューの表示状態
         const isDisplayPreview = ref<boolean>(false)
-
+        
+        // DB保存用のデータに画像データを入れると破壊的変更がなされるので対策用の定数
+        // Base64文字列に変換した画像
+        const base64Image = ref<string | ArrayBuffer | null>('')
+        // プレビューする画像
+        const previewImagePath = ref<string>('')
+        
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
-        const promptForDB = computed(() => props.selected)
+        const promptForDB = ref<{[key: string]: any}>(props.selected)
+        watch(() => promptForDB.value.originalImage, () => {
+            previewImagePath.value = promptForDB.value.originalImage
+            isDisplayPreview.value = false
+        })
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
         const setImage = (file: Blob) => {
             const reader = new FileReader()
             reader.onloadend = () => {
-                promptForDB.value.image = reader.result
-                promptForDB.value.originalImage = URL.createObjectURL(file)
+                base64Image.value = reader.result
+                previewImagePath.value = URL.createObjectURL(file)
             }
             reader.readAsDataURL(file)
         }
@@ -103,6 +113,7 @@ export default {
 
         return {
             promptForDB,
+            previewImagePath,
             resolutionList: [
                 'Portrait (Normal) 512x768',
                 'LandScape (Normal) 768x512',
