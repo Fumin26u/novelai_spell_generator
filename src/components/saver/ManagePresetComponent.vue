@@ -14,12 +14,12 @@
                         type="file" 
                         accept="image/*"
                         @change="uploadImage" 
-                        @drop="importImage(event)"
+                        @drop="dragImage"
                     >
                     <div v-if="promptForDB.image !== null && promptForDB.image !== ''" class="image-preview">
                         <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
                         <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
-                        <img v-if="isDisplayPreview" :src="'./register/images/preset/original/' + promptForDB.image" :alt="promptForDB.description">
+                        <img v-if="isDisplayPreview" :src="'./register/images/preset/original/' + promptForDB.originalImage" :alt="promptForDB.description">
                     </div>
                 </li>
                 <li class="nsfw">
@@ -71,24 +71,36 @@ export default {
     },
     emits: [],
     setup(props:any) {
+        // 画像プレビューの表示状態
+        const isDisplayPreview = ref<boolean>(false)
+
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
         const promptForDB = computed(() => props.selected)
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
-        const importImage = (event: Event) => {
-            if (event.target instanceof HTMLInputElement && event.target.files) {
-                const file = event.target.files[0]
-                const reader = new FileReader()
-                
-                reader.onloadend = () => {
-                    promptForDB.value.image = reader.result
-                }
-                reader.readAsDataURL(file)
+        const setImage = (file: Blob) => {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                promptForDB.value.image = reader.result
+                promptForDB.value.originalImage = reader.result
+                console.log(promptForDB.value.image)
+            }
+            reader.readAsDataURL(file)
+        }
+
+        const uploadImage = (event: Event) => {
+            if (event.target instanceof HTMLInputElement && event.target.files) { 
+                setImage(event.target.files[0])
             }
         }
 
-        const isDisplayPreview = ref<boolean>(false)
+        const dragImage = (event: DragEvent) => {
+            if (event.dataTransfer instanceof HTMLInputElement && event.dataTransfer.files) {
+                setImage(event.dataTransfer.files[0])
+            }
+        }
+
 
         return {
             promptForDB,
@@ -105,7 +117,8 @@ export default {
             ],
             isDisplayPreview: isDisplayPreview,
 
-            importImage,
+            uploadImage,
+            dragImage,
         }
     }
 }
