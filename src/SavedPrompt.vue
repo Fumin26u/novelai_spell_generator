@@ -16,7 +16,7 @@
                         v-for="(prompt, index) in savedPromptList" 
                         :key="prompt.preset_id" 
                         :class="[selectedPresetIndex === index ? 'selected':'']"
-                        @click="selectPreset(index)"
+                        @click="selectPreset(index), setRegisterMode(false)"
                     >
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
@@ -152,10 +152,10 @@ export default {
 
         // データ登録・編集モードの状態
         const isRegisterMode = ref<boolean>(false)
-        const setRegisterMode = (state: boolean, mode: string) => {
+        const setRegisterMode = (state: boolean, mode: string = '') => {
             isRegisterMode.value = state
             // 新規登録の場合は選択されているプリセット詳細データを初期化
-            if (mode === 'register') selectedPreset.value = null
+            if (!state && mode === 'register') selectedPreset.value = null
         }
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
