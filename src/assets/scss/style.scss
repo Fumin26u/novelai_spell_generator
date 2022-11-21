@@ -44,6 +44,7 @@ $color-age-z: hsl(9, 100%, 40%);
 
 --------------------*/
 .main {
+    box-sizing: border-box;
     max-width: 1560px;
     margin: 0 auto;
     padding: 0 0 1em;

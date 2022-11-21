@@ -9,8 +9,13 @@
             </div>
             <ul class="data-list">
                 <li class="image">
-                    <h3>画像</h3>
-                    <input type="file" @change="uploadImage" accept="image/*">
+                    <h3>画像(ドロップ可)</h3>
+                    <input 
+                        type="file" 
+                        accept="image/*"
+                        @change="uploadImage" 
+                        @drop="importImage(event)"
+                    >
                 </li>
                 <li class="nsfw">
                     <h3>nsfw</h3>
@@ -62,9 +67,21 @@ export default {
     emits: [],
     setup(props:any) {
         // DB保存用のデータ
+        // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
         const promptForDB = computed(() => props.selected)
 
-        // 選択されているプリセットを監視し値が更新された場合DB保存用データを書き換える
+        // 画像がドラッグ&ドロップされたらファイルをインポートする
+        const importImage = (event: Event) => {
+            if (event.target instanceof HTMLInputElement && event.target.files) {
+                const file = event.target.files[0]
+                const reader = new FileReader()
+                
+                reader.onloadend = () => {
+                    promptForDB.value.image = reader.result
+                }
+                reader.readAsDataURL(file)
+            }
+        }
 
         return {
             promptForDB,
@@ -79,6 +96,8 @@ export default {
                 'LandScape (Large) 1024x512',
                 'Square (Large) 1024x1024',
             ],
+
+            importImage,
         }
     }
 }
