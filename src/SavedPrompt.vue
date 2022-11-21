@@ -34,6 +34,7 @@
                 :selected="selectedPreset"
                 @setAlertText="setAlertText"
                 @getPresetData="getPresetData"
+                @setRegisterMode="setRegisterMode"
             />
         </div>
     </div>
