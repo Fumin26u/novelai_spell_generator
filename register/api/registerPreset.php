@@ -13,16 +13,19 @@ require_once($home . 'api/ImageController.php');
 $imageDirPath = '../images/preset/original/';
 $imageFileName = '';
 
-if ($post['image'] !== '') {
+if (strpos($post['image'], ',') !== false) {
     $imageBase64String = substr($post['image'], strpos($post['image'], ',')+1);
     $imageData = base64_decode($imageBase64String);
     
     $imageController = new ImageController($imageDirPath);
     
-    $imageFileName = $imageController->saveImageWithUniqueName();
+    $imageFileName = $imageController->getUniqueID();
     file_put_contents($imageDirPath . $imageFileName, $imageData);
     // 保存した画像からサムネイルを抽出
     $imageController->makeThumbnail($home);
+} else if (!is_null($post['image']) && $post['image'] !== '') {
+    // 編集時画像更新が無い場合は画像ファイル名をそのまま使用
+    $imageFileName = $post['image'];
 }
 
 // POSTされたデータのDB登録

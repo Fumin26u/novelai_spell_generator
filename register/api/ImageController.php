@@ -10,17 +10,19 @@ class ImageController {
     }
 
     // アップロードされた画像を指定されたPathに移動
-    public function saveImageWithUniqueName() {
+    public function saveImage() {
         $image = $_FILES['image']['name'];
         $imageLocalPath = $_FILES['image']['tmp_name'];
-        $this->imageDirPath = './images/preset/original/';
         
         // ファイルを保存
         move_uploaded_file($imageLocalPath, $this->imageDirPath . $image);
     
         // ファイル名の変更
         rename($this->imageDirPath . $image, $this->imageDirPath . $this->imageName);
-    
+    }
+
+    // 固有IDを取得
+    public function getUniqueID() {
         return $this->imageName;
     }
 

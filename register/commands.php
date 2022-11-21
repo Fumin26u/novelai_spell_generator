@@ -56,7 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_FILES['image']) && $_FILES['image']['name'] !== '') {
 
             $imageController = new ImageController($imageDirPath);
-            $imageFileName = $imageController->saveImageWithUniqueName();
+            $imageController->saveImage();
+            $imageFileName = $imageController->getUniqueID();
             $imageController->makeThumbnail($home);
 
         } else if (isset($presets['image'])) {

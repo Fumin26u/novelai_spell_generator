@@ -2,8 +2,8 @@
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
-                <button class="btn-common blue" @click="savePreset()">保存</button>
                 <button class="btn-common red" @click="deletePreset()">削除</button>
+                <button class="btn-common blue" @click="savePreset()">保存</button>
             </div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>
@@ -58,7 +58,7 @@
                     <textarea v-model="preset.others"></textarea>
                 </li>
             </ul>
-            <button class="btn-common blue submit-bottom">保存</button>
+            <button class="btn-common blue submit-bottom" @click="savePreset()">保存</button>
         </div>
     </section>
 </template>
@@ -106,10 +106,8 @@ export default {
 
             const formUrl = './register/api/registerPreset.php'
             const formData = JSON.stringify(preset.value)
-            console.log(formData)
             
-            axios.post(formUrl, formData).then((response) => {
-                console.log(response)
+            axios.post(formUrl, formData).then(() => {
                 context.emit('setAlertText', 'プロンプトをデータベースに登録しました。')
             }).catch(error => {
                 context.emit('setAlertText', 'データベース接続に失敗しました。')
@@ -138,7 +136,6 @@ export default {
                 setImage(event.dataTransfer.files[0])
             }
         }
-
 
         return {
             preset,

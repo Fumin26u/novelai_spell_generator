@@ -92,7 +92,6 @@ export default {
         const selectPreset = (index: number) => {
             selectedPreset.value = savedPromptList.value[index]
             selectedPresetIndex.value = index
-            console.log(selectedPreset.value)
         }
 
         // 検索ボックスの入力内容
