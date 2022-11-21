@@ -1,6 +1,4 @@
 <?php
-use \PDO;
-
 if (!isset($_SESSION['user_id'])) exit;
 
 class PresetController {
@@ -72,6 +70,8 @@ class PresetController {
             SQL;
 
             $this->bindToExecSQL($pdo, $sql, $post, $imageFileName);
+
+            return '登録しました。';
             
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
@@ -99,6 +99,8 @@ class PresetController {
             SQL;
 
             $this->bindToExecSQL($pdo, $sql, $post, $imageFileName, $preset_id);
+
+            return '更新しました。';
             
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';

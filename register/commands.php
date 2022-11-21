@@ -2,6 +2,7 @@
 $home = './';
 require_once($home . 'database/commonlib.php');
 require_once($home . 'api/PresetController.php');
+require_once($home . 'api/ImageController.php');
 
 $message = [];
 $err = [];
