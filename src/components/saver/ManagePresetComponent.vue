@@ -1,11 +1,13 @@
 <template lang="">
     <section class="preset-detail register">
         <div>
+            <div class="submit-area top">
+                <button class="btn-common blue" @click="savePreset()">保存</button>
+                <button class="btn-common red" @click="deletePreset()">削除</button>
+            </div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>
                 <input type="text" v-model="promptForDB.description">
-                <!-- <button class="btn-common blue">編集</button>
-                <button class="btn-common green" :style="'display:none;'">保存</button> -->
             </div>
             <ul class="data-list">
                 <li class="image">
@@ -56,6 +58,7 @@
                     <textarea v-model="promptForDB.others"></textarea>
                 </li>
             </ul>
+            <button class="btn-common blue submit-bottom">保存</button>
         </div>
     </section>
 </template>

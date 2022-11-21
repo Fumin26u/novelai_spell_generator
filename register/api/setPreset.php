@@ -58,7 +58,7 @@ function setPreset($post, $imageFileName) {
         $pdo = dbConnect();
         $pdo->beginTransaction();
     
-        if (isset($_GET['preset_id'])) {
+        if (isset($_GET['preset_id']) || isset($_POST['preset_id'])) {
             $sql = <<<SQL
                 UPDATE preset SET
                 commands = :commands,

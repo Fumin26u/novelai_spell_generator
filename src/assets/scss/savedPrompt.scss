@@ -233,7 +233,16 @@
     li {
         margin: 8px 0;
     }
-    > div > .title-area {
+
+    .submit-area.top {
+        text-align: right;
+        > button {
+            margin: 0 0 8px 8px;
+            padding: 4px 1em;
+        }
+    }
+
+    .title-area {
         display: block;
     }
 
@@ -243,5 +252,13 @@
     .image-preview > img {
         display: block;
         width: 99%;
+    }
+
+    .submit-bottom {
+        width: 40%;
+        display: block;
+        margin: 0 auto;
+        padding: 8px 0;
+        font-size: 16px;
     }
 }

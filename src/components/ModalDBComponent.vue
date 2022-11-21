@@ -53,7 +53,7 @@
                     <dt>その他</dt>
                     <dd><textarea v-model="promptForDB.others"></textarea></dd>
                 </div>
-                <button @click="savePrompt()" class="btn-common green">登録</button>
+                <button @click="savePreset()" class="btn-common green">登録</button>
             </dl>
         </div>
     </div>
@@ -93,8 +93,8 @@ export default {
         const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
-        // プロンプトをDBに保存する
-        const savePrompt = () => {
+        // プリセットをDBに保存する
+        const savePreset = () => {
             if (promptForDB.value.commands === '') {
                 updateText('コマンドが入力されていません。')
                 updateModal(false)
@@ -147,7 +147,7 @@ export default {
                 'LandScape (Large) 1024x512',
                 'Square (Large) 1024x1024',
             ],
-            savePrompt,
+            savePreset,
             updateModal,
             uploadImage,
         }
