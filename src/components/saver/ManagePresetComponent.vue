@@ -16,6 +16,11 @@
                         @change="uploadImage" 
                         @drop="importImage(event)"
                     >
+                    <div v-if="promptForDB.image !== null && promptForDB.image !== ''" class="image-preview">
+                        <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
+                        <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
+                        <img v-if="isDisplayPreview" :src="'./register/images/preset/original/' + promptForDB.image" :alt="promptForDB.description">
+                    </div>
                 </li>
                 <li class="nsfw">
                     <h3>nsfw</h3>
@@ -55,7 +60,7 @@
     </section>
 </template>
 <script lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import '../../assets/scss/savedPrompt.scss'
 
 export default {
@@ -83,6 +88,8 @@ export default {
             }
         }
 
+        const isDisplayPreview = ref<boolean>(false)
+
         return {
             promptForDB,
             resolutionList: [
@@ -96,6 +103,7 @@ export default {
                 'LandScape (Large) 1024x512',
                 'Square (Large) 1024x1024',
             ],
+            isDisplayPreview: isDisplayPreview,
 
             importImage,
         }

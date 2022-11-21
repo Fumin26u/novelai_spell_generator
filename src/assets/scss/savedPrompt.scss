@@ -237,25 +237,11 @@
         display: block;
     }
 
-    .image-dnd {
+    .image-preview > button {
+        margin: 8px 0;
+    }
+    .image-preview > img {
+        display: block;
         width: 99%;
-        height: 200px;
-        margin-top: 8px;
-        border: 2px solid #ccc;
-        position: relative;
-        > div {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            margin: auto;
-            color: #888;
-            z-index: -1;
-            &::before {
-                display: block;
-                content: "＋";
-                text-align: center;
-            }
-        }
     }
 }
