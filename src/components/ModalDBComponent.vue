@@ -16,42 +16,42 @@
                 </div>
                 <div>
                     <dt>プロンプト</dt>
-                    <dd><input type="text" v-model="promptForDB.commands"></dd>
+                    <dd><input type="text" v-model="preset.commands"></dd>
                 </div>
                 <div>
                     <dt>BANプロンプト</dt>
-                    <dd><input type="text" v-model="promptForDB.commands_ban"></dd>
+                    <dd><input type="text" v-model="preset.commands_ban"></dd>
                 </div>
                 <div>
                     <dt>説明</dt>
-                    <dd><input type="text" v-model="promptForDB.description"></dd>
+                    <dd><input type="text" v-model="preset.description"></dd>
                 </div>
                 <div>
                     <dt>年齢制限</dt>
                     <dd>
-                        <input type="radio" v-model="promptForDB.nsfw" value="A" id="nsfw_a">
+                        <input type="radio" v-model="preset.nsfw" value="A" id="nsfw_a">
                         <label for="nsfw_a">全年齢</label>
-                        <input type="radio" v-model="promptForDB.nsfw" value="C" id="nsfw_c">
+                        <input type="radio" v-model="preset.nsfw" value="C" id="nsfw_c">
                         <label for="nsfw_c">R-15</label>
-                        <input type="radio" v-model="promptForDB.nsfw" value="Z" id="nsfw_z">
+                        <input type="radio" v-model="preset.nsfw" value="Z" id="nsfw_z">
                         <label for="nsfw_z">R-18</label>
                     </dd>
                 </div>
                 <div>
                     <dt>シード値</dt>
-                    <dd><input type="text" v-model="promptForDB.seed"></dd>
+                    <dd><input type="text" v-model="preset.seed"></dd>
                 </div>
                 <div>
                     <dt>解像度</dt>
                     <dd>
-                        <select v-model="promptForDB.resolution">
+                        <select v-model="preset.resolution">
                             <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
                         </select>
                     </dd>
                 </div>
                 <div>
                     <dt>その他</dt>
-                    <dd><textarea v-model="promptForDB.others"></textarea></dd>
+                    <dd><textarea v-model="preset.others"></textarea></dd>
                 </div>
                 <button @click="savePreset()" class="btn-common green">登録</button>
             </dl>
@@ -77,7 +77,7 @@ export default {
         // DB保存モーダルの表示可否
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // DB保存用のデータ
-        const promptForDB = ref<{[key: string]: any}>({
+        const preset = ref<{[key: string]: any}>({
             image: '',
             from: 'generator',
             commands: '',
@@ -88,26 +88,26 @@ export default {
             resolution: 'Portrait (Normal) 512x768',
             others: '',
         })
-        watchEffect(() => promptForDB.value.commands = props.prompts)
+        watchEffect(() => preset.value.commands = props.prompts)
 
         const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
         // プリセットをDBに保存する
         const savePreset = () => {
-            if (promptForDB.value.commands === '') {
+            if (preset.value.commands === '') {
                 updateText('コマンドが入力されていません。')
                 updateModal(false)
                 return
             }
-            if (promptForDB.value.seed !== '' && isNaN(parseInt(promptForDB.value.seed))) {
+            if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {
                 updateText('Seed値が数値で入力されていません。')
                 updateModal(false)
                 return
             }
 
             const formUrl = './register/api/registerPreset.php'
-            const formData = JSON.stringify(promptForDB.value)
+            const formData = JSON.stringify(preset.value)
             
             axios.post(formUrl, formData).then((response) => {
                 console.log(response)
@@ -127,14 +127,14 @@ export default {
                 const reader = new FileReader()
                 
                 reader.onloadend = () => {
-                    promptForDB.value.image = reader.result
+                    preset.value.image = reader.result
                 }
                 reader.readAsDataURL(file)
             }
         }
 
         return {
-            promptForDB,
+            preset,
             isOpenSaveModal,
             resolutionList: [
                 'Portrait (Normal) 512x768',
