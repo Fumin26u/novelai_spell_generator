@@ -64,6 +64,7 @@
 </template>
 <script lang="ts">
 import { ref } from 'vue'
+import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
 
 export default {
@@ -72,8 +73,8 @@ export default {
             type: Object,
         }
     },
-    emits: [],
-    setup(props:any) {
+    emits: ['setAlertText'],
+    setup(props:any, context:any) {
         // 画像プレビューの表示状態
         const isDisplayPreview = ref<boolean>(false)
         
@@ -86,6 +87,29 @@ export default {
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
         const preset = ref<{[key: string]: any}>(props.selected)
+
+        // プリセットをDBに保存する
+        const savePreset = () => {
+            if (preset.value.commands === '') {
+                alert('コマンドが入力されていません。')
+                return
+            }
+            if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {
+                alert('Seed値が数値で入力されていません。')
+                return
+            }
+
+            const formUrl = './register/api/registerPreset.php'
+            const formData = JSON.stringify(preset.value)
+            
+            axios.post(formUrl, formData).then((response) => {
+                console.log(response)
+                context.emit('setAlertText', 'プロンプトをデータベースに登録しました。')
+            }).catch(error => {
+                context.emit('setAlertText', 'データベース接続に失敗しました。')
+                console.log(error)
+            })
+        }
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
         const setImage = (file: Blob) => {
@@ -126,6 +150,7 @@ export default {
             ],
             isDisplayPreview: isDisplayPreview,
 
+            savePreset,
             uploadImage,
             dragImage,
         }

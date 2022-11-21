@@ -3,9 +3,7 @@
         <div v-if="selectedPreset !== null">
             <div class="title-area">
                 <h2>{{ selectedPreset.description }}</h2>
-                <!-- <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a> -->
                 <button class="btn-common blue" @click="setRegisterMode(true, 'edit')">編集</button>
-                <!-- <button class="btn-common green" :style="'display:none;'">保存</button> -->
             </div>
             <ul class="data-list">
                 <li class="image">
@@ -57,7 +55,7 @@ export default {
             type: Object,
         }
     },
-    emits: ['setCopyAlertText', 'setRegisterMode', ],
+    emits: ['setAlertText', 'setRegisterMode', ],
     setup(props:any, context:any) {
         const selectedPreset = computed(() => props.selected)
 
@@ -76,7 +74,7 @@ export default {
         }
 
         // クリックした文字列をコピーする
-        const copyAlertText = ref<string>('')
+        const alertText = ref<string>('')
         const copyText = (text: string, name: string) => {
             const href = location.href.substring(0,5)
             if (href === 'https') {
@@ -89,8 +87,8 @@ export default {
                 document.execCommand('copy')
                 document.body.removeChild(input)
             }
-            copyAlertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
-            context.emit('setCopyAlertText', copyAlertText.value)
+            alertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
+            context.emit('setAlertText', alertText.value)
         }
 
         // 編集ボタンが押された場合プリセット詳細画面を編集画面に切り替える
@@ -99,7 +97,7 @@ export default {
         return {
             selectedPreset,
             enhanceBraceMessage: enhanceBraceMessage,
-            copyAlertText,
+            alertText,
 
             toggleEnhanceBrace,
             copyText,

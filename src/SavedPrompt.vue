@@ -8,7 +8,7 @@
             />
             <section class="preset-info">
                 <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
-                <p class="copy-alert">{{ copyAlertText }}</p>
+                <p class="copy-alert">{{ alertText }}</p>
             </section>
             <section class="preset-list">
                 <div class="preset-content">
@@ -26,12 +26,13 @@
             <SelectedPresetComponent 
                 v-if="!isRegisterMode"
                 :selected="selectedPreset"
-                @setCopyAlertText="setCopyAlertText"
+                @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
             <ManagePresetComponent 
                 v-else
                 :selected="selectedPreset"
+                @setAlertText="setAlertText"
             />
         </div>
     </div>
@@ -147,8 +148,8 @@ export default {
         }
 
         // コピーした際のアラートを設定
-        const copyAlertText = ref<string>('')
-        const setCopyAlertText = (text: string) => copyAlertText.value = text
+        const alertText = ref<string>('')
+        const setAlertText = (text: string) => alertText.value = text
 
         // データ登録・編集モードの状態
         const isRegisterMode = ref<boolean>(false)
@@ -169,13 +170,13 @@ export default {
             selectedPreset,
             selectedPresetIndex,
             searchData: searchData,
-            copyAlertText,
+            alertText,
             isRegisterMode,
             user_id,
 
             selectPreset,
             getPresetData,
-            setCopyAlertText,
+            setAlertText,
             setRegisterMode,
         }
     }
