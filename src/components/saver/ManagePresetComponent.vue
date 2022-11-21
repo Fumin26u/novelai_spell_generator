@@ -99,8 +99,14 @@ export default {
                 return
             }
 
+            // 一時的に別定数に保存してある画像データを取り込む
+            if (previewImagePath.value !== props.selected.originalImage) {
+                preset.value.image = base64Image.value
+            }
+
             const formUrl = './register/api/registerPreset.php'
             const formData = JSON.stringify(preset.value)
+            console.log(formData)
             
             axios.post(formUrl, formData).then((response) => {
                 console.log(response)
