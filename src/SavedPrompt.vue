@@ -33,6 +33,7 @@
                 v-else
                 :selected="selectedPreset"
                 @setAlertText="setAlertText"
+                @getPresetData="getPresetData"
             />
         </div>
     </div>
@@ -106,7 +107,7 @@ export default {
         // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
-        const getPresetData = async(postData: {[key: string]: any}) => {
+        const getPresetData = async(postData: {[key: string]: any} = searchData.value) => {
             const url = './register/api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
@@ -161,7 +162,7 @@ export default {
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
             getUserInfo()
-            getPresetData(searchData.value)
+            getPresetData()
         })
 
         return {

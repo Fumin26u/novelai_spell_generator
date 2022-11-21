@@ -73,7 +73,7 @@ export default {
             type: Object,
         }
     },
-    emits: ['setAlertText'],
+    emits: ['setAlertText', 'getPresetData'],
     setup(props:any, context:any) {
         // 画像プレビューの表示状態
         const isDisplayPreview = ref<boolean>(false)
@@ -109,6 +109,8 @@ export default {
             
             axios.post(formUrl, formData).then(() => {
                 context.emit('setAlertText', 'プロンプトをデータベースに登録しました。')
+                // 更新できた場合再度データベースからプリセット一覧を取得
+                context.emit('getPresetData')
             }).catch(error => {
                 context.emit('setAlertText', 'データベース接続に失敗しました。')
                 console.log(error)
@@ -122,6 +124,8 @@ export default {
                     delete: preset.value.preset_id
                 }).then(() => {
                     context.emit('setAlertText', 'プロンプトをデータベースから削除しました。')
+                    // 更新できた場合再度データベースからプリセット一覧を取得
+                    context.emit('getPresetData')
                 }).catch((error) => {
                     context.emit('setAlertText', 'データベース接続に失敗しました。')
                     console.log(error)
