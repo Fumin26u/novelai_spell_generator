@@ -109,8 +109,7 @@ export default {
             const formUrl = './register/api/registerPreset.php'
             const formData = JSON.stringify(preset.value)
             
-            axios.post(formUrl, formData).then((response) => {
-                console.log(response)
+            axios.post(formUrl, formData).then(() => {
                 updateText('プロンプトをデータベースに登録しました。')
             }).catch(error => {
                 updateText('データベース接続に失敗しました。')
