@@ -3,9 +3,9 @@
         <div v-if="selectedPreset !== null">
             <div class="title-area">
                 <h2>{{ selectedPreset.description }}</h2>
-                <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a>
-                <!-- <button class="btn-common blue">編集</button>
-                <button class="btn-common green" :style="'display:none;'">保存</button> -->
+                <!-- <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a> -->
+                <button class="btn-common blue" @click="setRegisterMode(true, 'edit')">編集</button>
+                <!-- <button class="btn-common green" :style="'display:none;'">保存</button> -->
             </div>
             <ul class="data-list">
                 <li class="image">
@@ -57,7 +57,7 @@ export default {
             type: Object,
         }
     },
-    emits: ['setCopyAlertText', ],
+    emits: ['setCopyAlertText', 'setRegisterMode', ],
     setup(props:any, context:any) {
         const selectedPreset = computed(() => props.selected)
 
@@ -93,6 +93,9 @@ export default {
             context.emit('setCopyAlertText', copyAlertText.value)
         }
 
+        // 編集ボタンが押された場合プリセット詳細画面を編集画面に切り替える
+        const setRegisterMode = (state: boolean, mode: string) => context.emit('setRegisterMode', state, mode)
+
         return {
             selectedPreset,
             enhanceBraceMessage: enhanceBraceMessage,
@@ -100,6 +103,7 @@ export default {
 
             toggleEnhanceBrace,
             copyText,
+            setRegisterMode,
         }
     }
 }

@@ -24,8 +24,14 @@
                 </div>
             </section>
             <SelectedPresetComponent 
+                v-if="!isRegisterMode"
                 :selected="selectedPreset"
                 @setCopyAlertText="setCopyAlertText"
+                @setRegisterMode="setRegisterMode"
+            />
+            <ManagePresetComponent 
+                v-else
+                :selected="selectedPreset"
             />
         </div>
     </div>
@@ -35,6 +41,7 @@ import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
+import ManagePresetComponent from './components/saver/ManagePresetComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -44,6 +51,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
+        ManagePresetComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
@@ -83,6 +91,7 @@ export default {
         const selectPreset = (index: number) => {
             selectedPreset.value = savedPromptList.value[index]
             selectedPresetIndex.value = index
+            console.log(selectedPreset.value)
         }
 
         // 検索ボックスの入力内容
@@ -141,6 +150,14 @@ export default {
         const copyAlertText = ref<string>('')
         const setCopyAlertText = (text: string) => copyAlertText.value = text
 
+        // データ登録・編集モードの状態
+        const isRegisterMode = ref<boolean>(false)
+        const setRegisterMode = (state: boolean, mode: string) => {
+            isRegisterMode.value = state
+            // 新規登録の場合は選択されているプリセット詳細データを初期化
+            if (mode === 'register') selectedPreset.value = null
+        }
+
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
             getUserInfo()
@@ -153,11 +170,13 @@ export default {
             selectedPresetIndex,
             searchData: searchData,
             copyAlertText,
+            isRegisterMode,
             user_id,
 
             selectPreset,
             getPresetData,
             setCopyAlertText,
+            setRegisterMode,
         }
     }
 }

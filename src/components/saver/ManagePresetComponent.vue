@@ -1,6 +1,6 @@
 <template lang="">
-    <section class="preset-detail">
-        <div v-if="selectedPreset !== null">
+    <section class="preset-register">
+        <div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>
                 <input type="text" v-model="promptForDB.description">
@@ -50,7 +50,7 @@
     </section>
 </template>
 <script lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import '../../assets/scss/savedPrompt.scss'
 
 export default {
@@ -60,19 +60,11 @@ export default {
         }
     },
     emits: [],
-    setup(props:any, context:any) {
+    setup(props:any) {
         // DB保存用のデータ
-        const promptForDB = ref<{[key: string]: any}>({
-            image: '',
-            from: 'generator',
-            commands: '',
-            commands_ban: '',
-            description: '',
-            nsfw: 'A',
-            seed: '',
-            resolution: 'Portrait (Normal) 512x768',
-            others: '',
-        })
+        const promptForDB = computed(() => props.selected)
+
+        // 選択されているプリセットを監視し値が更新された場合DB保存用データを書き換える
 
         return {
             promptForDB,
