@@ -9,6 +9,14 @@ require_once($home . 'database/commonlib.php');
 require_once($home . 'api/PresetController.php');
 require_once($home . 'api/ImageController.php');
 
+// データ削除が要求された場合削除し終了
+if (isset($post['delete']) && $post['delete'] !== '') {
+    $presetController = new PresetController();
+    $presetController->delete((int) h($post['delete']));
+    echo json_encode($post, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // 画像がBase64形式で送られてくるのでデコードして固有ファイル名に変換し保存
 $imageDirPath = '../images/preset/original/';
 $imageFileName = '';
@@ -35,6 +43,4 @@ if (isset($post['preset_id']) && $post['preset_id'] !== '') {
 } else {
     $presetController->create($post, $imageFileName);
 }
-
-echo json_encode($post, JSON_UNESCAPED_UNICODE);
 ?>

@@ -89,6 +89,7 @@ export default {
         const preset = ref<{[key: string]: any}>(props.selected)
 
         // プリセットをDBに保存する
+        const formUrl = './register/api/registerPreset.php'
         const savePreset = () => {
             if (preset.value.commands === '') {
                 alert('コマンドが入力されていません。')
@@ -104,7 +105,6 @@ export default {
                 preset.value.image = base64Image.value
             }
 
-            const formUrl = './register/api/registerPreset.php'
             const formData = JSON.stringify(preset.value)
             
             axios.post(formUrl, formData).then(() => {
@@ -113,6 +113,22 @@ export default {
                 context.emit('setAlertText', 'データベース接続に失敗しました。')
                 console.log(error)
             })
+        }
+
+        // プリセットをDBから削除する
+        const deletePreset = () => {
+            if (window.confirm('本当に削除しますか?')) {
+                axios.post(formUrl, {
+                    delete: preset.value.preset_id
+                }).then(() => {
+                    context.emit('setAlertText', 'プロンプトをデータベースから削除しました。')
+                }).catch((error) => {
+                    context.emit('setAlertText', 'データベース接続に失敗しました。')
+                    console.log(error)
+                })
+            } else {
+                return
+            }
         }
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
@@ -154,6 +170,7 @@ export default {
             isDisplayPreview: isDisplayPreview,
 
             savePreset,
+            deletePreset,
             uploadImage,
             dragImage,
         }

@@ -26,14 +26,11 @@ class PresetController {
             $pdo = dbConnect();
             $pdo->beginTransaction();
 
-            $st = $pdo->prepare('SELECT * FROM preset WHERE preset_id = :preset_id');
+            $st = $pdo->prepare('DELETE FROM preset WHERE preset_id = :preset_id');
             $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT);
             $st->execute();
 
-            $rows = $st->fetch(PDO::FETCH_ASSOC);
             $pdo->commit();
-            
-            return $rows;
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
             if (DEBUG) echo $e;
