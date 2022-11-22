@@ -127,7 +127,7 @@ export default {
                     delete: preset.value.preset_id
                 }).then(() => {
                     context.emit('setAlertText', 'プロンプトをデータベースから削除しました。')
-                    // 更新できた場合再度データベースからプリセット一覧を取得し、編集画面を消去
+                    // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
                     context.emit('getPresetData')
                     context.emit('setRegisterMode', false, 'register')
                 }).catch((error) => {

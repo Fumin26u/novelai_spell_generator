@@ -19,15 +19,23 @@
 .search-area {
     width: 100%;
     > .title {
-        > * {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        > .display-form > * {
             display: inline-block;
             vertical-align: middle;
         }
-        > button {
+        > .display-form > button {
             margin-left: 1em;
             padding: 0 8px;
             font-weight: bold;
             border-radius: 8px;
+        }
+
+        > button.register-preset {
+            padding: 4px 24px;
+            font-size: 16px;
         }
     } 
 }
