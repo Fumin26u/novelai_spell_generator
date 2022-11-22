@@ -2,8 +2,11 @@
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
-                <button class="btn-common red" @click="deletePreset()">削除</button>
-                <button class="btn-common blue" @click="savePreset()">保存</button>
+                <p>{{ preset.preset_id !== '' ? '新規追加':'データ編集' }}</p>
+                <div>
+                    <button class="btn-common red" @click="deletePreset()">削除</button>
+                    <button class="btn-common blue" @click="savePreset()">保存</button>
+                </div>
             </div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>

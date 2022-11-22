@@ -90,6 +90,7 @@
         box-sizing: border-box;
         cursor: pointer;
         width: 30%;
+        height: 206px;
         border: 1px solid $border-color;
         margin: 1em 0;
         padding: 8px 0;
@@ -250,8 +251,16 @@
     }
 
     .submit-area.top {
-        text-align: right;
-        > button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px dashed $border-color;
+        margin: 0 0 8px;
+        > p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        > div > button {
             margin: 0 0 8px 8px;
             padding: 4px 1em;
         }

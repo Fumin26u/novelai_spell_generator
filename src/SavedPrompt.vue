@@ -21,6 +21,12 @@
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
+                    <div
+                        :class="['register', selectedPresetIndex === -1 ? 'selected':'']"
+                        @click="selectPreset(-1), setRegisterMode(true, 'register')"
+                    >
+                        <p>新規追加</p>
+                    </div>
                 </div>
             </section>
             <SelectedPresetComponent 
@@ -89,10 +95,14 @@ export default {
         }
         
         // プリセット一覧から選択されたプリセットを読み込む
-        const selectedPreset = ref<any>(null)
+        const selectedPreset = ref<object>({})
         const selectedPresetIndex = ref<number>(-1)
         const selectPreset = (index: number) => {
-            selectedPreset.value = savedPromptList.value[index]
+            if (selectedPresetIndex.value === -1) {
+                selectedPreset.value = {}
+            } else {
+                selectedPreset.value = savedPromptList.value[index]
+            }
             selectedPresetIndex.value = index
         }
 
@@ -153,11 +163,11 @@ export default {
         const setAlertText = (text: string) => alertText.value = text
 
         // データ登録・編集モードの状態
-        const isRegisterMode = ref<boolean>(false)
+        const isRegisterMode = ref<boolean>(true)
         const setRegisterMode = (state: boolean, mode: string = '') => {
             isRegisterMode.value = state
             // 新規登録の場合は選択されているプリセット詳細データを初期化
-            if (!state && mode === 'register') selectedPreset.value = null
+            if (!state && mode === 'register') selectedPreset.value = {}
         }
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
