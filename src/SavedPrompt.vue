@@ -127,12 +127,10 @@ export default {
         // データ登録・編集モードの状態
         const isRegisterMode = ref<boolean>(true)
         const setRegisterMode = (state: boolean, mode: string = '') => {
-            isRegisterMode.value = state
             // 新規登録の場合は選択されているプリセット詳細データを初期化
-            if (state && mode === 'register') {
-                selectedPresetIndex.value = -1
-                selectedPreset.value = {}
-            } 
+            if (state && mode === 'register') selectPreset(-1)
+
+            isRegisterMode.value = state
         }
 
         // 検索ボックスの入力内容

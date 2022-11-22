@@ -2,7 +2,7 @@
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
-                <p>{{ Object.keys(preset).length === 0 ? '新規追加':'データ編集' }}</p>
+                <p>{{ 'preset_id' in preset ? 'データ編集':'新規追加' }}</p>
                 <div>
                     <button class="btn-common red" @click="deletePreset()">削除</button>
                     <button class="btn-common blue" @click="savePreset()">保存</button>
