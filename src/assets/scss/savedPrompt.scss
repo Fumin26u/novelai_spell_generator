@@ -19,15 +19,23 @@
 .search-area {
     width: 100%;
     > .title {
-        > * {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        > .display-form > * {
             display: inline-block;
             vertical-align: middle;
         }
-        > button {
+        > .display-form > button {
             margin-left: 1em;
             padding: 0 8px;
             font-weight: bold;
             border-radius: 8px;
+        }
+
+        > button.register-preset {
+            padding: 4px 24px;
+            font-size: 16px;
         }
     } 
 }
@@ -86,10 +94,12 @@
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
+
     > div {
         box-sizing: border-box;
         cursor: pointer;
         width: 30%;
+        height: 206px;
         border: 1px solid $border-color;
         margin: 1em 0;
         padding: 8px 0;
@@ -99,11 +109,6 @@
             width: 23%;
         }
 
-        &.selected {
-            border: 2px solid lightgreen;
-            padding: 7px 0;
-            margin: 1em 0;
-        }
         > * {
             margin: 0 auto;
             max-width: 92%;
@@ -118,6 +123,32 @@
             overflow-y: auto;
             height: 52px;
         }
+    }
+
+    > div.register {
+        background-color: #fafafa;
+        border: 1px dashed $border-color;
+        position: relative;
+        span {
+            color: #444;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: bold;
+            &::before {
+                content: "＋";
+                display: block;
+                text-align: center;
+            }
+        }
+    }
+
+    > div.selected {
+        border: 2px solid lightgreen;
+        padding: 7px 0;
+        margin: 1em 0;
     }
 
     &::after, &::before {
@@ -250,8 +281,16 @@
     }
 
     .submit-area.top {
-        text-align: right;
-        > button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px dashed $border-color;
+        margin: 0 0 8px;
+        > p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        > div > button {
             margin: 0 0 8px 8px;
             padding: 4px 1em;
         }

@@ -1,17 +1,17 @@
 <template lang="">
     <section class="preset-detail">
-        <div v-if="selectedPreset !== null">
+        <div v-if="'preset_id' in preset">
             <div class="title-area">
-                <h2>{{ selectedPreset.description }}</h2>
+                <h2>{{ preset.description }}</h2>
                 <button class="btn-common blue" @click="setRegisterMode(true, 'edit')">編集</button>
             </div>
             <ul class="data-list">
                 <li class="image">
-                    <img :src="selectedPreset.originalImage" alt="">
+                    <img :src="preset.originalImage" alt="">
                 </li>
                 <li class="nsfw">
                     <h3>nsfw</h3>
-                    <p>{{ selectedPreset.nsfw_display }}</p>
+                    <p>{{ preset.nsfw_display }}</p>
                 </li>
                 <li class="prompt copy">
                     <h3>プロンプト</h3>
@@ -19,7 +19,7 @@
                         :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
                         @click="toggleEnhanceBrace()"
                     >{{ enhanceBraceMessage }}</button>
-                    <p @click="copyText(selectedPreset.commands, 'プロンプト')">{{ selectedPreset.commands }}</p>
+                    <p @click="copyText(preset.commands, 'プロンプト')">{{ preset.commands }}</p>
                 </li>
                 <li class="prompt-ban copy">
                     <h3>BANプロンプト</h3>
@@ -27,19 +27,19 @@
                         :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
                         @click="toggleEnhanceBrace()"
                     >{{ enhanceBraceMessage }}</button>
-                    <p @click="copyText(selectedPreset.commands_ban, 'BANプロンプト')">{{ selectedPreset.commands_ban }}</p>
+                    <p @click="copyText(preset.commands_ban, 'BANプロンプト')">{{ preset.commands_ban }}</p>
                 </li>
                 <li class="seed copy">
                     <h3>シード値</h3>
-                    <p @click="copyText(selectedPreset.seed, 'シード値')">{{ selectedPreset.seed }}</p>
+                    <p @click="copyText(preset.seed, 'シード値')">{{ preset.seed }}</p>
                 </li>
                 <li class="resolution">
                     <h3>解像度</h3>
-                    <p>{{ selectedPreset.resolution }}</p>
+                    <p>{{ preset.resolution }}</p>
                 </li>
                 <li class="other">
                     <h3>備考</h3>
-                    <p>{{ selectedPreset.others }}</p>
+                    <p>{{ preset.others }}</p>
                 </li>
             </ul>
         </div>
@@ -57,19 +57,19 @@ export default {
     },
     emits: ['setAlertText', 'setRegisterMode', ],
     setup(props:any, context:any) {
-        const selectedPreset = computed(() => props.selected)
+        const preset = computed(() => props.selected)
 
         // 強化値の{}と()を切り替える
         const enhanceBraceMessage = ref<string>('( )に変換')
         const toggleEnhanceBrace = () => {
             if (enhanceBraceMessage.value === '( )に変換') {
                 enhanceBraceMessage.value = '{ }に変換'
-                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+                preset.value.commands = preset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+                preset.value.commands_ban = preset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
             } else {
                 enhanceBraceMessage.value = '( )に変換'
-                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+                preset.value.commands = preset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+                preset.value.commands_ban = preset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
             }
         }
 
@@ -87,7 +87,7 @@ export default {
                 document.execCommand('copy')
                 document.body.removeChild(input)
             }
-            alertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
+            alertText.value = preset.value.description + 'の' + name + 'をコピーしました。'
             context.emit('setAlertText', alertText.value)
         }
 
@@ -95,7 +95,7 @@ export default {
         const setRegisterMode = (state: boolean, mode: string) => context.emit('setRegisterMode', state, mode)
 
         return {
-            selectedPreset,
+            preset,
             enhanceBraceMessage: enhanceBraceMessage,
             alertText,
 

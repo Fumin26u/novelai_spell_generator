@@ -2,8 +2,11 @@
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
-                <button class="btn-common red" @click="deletePreset()">削除</button>
-                <button class="btn-common blue" @click="savePreset()">保存</button>
+                <p>{{ 'preset_id' in preset ? 'データ編集':'新規追加' }}</p>
+                <div>
+                    <button class="btn-common red" @click="deletePreset()">削除</button>
+                    <button class="btn-common blue" @click="savePreset()">保存</button>
+                </div>
             </div>
             <div class="title-area">
                 <h3>タイトル(プロンプトの説明)</h3>
@@ -63,7 +66,7 @@
     </section>
 </template>
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
 
@@ -86,7 +89,18 @@ export default {
         
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
-        const preset = ref<{[key: string]: any}>(props.selected)
+        const preset = ref<{[key: string]: any}>({
+            image: '',
+            from: 'generator',
+            commands: '',
+            commands_ban: '',
+            description: '',
+            nsfw: 'A',
+            seed: '',
+            resolution: 'Portrait (Normal) 512x768',
+            others: '',
+        })
+        watchEffect(() => preset.value = props.selected)
 
         // プリセットをDBに保存する
         const formUrl = './register/api/registerPreset.php'
@@ -124,7 +138,7 @@ export default {
                     delete: preset.value.preset_id
                 }).then(() => {
                     context.emit('setAlertText', 'プロンプトをデータベースから削除しました。')
-                    // 更新できた場合再度データベースからプリセット一覧を取得し、編集画面を消去
+                    // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
                     context.emit('getPresetData')
                     context.emit('setRegisterMode', false, 'register')
                 }).catch((error) => {
