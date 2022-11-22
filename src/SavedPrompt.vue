@@ -25,7 +25,7 @@
                         :class="['register', selectedPresetIndex === -1 ? 'selected':'']"
                         @click="selectPreset(-1), setRegisterMode(true, 'register')"
                     >
-                        <p>新規追加</p>
+                        <span>新規追加</span>
                     </div>
                 </div>
             </section>
@@ -98,12 +98,16 @@ export default {
         const selectedPreset = ref<object>({})
         const selectedPresetIndex = ref<number>(-1)
         const selectPreset = (index: number) => {
-            if (selectedPresetIndex.value === -1) {
-                selectedPreset.value = {}
-            } else {
-                selectedPreset.value = savedPromptList.value[index]
-            }
+            selectedPreset.value = index === -1 ? {} : selectedPreset.value = savedPromptList.value[index]
             selectedPresetIndex.value = index
+        }
+
+        // データ登録・編集モードの状態
+        const isRegisterMode = ref<boolean>(true)
+        const setRegisterMode = (state: boolean, mode: string = '') => {
+            isRegisterMode.value = state
+            // 新規登録の場合は選択されているプリセット詳細データを初期化
+            if (!state && mode === 'register') selectedPreset.value = {}
         }
 
         // 検索ボックスの入力内容
@@ -161,14 +165,6 @@ export default {
         // コピーした際のアラートを設定
         const alertText = ref<string>('')
         const setAlertText = (text: string) => alertText.value = text
-
-        // データ登録・編集モードの状態
-        const isRegisterMode = ref<boolean>(true)
-        const setRegisterMode = (state: boolean, mode: string = '') => {
-            isRegisterMode.value = state
-            // 新規登録の場合は選択されているプリセット詳細データを初期化
-            if (!state && mode === 'register') selectedPreset.value = {}
-        }
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
