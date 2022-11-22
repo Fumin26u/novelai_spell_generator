@@ -66,7 +66,7 @@
     </section>
 </template>
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
 
@@ -89,7 +89,18 @@ export default {
         
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
-        const preset = ref<{[key: string]: any}>(props.selected)
+        const preset = ref<{[key: string]: any}>({
+            image: '',
+            from: 'generator',
+            commands: '',
+            commands_ban: '',
+            description: '',
+            nsfw: 'A',
+            seed: '',
+            resolution: 'Portrait (Normal) 512x768',
+            others: '',
+        })
+        watchEffect(() => preset.value = props.selected)
 
         // プリセットをDBに保存する
         const formUrl = './register/api/registerPreset.php'
