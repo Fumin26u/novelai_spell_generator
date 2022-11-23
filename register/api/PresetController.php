@@ -1,7 +1,14 @@
 <?php
-if (!isset($_SESSION['user_id'])) exit;
+// 非ログイン時かつローカル環境でない場合強制終了
+if ($_SERVER['HTTP_HOST'] !== 'localhost' && !isset($_SESSION['user_id'])) exit;
 
 class PresetController {
+    private $user_id;
+
+    private function __construct() {
+        $this->user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']);
+    }
+
     public function get($preset_id) {
         try {
             $pdo = dbConnect();
@@ -39,8 +46,10 @@ class PresetController {
 
     private function bindToExecSQL($pdo, $sql, $post, $imageFileName, $preset_id = null) {
         $st = $pdo->prepare($sql);
+        
+        $st->bindValue(':user_id', $this->user_id, PDO::PARAM_STR);
+        
         if (!is_null($preset_id)) $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT); 
-        $st->bindValue(':user_id', h($_SESSION['user_id']), PDO::PARAM_STR);
         $st->bindValue(':commands', h($post['commands']), PDO::PARAM_STR);
         $st->bindValue(':commands_ban', isset($post['commands_ban']) ? h($post['commands_ban']) : null, PDO::PARAM_STR);
         $st->bindValue(':description', isset($post['description']) ? h($post['description']) : null, PDO::PARAM_STR);
