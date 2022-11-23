@@ -5,7 +5,7 @@ if ($_SERVER['HTTP_HOST'] !== 'localhost' && !isset($_SESSION['user_id'])) exit;
 class PresetController {
     private $user_id;
 
-    private function __construct() {
+    public function __construct() {
         $this->user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']);
     }
 
