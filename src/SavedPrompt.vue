@@ -4,7 +4,7 @@
         <div class="content not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a href="./register/login.php">ログイン</a>
-            <a href="./register/register.php">新規登録</a>
+            <a href="./register/register.php">ユーザー登録</a>
         </div>
         <div class="content" v-else>
             <section class="search-area">
