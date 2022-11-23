@@ -137,7 +137,7 @@ export default {
         const selectedPreset = ref<object>(presetInitialData)
         const selectedPresetIndex = ref<number>(-1)
         const selectPreset = (index: number) => {
-            selectedPreset.value = index === -1 ? presetInitialData : selectedPreset.value = savedPromptList.value[index]
+            selectedPreset.value = index === -1 ? presetInitialData : savedPromptList.value[index]
             selectedPresetIndex.value = index
         }
 
