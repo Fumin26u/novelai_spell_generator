@@ -68,6 +68,7 @@
                         class="prompt" 
                         v-model="setSpells"
                         item-key="index"
+                        handle=".prompt-variation-select"
                     >
                         <template #item="{element, index}">
                             <div class="draggable">
