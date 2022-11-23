@@ -5,7 +5,7 @@
             <div class="main-link">
                 <a href="./" class="prompt-generator">プロンプトジェネレーター</a>
                 <a href="./#/saves/" class="prompt-saver">プロンプトセーバー</a>
-                <a href="https://nai-pg.com/register/commands.php" class="preset-register">プリセット登録</a>
+                <a href="https://nai-pg.com/register/master/" class="master-register" v-if="user_id === 'Fumiya0719'">マスタデータ登録</a>
             </div>
             <div class="sub-link">
                 <a href="https://nai-pg.com/register/t/terms_of_use.php" target="_blank">利用規約</a>
