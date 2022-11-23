@@ -121,7 +121,6 @@ export default {
             }
 
             const formData = JSON.stringify(preset.value)
-            console.log(formUrl)
             
             axios.post(formUrl, formData).then(() => {
                 context.emit('setAlertText', 'プロンプトをデータベースに登録しました。')
