@@ -2,9 +2,9 @@
 $home = '../';
 require_once($home . 'database/commonlib.php');
 
-// 非ログイン時はログインページにリダイレクト
-if (!isset($_SESSION['user_id'])) exit;
-$user_id = h($_SESSION['user_id']);
+// 非ログイン時かつローカル環境でない場合強制終了
+if ($_SERVER['HTTP_HOST'] !== 'localhost' && !isset($_SESSION['user_id'])) exit;
+$user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']);
 
 try {
     $pdo = dbConnect();

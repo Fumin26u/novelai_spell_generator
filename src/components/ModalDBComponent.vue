@@ -59,6 +59,7 @@
     </div>
 </template>
 <script lang="ts">
+import registerPath from '@/assets/ts/registerPath'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../assets/scss/modalDB.scss'
@@ -106,7 +107,7 @@ export default {
                 return
             }
 
-            const formUrl = './register/api/registerPreset.php'
+            const formUrl = registerPath + 'api/registerPreset.php'
             const formData = JSON.stringify(preset.value)
             
             axios.post(formUrl, formData).then(() => {

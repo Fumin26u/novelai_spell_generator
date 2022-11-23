@@ -141,7 +141,8 @@
 </template>
 
 <script lang="ts">
-import master_data from './assets/ts/master_data'
+import master_data from '@/assets/ts/master_data'
+import registerPath from '@/assets/ts/registerPath'
 import { colorMulti, colorMono } from './assets/ts/colorVariation'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -230,7 +231,7 @@ export default {
 
         // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
         const getMasterData = async(): Promise<void> => {
-            const url = './register/api/getMasterData.php?from=spell_generator'
+            const url = registerPath + 'api/getMasterData.php?from=spell_generator'
             await axios.get(url)
                 .then(response => {
                     tagsList.value = convertJsonToTagList(response.data)
@@ -495,7 +496,7 @@ export default {
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
-            const url = './register/api/getUserInfo.php'
+            const url = registerPath + 'api/getUserInfo.php'
             axios.get(url)
                 .then(response => user_id.value = response.data.user_id)
                 .catch(error => console.log(error))
