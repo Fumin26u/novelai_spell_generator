@@ -66,6 +66,7 @@
     </section>
 </template>
 <script lang="ts">
+import registerPath from '@/assets/ts/registerPath'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
@@ -103,7 +104,7 @@ export default {
         watchEffect(() => preset.value = props.selected)
 
         // プリセットをDBに保存する
-        const formUrl = './register/api/registerPreset.php'
+        const formUrl = registerPath + 'api/registerPreset.php'
         const savePreset = () => {
             if (preset.value.commands === '') {
                 alert('コマンドが入力されていません。')

@@ -65,7 +65,8 @@
     </div>
 </template>
 <script lang="ts">
-import fetchData from './assets/ts/fetchData'
+import fetchData from '@/assets/ts/fetchData'
+import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
@@ -89,8 +90,8 @@ export default {
         const isDisplaySearchBox = ref<boolean>(false)
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
-        const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
-            const imgPath = currentPath === 'local' ? './images/preset/' : './register/images/preset/'
+        const setImages = (presets: {[key: string]: any}[]) => {
+            const imgPath = registerPath + 'images/preset/'
             presets.map((preset, index) => {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
@@ -142,35 +143,23 @@ export default {
             order: 'asc'
         })
        
-        // ページの環境(プリセット取得場所参照に使用)
-        const currentPath = ref<string>('local')
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
         const getPresetData = async(postData: {[key: string]: any} = searchData.value) => {
-            const url = './register/api/getPreset.php'
+            const url = registerPath +  'api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
             await axios.get(url, {
                 params: postData
             }).then(response => {
-                    if (response.data !== '') { 
-                        switch (location.origin + location.pathname) {
-                            case 'https://fuminsv.sakura.ne.jp/sgtest/':
-                                currentPath.value = 'testServer'
-                                break
-                            case 'https://nai-pg.com/':
-                                currentPath.value = 'mainServer'
-                                break
-                            default:
-                                currentPath.value = 'local'
-                        }
+                    if (response.data !== '') {
                         savedPromptList.value = response.data
-                        setImages(savedPromptList.value, currentPath.value)
+                        setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
                     }
                 })
                 .catch(error => {
                     savedPromptList.value = fetchData
-                    setImages(savedPromptList.value, currentPath.value)
+                    setImages(savedPromptList.value)
                     setIsNsfw(savedPromptList.value)
                     console.log(error) 
                 })
@@ -179,7 +168,7 @@ export default {
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
-            const url = './register/api/getUserInfo.php'
+            const url = registerPath + 'api/getUserInfo.php'
             axios.get(url)
                 .then(response => user_id.value = response.data.user_id)
                 .catch(error => console.log(error))
