@@ -44,6 +44,7 @@ $color-age-z: hsl(9, 100%, 40%);
 
 --------------------*/
 .main {
+    box-sizing: border-box;
     max-width: 1560px;
     margin: 0 auto;
     padding: 0 0 1em;
@@ -75,6 +76,11 @@ li {
 
 input[type="checkbox"], input[type='radio'] {
     transform: scale(1.1);
+    margin: 0 4px;
+    vertical-align: middle;
+}
+label {
+    vertical-align: middle;
 }
 
 button, input[type="submit"] {

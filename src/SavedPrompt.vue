@@ -2,13 +2,32 @@
     <div class="main">
         <HeaderComponent :user="user_id"></HeaderComponent> 
         <div class="content">
-            <searchBoxComponent
-                :searchBoxData="searchData"
-                @getPresetData="getPresetData"
-            />
+            <section class="search-area">
+                <div class="title">
+                    <div class="display-form">
+                        <h2>検索フォーム</h2>
+                        <button 
+                            class="btn-common green" 
+                            @click="isDisplaySearchBox = true" 
+                            :style="[!isDisplaySearchBox ? 'display: inline-block':'display: none']"
+                        >▽開く</button>
+                        <button 
+                            class="btn-common red" 
+                            @click="isDisplaySearchBox = false" 
+                            :style="[isDisplaySearchBox ? 'display: inline-block':'display: none']"
+                        >△閉じる</button>
+                    </div>
+                    <button @click="setRegisterMode(true, 'register')" class="btn-common green register-preset">＋新規追加</button>
+                </div>
+                <searchBoxComponent
+                    v-if="isDisplaySearchBox"
+                    :searchBoxData="searchData"
+                    @getPresetData="getPresetData"
+                />
+            </section>
             <section class="preset-info">
                 <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
-                <p class="copy-alert">{{ copyAlertText }}</p>
+                <p class="copy-alert">{{ alertText }}</p>
             </section>
             <section class="preset-list">
                 <div class="preset-content">
@@ -16,67 +35,41 @@
                         v-for="(prompt, index) in savedPromptList" 
                         :key="prompt.preset_id" 
                         :class="[selectedPresetIndex === index ? 'selected':'']"
-                        @click="selectPreset(index)"
+                        @click="selectPreset(index), setRegisterMode(false)"
                     >
                         <img :src="prompt.thumbnail" :alt="prompt.description">
                         <p>{{ prompt.description }}</p>
                     </div>
-                </div>
-            </section>
-            <section class="preset-detail">
-                <div v-if="selectedPreset !== null">
-                    <div class="title-area">
-                        <h2>{{ selectedPreset.description }}</h2>
-                        <a :href="'./register/commands.php?preset_id=' + selectedPreset.preset_id" class="btn-common blue">編集</a>
-                        <!-- <button class="btn-common blue">編集</button>
-                        <button class="btn-common green" :style="'display:none;'">保存</button> -->
+                    <div
+                        :class="['register', selectedPresetIndex === -1 ? 'selected':'']"
+                        @click="setRegisterMode(true, 'register')"
+                    >
+                        <span>新規追加</span>
                     </div>
-                    <ul class="data-list">
-                        <li class="image">
-                            <img :src="selectedPreset.originalImage" alt="">
-                        </li>
-                        <li class="nsfw">
-                            <h3>nsfw</h3>
-                            <p>{{ selectedPreset.nsfw_display }}</p>
-                        </li>
-                        <li class="prompt copy">
-                            <h3>プロンプト</h3>
-                            <button 
-                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
-                                @click="toggleEnhanceBrace()"
-                            >{{ enhanceBraceMessage }}</button>
-                            <p @click="copyText(selectedPreset.commands, 'プロンプト')">{{ selectedPreset.commands }}</p>
-                        </li>
-                        <li class="prompt-ban copy">
-                            <h3>BANプロンプト</h3>
-                            <button 
-                                :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
-                                @click="toggleEnhanceBrace()"
-                            >{{ enhanceBraceMessage }}</button>
-                            <p @click="copyText(selectedPreset.commands_ban, 'BANプロンプト')">{{ selectedPreset.commands_ban }}</p>
-                        </li>
-                        <li class="seed copy">
-                            <h3>シード値</h3>
-                            <p @click="copyText(selectedPreset.seed, 'シード値')">{{ selectedPreset.seed }}</p>
-                        </li>
-                        <li class="resolution">
-                            <h3>解像度</h3>
-                            <p>{{ selectedPreset.resolution }}</p>
-                        </li>
-                        <li class="other">
-                            <h3>備考</h3>
-                            <p>{{ selectedPreset.others }}</p>
-                        </li>
-                    </ul>
                 </div>
             </section>
+            <SelectedPresetComponent 
+                v-if="!isRegisterMode"
+                :selected="selectedPreset"
+                @setAlertText="setAlertText"
+                @setRegisterMode="setRegisterMode"
+            />
+            <ManagePresetComponent 
+                v-else
+                :selected="selectedPreset"
+                @setAlertText="setAlertText"
+                @getPresetData="getPresetData"
+                @setRegisterMode="setRegisterMode"
+            />
         </div>
     </div>
 </template>
 <script lang="ts">
 import fetchData from './assets/ts/fetchData'
 import HeaderComponent from './components/HeaderComponent.vue'
-import SearchBoxComponent from './components/SearchBoxComponent.vue'
+import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
+import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
+import ManagePresetComponent from './components/saver/ManagePresetComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -85,10 +78,15 @@ export default {
     components: {
         HeaderComponent,
         SearchBoxComponent,
+        SelectedPresetComponent,
+        ManagePresetComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
         const savedPromptList = ref<any>([])
+        
+        // 検索ボックスの表示有無
+        const isDisplaySearchBox = ref<boolean>(false)
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[], currentPath: string) => {
@@ -119,15 +117,24 @@ export default {
         }
         
         // プリセット一覧から選択されたプリセットを読み込む
-        const selectedPreset = ref<any>(null)
+        const selectedPreset = ref<object>({})
         const selectedPresetIndex = ref<number>(-1)
         const selectPreset = (index: number) => {
-            selectedPreset.value = savedPromptList.value[index]
+            selectedPreset.value = index === -1 ? {} : selectedPreset.value = savedPromptList.value[index]
             selectedPresetIndex.value = index
         }
 
+        // データ登録・編集モードの状態
+        const isRegisterMode = ref<boolean>(true)
+        const setRegisterMode = (state: boolean, mode: string = '') => {
+            // 新規登録の場合は選択されているプリセット詳細データを初期化
+            if (state && mode === 'register') selectPreset(-1)
+
+            isRegisterMode.value = state
+        }
+
         // 検索ボックスの入力内容
-        const searchData = ref<any>({
+        const searchData = ref<object>({
             age: ['A'],
             item: ['description', 'commands'],
             word: '',
@@ -138,7 +145,7 @@ export default {
         // ページの環境(プリセット取得場所参照に使用)
         const currentPath = ref<string>('local')
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
-        const getPresetData = async(postData: {[key: string]: any}) => {
+        const getPresetData = async(postData: {[key: string]: any} = searchData.value) => {
             const url = './register/api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
@@ -169,37 +176,6 @@ export default {
                 })
         }
 
-        // 強化値の{}と()を切り替える
-        const enhanceBraceMessage = ref<string>('( )に変換')
-        const toggleEnhanceBrace = () => {
-            if (enhanceBraceMessage.value === '( )に変換') {
-                enhanceBraceMessage.value = '{ }に変換'
-                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-            } else {
-                enhanceBraceMessage.value = '( )に変換'
-                selectedPreset.value.commands = selectedPreset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-                selectedPreset.value.commands_ban = selectedPreset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-            }
-        }
-
-        // クリックした文字列をコピーする
-        const copyAlertText = ref<string>('')
-        const copyText = (text: string, name: string) => {
-            const href = location.href.substring(0,5)
-            if (href === 'https') {
-                navigator.clipboard.writeText(text)
-            } else if (href === 'http:') {
-                const input = document.createElement('input')
-                document.body.appendChild(input)
-                input.value = text
-                input.select()
-                document.execCommand('copy')
-                document.body.removeChild(input)
-            }
-            copyAlertText.value = selectedPreset.value.description + 'の' + name + 'をコピーしました。'
-        }
-
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
@@ -209,24 +185,30 @@ export default {
                 .catch(error => console.log(error))
         }
 
+        // コピーした際のアラートを設定
+        const alertText = ref<string>('')
+        const setAlertText = (text: string) => alertText.value = text
+
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
             getUserInfo()
-            getPresetData(searchData.value)
+            getPresetData()
         })
 
         return {
             savedPromptList,
+            isDisplaySearchBox: isDisplaySearchBox,
             selectedPreset,
             selectedPresetIndex,
             searchData: searchData,
-            enhanceBraceMessage: enhanceBraceMessage,
-            copyAlertText,
+            alertText,
+            isRegisterMode,
             user_id,
+
             selectPreset,
             getPresetData,
-            toggleEnhanceBrace,
-            copyText,
+            setAlertText,
+            setRegisterMode,
         }
     }
 }
