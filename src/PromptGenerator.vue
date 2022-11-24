@@ -267,7 +267,7 @@ export default {
                 }
             }
             // リスト内のプロンプトと1つも合致しなかった場合、手動入力として扱う
-            addManualPrompt(promptName, enhanceCount)
+            addManualPrompt(uploadPromptName, enhanceCount)
             return
         }
 
