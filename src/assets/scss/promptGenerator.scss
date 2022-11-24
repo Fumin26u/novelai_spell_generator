@@ -2,7 +2,6 @@
 
 main.content {
     position: relative;
-    margin: 0 8px;
     
     @include mediaQuery(medium) {
         display: flex;

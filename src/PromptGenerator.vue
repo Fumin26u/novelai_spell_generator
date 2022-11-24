@@ -356,6 +356,7 @@ export default {
 
         // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
         onMounted(() => {
+            document.title = 'NovelAI プロンプトジェネレーター'
             getUserInfo()
             getMasterData()
         })
