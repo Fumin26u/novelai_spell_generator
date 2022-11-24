@@ -43,11 +43,12 @@ $color-age-z: hsl(9, 100%, 40%);
     共通パーツ
 
 --------------------*/
-.main {
-    box-sizing: border-box;
-    max-width: 1560px;
-    margin: 0 auto;
+#app {
     padding: 0 0 1em;
+    margin: 0 12px;
+}
+header, main {
+    max-width: 1560px;
 }
 
 button, input, textarea, select {
