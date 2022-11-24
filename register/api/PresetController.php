@@ -57,6 +57,11 @@ class PresetController {
         $st->bindValue(':nsfw', isset($post['nsfw']) ? h($post['nsfw']) : 'A', PDO::PARAM_STR);
         $st->bindValue(':seed', isset($post['seed']) ? h($post['seed']) : null, PDO::PARAM_STR);
         $st->bindValue(':resolution', isset($post['resolution']) ? h($post['resolution']) : null, PDO::PARAM_STR);
+        $st->bindValue(':model', isset($post['model']) ? h($post['model']) : null, PDO::PARAM_STR);
+        $st->bindValue(':sampling', isset($post['sampling']) ? h($post['sampling']) : null, PDO::PARAM_STR);
+        $st->bindValue(':sampling_algo', isset($post['sampling_algo']) ? h($post['sampling_algo']) : null, PDO::PARAM_STR);
+        $st->bindValue(':scale', isset($post['scale']) ? h($post['scale']) : null, PDO::PARAM_STR);
+        $st->bindValue(':options', isset($post['options']) ? h($post['options']) : null, PDO::PARAM_STR);
         $st->bindValue(':others', isset($post['others']) ? h($post['others']) : null, PDO::PARAM_STR);
         
         $st->execute();
@@ -70,9 +75,9 @@ class PresetController {
 
             $sql = <<<SQL
                 INSERT INTO preset 
-                (user_id, commands, commands_ban, description, image, nsfw, seed, resolution, others, created_at, updated_at)
+                (user_id, commands, commands_ban, description, image, nsfw, seed, resolution, model, sampling, sampling_algo, scale, options, others, created_at, updated_at)
                 VALUES 
-                (:user_id, :commands, :commands_ban, :description, :image, :nsfw, :seed, :resolution, :others, NOW(), NOW())
+                (:user_id, :commands, :commands_ban, :description, :image, :nsfw, :seed, :resolution, :model, :sampling, :sampling_algo, :scale, :options, :others, NOW(), NOW())
             SQL;
 
             $this->bindToExecSQL($pdo, $sql, $post, $imageFileName);
@@ -99,6 +104,11 @@ class PresetController {
                 nsfw = :nsfw,
                 seed = :seed,
                 resolution = :resolution,
+                model = :model,
+                sampling = :sampling,
+                sampling_algo = :sampling_algo,
+                scale = :scale,
+                options = :options,
                 others = :others,
                 updated_at = NOW()
                 WHERE preset_id = :preset_id AND user_id = :user_id

@@ -87,6 +87,11 @@ export default {
             nsfw: 'A',
             seed: '',
             resolution: 'Portrait (Normal) 512x768',
+            model: 'NovelAI',
+            sampling: 28,
+            sampling_algo: '',
+            scale: 11,
+            options: [],
             others: '',
         })
         watchEffect(() => preset.value.commands = props.prompts)
