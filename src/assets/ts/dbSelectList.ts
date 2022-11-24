@@ -1,0 +1,31 @@
+export const resolutionList = [
+    'Portrait (Normal) 512x768',
+    'LandScape (Normal) 768x512',
+    'Square (Normal) 640x640',
+    'Portrait (Small) 384x640',
+    'LandScape (Small) 640x384',
+    'Square (Small) 512x512',
+    'Portrait (Large) 512x1024',
+    'LandScape (Large) 1024x512',
+    'Square (Large) 1024x1024',
+]
+
+export const algorithms = [
+    'Euler a',
+    'Euler',
+    'LMS',
+    'Heun',
+    'DPM2',
+    'DPM2 a',
+    'DPM++ 2S a',
+    'DPM++ 2M',
+    'DPM fast',
+    'DPM adaptive',
+    'LMS Karras',
+    'DPM2 Karras',
+    'DPM2 a Karras',
+    'DPM++ 2S a Karras',
+    'DPM++ 2M Karras',
+    'DDIM',
+    'PLMS',
+]

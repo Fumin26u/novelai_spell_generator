@@ -50,6 +50,50 @@
                     </dd>
                 </div>
                 <div>
+                    <dt>モデル名</dt>
+                    <dd>
+                        <input type="radio" v-model="preset.model" value="NovelAI" id="model_NovelAI">
+                        <label for="model_NovelAI">NovelAI</label>
+                        <input type="radio" v-model="preset.model" value="Waifu Diffusion" id="model_Waifu_Diffusion">
+                        <label for="model_Waifu_Diffusion">Waifu Diffusion</label>
+                        <input type="radio" v-model="preset.model" value="Anything V3" id="model_Anything_V3">
+                        <label for="model_Anything_V3">Anything V3</label>
+                    </dd>
+                </div>
+                <div>
+                    <dt>サンプリング回数 (Step)</dt>
+                    <dd><input type="number" step="1" v-model="preset.sampling"></dd>
+                </div>
+                <div>
+                    <dt>サンプリングアルゴリズム</dt>
+                    <dd>
+                        <select v-model="preset.sampling_algo">
+                            <option v-for="(algorithm, index) in algorithms" :key="index">{{ algorithm }}</option>
+                        </select>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Scale値</dt>
+                    <dd><input type="number" step="1" v-model="preset.scale"></dd>
+                </div>
+                <div>
+                    <dt>オプション</dt>
+                    <dd>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Restore Faces" id="Restore_Faces">
+                            <label for="Restore_Faces">Restore Faces(顔修復)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Tiling" id="Tiling">
+                            <label for="Tiling">Tiling(テクスチャ生成)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Highres. Fix" id="Highres_Fix">
+                            <label for="Highres_Fix">Highres. Fix(高解像度修正)</label>
+                        </div>
+                    </dd>
+                </div>
+                <div>
                     <dt>その他</dt>
                     <dd><textarea v-model="preset.others"></textarea></dd>
                 </div>
@@ -60,6 +104,7 @@
 </template>
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'
+import { resolutionList, algorithms } from '@/assets/ts/dbSelectList'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/modalDB.scss'
@@ -89,9 +134,9 @@ export default {
             resolution: 'Portrait (Normal) 512x768',
             model: 'NovelAI',
             sampling: 28,
-            sampling_algo: '',
+            sampling_algo: 'Euler a',
             scale: 11,
-            options: [],
+            options: ['Highres. Fix'],
             others: '',
         })
         watchEffect(() => preset.value.commands = props.prompts)
@@ -112,7 +157,9 @@ export default {
             }
 
             const formUrl = registerPath + 'api/registerPreset.php'
-            const formData = JSON.stringify(preset.value)
+            const sendData = Object.create(preset.value)
+            sendData.options = sendData.options.join(',')
+            const formData = JSON.stringify(sendData)
             
             axios.post(formUrl, formData).then(() => {
                 alert('プロンプトをデータベースに登録しました。')
@@ -140,17 +187,8 @@ export default {
         return {
             preset,
             isOpenSaveModal,
-            resolutionList: [
-                'Portrait (Normal) 512x768',
-                'LandScape (Normal) 768x512',
-                'Square (Normal) 640x640',
-                'Portrait (Small) 384x640',
-                'LandScape (Small) 640x384',
-                'Square (Small) 512x512',
-                'Portrait (Large) 512x1024',
-                'LandScape (Large) 1024x512',
-                'Square (Large) 1024x1024',
-            ],
+            resolutionList,
+            algorithms,
             savePreset,
             updateModal,
             uploadImage,
