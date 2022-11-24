@@ -222,15 +222,15 @@
         border-bottom: 1px solid $border-color;
         display: block;
         width: 100%;
-        > h3, button {
+        h3, button {
             display: inline-block;
             vertical-align: middle;
             margin: 0;
         }
-        > h3 {
+        h3 {
             font-size: 16px;
         }
-        > button {
+        button {
             margin-left: 8px;
             padding: 0 8px;
             font-weight: bold;
@@ -257,6 +257,17 @@
         }
         &.seed > p {
             font-size: 16px;
+        }
+    }
+    // セパレートクラス付きの場合左右2分割で表示
+    > div > ul li.separate {
+        display: flex;
+        justify-content: space-between;
+        > div {
+            width: 49%;
+            &:first-child {
+                border-right: 1px solid $border-color;
+            }
         }
     }
 }

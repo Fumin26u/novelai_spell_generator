@@ -132,6 +132,11 @@ export default {
             nsfw: 'A',
             seed: '',
             resolution: 'Portrait (Normal) 512x768',
+            model: 'NovelAI',
+            sampling: 28,
+            sampling_algo: 'Euler a',
+            scale: 11,
+            options: ['Highres. Fix'],
             others: '',
         }
         const selectedPreset = ref<object>(presetInitialData)
