@@ -150,8 +150,6 @@ export default {
                 commandList.push(genre)
             })
 
-            // プロンプト一覧における個々の表示状態を設定
-            setDisplayNsfw(displayNsfw.value)
             return commandList
         }
 
@@ -340,9 +338,13 @@ export default {
         const getMasterData = async(): Promise<void> => {
             const url = registerPath + 'api/getMasterData.php?from=spell_generator'
             await axios.get(url)
-                .then(response => promptList.value = convertJsonToTagList(response.data))
+                .then(response => { 
+                    promptList.value = convertJsonToTagList(response.data)
+                    setDisplayNsfw(displayNsfw.value)
+                })
                 .catch(error => {
                     promptList.value = convertJsonToTagList(JSON.parse(master_data))
+                    setDisplayNsfw(displayNsfw.value)
                     console.log(error)
                 })
         }
