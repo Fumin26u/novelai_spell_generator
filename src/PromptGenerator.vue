@@ -211,11 +211,18 @@ export default {
         }
 
         // タグのセットキューに挿入
-        const toggleSetPromptList = (i: number, j: number): void => { 
+        const toggleSetPromptList = (
+            i: number, 
+            j: number, 
+            enhanceCount: number = 0, 
+            colorTag: string = '',
+            colorTagJP: string = ''
+        ): void => { 
             const queue = promptList.value[i].content[j]
             
+            // プロンプト設定に必要なプロパティを挿入
             queue['output_prompt'] = queue.tag
-            queue['enhance'] = 0
+            queue['enhance'] = enhanceCount
             switch (promptList.value[i].content[j].variation) {
                 case 'CC':
                     queue['color_list'] = colorMulti
@@ -227,6 +234,13 @@ export default {
                     queue['color_list'] = null
                     break
             }
+
+            // カラータグが存在する場合はタグ名と表示名を上書き
+            if (colorTag !== '' && colorTagJP !== '') {
+                queue.tag = colorTag
+                queue.jp = queue.jp + + ' (' + colorTagJP + ')'
+            }
+
             const selected = promptList.value[i].content[j].selected
 
             if (!selected) {
@@ -243,68 +257,41 @@ export default {
                 }
             }
         }
-        
+
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const setPromptFromUploadText = (tagname: string, enhanceCount: number): void => {            
-            // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
-            const promptAfterSpace: string = tagname.substring(tagname.indexOf(' ')+1)
-            const promptBeforeSpace: any = tagname.substring(0, tagname.indexOf(' '))
+        const setPromptFromUploadText = (uploadPrompt: string, enhanceCount: number): void => {            
+            // アップロードされたプロンプトにカラータグが付いているか調べる
+            const spaceIndex = uploadPrompt.indexOf(' ')
+            const colorTag = uploadPrompt.substring(0, spaceIndex)
             const colorTagJP = ref<string>('')
-            // カラーバリュー設定が存在する場合プロンプトの日本語名を変更
-            if (promptBeforeSpace !== -1) {
-                colorMulti.map(color => {
-                    if (promptBeforeSpace === color.prompt) {
-                        colorTagJP.value = color.jp
-                    }
-                })
-            }
             
-            const promptQueue: {[key: string]: any} = {}
+            // カラータグが付いている場合何色か調べる
+            if (colorTag !== '') {
+                colorMulti.map(color => {
+                    if (colorTag === color.prompt) colorTagJP.value = color.jp
+                })
+            } 
+
+            const promptName = colorTagJP.value === '' ? uploadPrompt : uploadPrompt.substring(spaceIndex + 1)
+            
             for (let i = 0; i < promptList.value.length; i++) {
                 for (let j = 0; j < promptList.value[i].content.length; j++) {
+                    
                     const prompt = promptList.value[i].content[j]
-                    if (prompt.tag === tagname || (colorTagJP.value.trim() !== '' && promptAfterSpace === prompt.tag)) {
-
-                        if (promptList.value[i].content[j].variation !== null && colorTagJP.value !== '') {
-                            promptQueue['tag'] = promptAfterSpace
-                            promptQueue['jp'] = promptList.value[i].content[j].jp + ' (' + colorTagJP.value + ')'
-                        } else {
-                            promptQueue['tag'] = tagname
-                            promptQueue['jp'] = promptList.value[i].content[j].jp
-                        }
-                        
-                        promptQueue['output_prompt'] = tagname
-                        promptQueue['parentTag'] = promptList.value[i].jp
-                        promptQueue['detail'] = ''
-                        promptQueue['slag'] = tagname.replace(' ', '_')
-                        promptQueue['enhance'] = enhanceCount
-                        promptQueue['index'] = i + ',' + j
-                        promptQueue['nsfw'] = promptList.value[i].content[j].nsfw
-                        promptQueue['error'] = ''
-                        switch (promptList.value[i].content[j].variation) {
-                            case 'CC':
-                                promptQueue['color_list'] = colorMulti
-                                break
-                            case 'CM':
-                                promptQueue['color_list'] = colorMono
-                                break
-                            default:
-                                promptQueue['color_list'] = null
-                                break
-                        }
-
-                        promptList.value[i].content[j].selected = true
+                    // アップロードされたプロンプト名とリスト内のプロンプトが一致した場合、プロンプト設定のリストにそのプロンプトのデータを挿入
+                    if (prompt.tag === promptName) {
+                        toggleSetPromptList(i, j, enhanceCount, colorTag, colorTagJP.value)
                         // 該当のプロンプトがnsfwワードだった場合R-18モードにする
-                        if (displayNsfw.value === 'A' || (displayNsfw.value === 'C' && promptList.value[i].content[j].nsfw === 'Z')) {
-                            displayNsfw.value = promptList.value[i].content[j].nsfw
+                        if (displayNsfw.value === 'A' || (displayNsfw.value === 'C' && prompt.nsfw === 'Z')) {
+                            displayNsfw.value = prompt.nsfw
                         } 
                         setDisplayNsfw(displayNsfw.value)
-                        setPrompt.value.push(promptQueue)
                         return
-                    } 
+                    }
                 }
             }
-            addManualPrompt(tagname, enhanceCount)
+            // リスト内のプロンプトと1つも合致しなかった場合、手動入力として扱う
+            addManualPrompt(promptName, enhanceCount)
             return
         }
 
