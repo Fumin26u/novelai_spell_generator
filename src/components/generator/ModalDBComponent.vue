@@ -5,6 +5,10 @@
             <div>
                 <h3>データをDBに登録</h3>
                 <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
+                <div class="senior-mode-setting">
+                    <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
+                    <label for="senior-mode">詳細設定を表示</label>
+                </div>
             </div>
             <div class="close-modal">
                 <span @click="updateModal(false)" class="btn-close"></span>
@@ -49,50 +53,52 @@
                         </select>
                     </dd>
                 </div>
-                <div>
-                    <dt>モデル名</dt>
-                    <dd>
-                        <input type="radio" v-model="preset.model" value="NovelAI" id="model_NovelAI">
-                        <label for="model_NovelAI">NovelAI</label>
-                        <input type="radio" v-model="preset.model" value="Waifu Diffusion" id="model_Waifu_Diffusion">
-                        <label for="model_Waifu_Diffusion">Waifu Diffusion</label>
-                        <input type="radio" v-model="preset.model" value="Anything V3" id="model_Anything_V3">
-                        <label for="model_Anything_V3">Anything V3</label>
-                    </dd>
-                </div>
-                <div>
-                    <dt>サンプリング回数 (Step)</dt>
-                    <dd><input type="number" step="1" v-model="preset.sampling"></dd>
-                </div>
-                <div>
-                    <dt>サンプリングアルゴリズム</dt>
-                    <dd>
-                        <select v-model="preset.sampling_algo">
-                            <option v-for="(algorithm, index) in algorithms" :key="index">{{ algorithm }}</option>
-                        </select>
-                    </dd>
-                </div>
-                <div>
-                    <dt>Scale値</dt>
-                    <dd><input type="number" step="1" v-model="preset.scale"></dd>
-                </div>
-                <div>
-                    <dt>オプション</dt>
-                    <dd>
-                        <div>
-                            <input type="checkbox" v-model="preset.options" value="Restore Faces" id="Restore_Faces">
-                            <label for="Restore_Faces">Restore Faces(顔修復)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" v-model="preset.options" value="Tiling" id="Tiling">
-                            <label for="Tiling">Tiling(テクスチャ生成)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" v-model="preset.options" value="Highres. Fix" id="Highres_Fix">
-                            <label for="Highres_Fix">Highres. Fix(高解像度修正)</label>
-                        </div>
-                    </dd>
-                </div>
+                <section v-if="isSeniorMode" class="senior-settings">
+                    <div>
+                        <dt>モデル名</dt>
+                        <dd>
+                            <input type="radio" v-model="preset.model" value="NovelAI" id="model_NovelAI">
+                            <label for="model_NovelAI">NovelAI</label>
+                            <input type="radio" v-model="preset.model" value="Waifu Diffusion" id="model_Waifu_Diffusion">
+                            <label for="model_Waifu_Diffusion">Waifu Diffusion</label>
+                            <input type="radio" v-model="preset.model" value="Anything V3" id="model_Anything_V3">
+                            <label for="model_Anything_V3">Anything V3</label>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>サンプリング回数<br>(Step)</dt>
+                        <dd><input type="number" step="1" v-model="preset.sampling"></dd>
+                    </div>
+                    <div>
+                        <dt>サンプリング<br>アルゴリズム</dt>
+                        <dd>
+                            <select v-model="preset.sampling_algo">
+                                <option v-for="(algorithm, index) in algorithms" :key="index">{{ algorithm }}</option>
+                            </select>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Scale値</dt>
+                        <dd><input type="number" step="1" v-model="preset.scale"></dd>
+                    </div>
+                    <div>
+                        <dt>オプション</dt>
+                        <dd>
+                            <div>
+                                <input type="checkbox" v-model="preset.options" value="Restore Faces" id="Restore_Faces">
+                                <label for="Restore_Faces">Restore Faces(顔修復)</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" v-model="preset.options" value="Tiling" id="Tiling">
+                                <label for="Tiling">Tiling(テクスチャ生成)</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" v-model="preset.options" value="Highres. Fix" id="Highres_Fix">
+                                <label for="Highres_Fix">Highres. Fix(高解像度修正)</label>
+                            </div>
+                        </dd>
+                    </div>
+                </section>
                 <div>
                     <dt>その他</dt>
                     <dd><textarea v-model="preset.others"></textarea></dd>
@@ -184,11 +190,15 @@ export default {
             }
         }
 
+        // 詳細設定の表示可否
+        const isSeniorMode = ref<boolean>(false)
+
         return {
             preset,
             isOpenSaveModal,
             resolutionList,
             algorithms,
+            isSeniorMode: isSeniorMode,
             savePreset,
             updateModal,
             uploadImage,
