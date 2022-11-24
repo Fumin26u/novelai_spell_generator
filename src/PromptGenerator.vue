@@ -313,10 +313,8 @@ export default {
         }
 
         // 子コンポーネントから伝えられたプロンプト設定欄の内容を更新
-        const updateSetPrompt = (childSetPrompt: {[key: string]: any}[]) => {
-            setPrompt.value = childSetPrompt
-        }
-
+        const updateSetPrompt = (childSetPrompt: {[key: string]: any}[]) => setPrompt.value = childSetPrompt
+        
         // セットキューから指定したプロンプトを削除
         const unSelectedPrompt = (promptListIndex: string): void => {
             const tagsIndexList = promptListIndex.split(',')
@@ -328,17 +326,17 @@ export default {
 
         // DB保存モーダルの表示可否
         const isOpenSaveModal = ref<boolean>(false)
+        // モーダルの表示状態を更新する
+        const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
+
         const outputPrompt = ref<string>('')
         // DB保存用のモーダルを開く
         const openSaveModal = (modalState: boolean, output: string): void => {
             outputPrompt.value = output
-            isOpenSaveModal.value = modalState
+            updateModalState(modalState)
         }
         
-        // モーダルの表示状態を更新する
-        const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
-
-        // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
+        // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
         const getMasterData = async(): Promise<void> => {
             const url = registerPath + 'api/getMasterData.php?from=spell_generator'
             await axios.get(url)
