@@ -276,8 +276,8 @@ export default {
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
-        const uploadPrompt = (spell: string): void => {
-            if (spell.trim() === '') return
+        const uploadPrompt = (inputPromptList: string): void => {
+            if (inputPromptList.trim() === '') return
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setPrompt.value = []
             manualInput.value = ''
@@ -288,7 +288,7 @@ export default {
             })
 
             // タグごと配列の要素にする
-            const uploadedPromptList = spell.split(',').map(tag => tag.trim())
+            const uploadedPromptList = inputPromptList.split(',').map(tag => tag.trim())
             uploadedPromptList.map((prompt: string, index: number) => {
                 if(prompt.trim() === "") {
                     uploadedPromptList.splice(index, 1)

@@ -133,21 +133,21 @@ export default {
         const outputPrompt = ref('')
         const enhanceBraceText = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
-        const convertToOutputPrompt = (spells: {[key: string]: any}[]): void => {
+        const convertToOutputPrompt = (setPrompt: {[key: string]: any}[]): void => {
             const text = ref('')
             
-            spells.map(spell => {
+            setPrompt.map(prompt => {
                 // タグの付与
                 // 強化値が0の場合そのまま追加
-                if (spell.enhance === 0) {
-                    text.value += spell.output_prompt
-                } else if (spell.enhance > 0) {
+                if (prompt.enhance === 0) {
+                    text.value += prompt.output_prompt
+                } else if (prompt.enhance > 0) {
                     // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance) 
-                } else if (spell.enhance < 0) {
+                    text.value += '{'.repeat(prompt.enhance) + prompt.output_prompt + '}'.repeat(prompt.enhance) 
+                } else if (prompt.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
-                    const num = spell.enhance * -1
-                    text.value += '['.repeat(num) + spell.output_prompt + ']'.repeat(num)
+                    const num = prompt.enhance * -1
+                    text.value += '['.repeat(num) + prompt.output_prompt + ']'.repeat(num)
                 }
                 text.value += ', '
             })
