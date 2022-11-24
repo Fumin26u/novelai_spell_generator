@@ -210,6 +210,40 @@ export default {
             }
         }
 
+        // タグのセットキューに挿入
+        const toggleSetPromptList = (i: number, j: number): void => { 
+            const queue = promptList.value[i].content[j]
+            
+            queue['output_prompt'] = queue.tag
+            queue['enhance'] = 0
+            switch (promptList.value[i].content[j].variation) {
+                case 'CC':
+                    queue['color_list'] = colorMulti
+                    break
+                case 'CM':
+                    queue['color_list'] = colorMono
+                    break
+                default:
+                    queue['color_list'] = null
+                    break
+            }
+            const selected = promptList.value[i].content[j].selected
+
+            if (!selected) {
+                if (!setPrompt.value.includes(queue)) {
+                    setPrompt.value.push(queue)
+                    promptList.value[i].content[j].selected = true
+                }
+            } else {
+                for (let index = 0; index < setPrompt.value.length; index++) {
+                    if (setPrompt.value[index].tag === queue.tag) {
+                        setPrompt.value.splice(index, 1)
+                        promptList.value[i].content[j].selected = false
+                    }
+                }
+            }
+        }
+        
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
         const setPromptFromUploadText = (tagname: string, enhanceCount: number): void => {            
             // カラーリング付プロンプト用の定数。AfterSpaceがプロンプト名本体、BeforSpaceがカラーバリュー。
@@ -308,40 +342,6 @@ export default {
                     setPromptFromUploadText(tagname, enhanceCount.value)      
                 }
             })
-        }
-
-        // タグのセットキューに挿入
-        const toggleSetPromptList = (i: number, j: number): void => { 
-            const queue = promptList.value[i].content[j]
-            
-            queue['output_prompt'] = queue.tag
-            queue['enhance'] = 0
-            switch (promptList.value[i].content[j].variation) {
-                case 'CC':
-                    queue['color_list'] = colorMulti
-                    break
-                case 'CM':
-                    queue['color_list'] = colorMono
-                    break
-                default:
-                    queue['color_list'] = null
-                    break
-            }
-            const selected = promptList.value[i].content[j].selected
-
-            if (!selected) {
-                if (!setPrompt.value.includes(queue)) {
-                    setPrompt.value.push(queue)
-                    promptList.value[i].content[j].selected = true
-                }
-            } else {
-                for (let index = 0; index < setPrompt.value.length; index++) {
-                    if (setPrompt.value[index].tag === queue.tag) {
-                        setPrompt.value.splice(index, 1)
-                        promptList.value[i].content[j].selected = false
-                    }
-                }
-            }
         }
 
         // 子コンポーネントから伝えられたプロンプト設定欄の内容を更新
