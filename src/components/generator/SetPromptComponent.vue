@@ -97,13 +97,11 @@ export default {
     ],
     setup(props: any, context: any) {
         const setPrompt = ref<{[key: string]: any}[]>([])
+        watchEffect(() => setPrompt.value = props.setPromptList)
         const hoverPrompt = computed(() => props.hoverPromptName)
 
         // 親子間のプロンプト設定を同期させる
-        watchEffect(() => {
-            setPrompt.value = props.setPromptList
-            context.emit('updateSetPrompt', setPrompt.value)
-        })
+        watchEffect(() => context.emit('updateSetPrompt', setPrompt.value))
 
         // 手動入力でのプロンプトの追加
         const manualInput = ref<string>('')
