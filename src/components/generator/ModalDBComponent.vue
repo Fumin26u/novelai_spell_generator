@@ -167,7 +167,6 @@ export default {
 
             const formUrl = registerPath + 'api/registerPreset.php'
             const sendData = {...preset.value}
-            console.log(sendData)
             // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
             if (!isSeniorMode.value) {
                 sendData.model = null
@@ -181,8 +180,7 @@ export default {
             const formData = JSON.stringify(sendData)
             console.log(formData)
             
-            axios.post(formUrl, formData).then((response) => {
-                console.log(response)
+            axios.post(formUrl, formData).then(() => {
                 alert('プロンプトをデータベースに登録しました。')
             }).catch(error => {
                 alert('データベース接続に失敗しました。')
