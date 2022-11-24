@@ -70,7 +70,6 @@
     </main>
 </template>
 <script lang="ts">
-import fetchData from '@/assets/ts/fetchData'
 import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
@@ -179,9 +178,6 @@ export default {
                     }
                 })
                 .catch(error => {
-                    savedPromptList.value = fetchData
-                    setImages(savedPromptList.value)
-                    setIsNsfw(savedPromptList.value)
                     console.log(error) 
                 })
         }
