@@ -92,7 +92,7 @@ export default {
     emits: [
         'updateSetPrompt',
         'addManualPrompt', 
-        'deleteSetPrompt', 
+        'unSelectedPrompt', 
         'openSaveModal'
     ],
     setup(props: any, context: any) {
@@ -113,7 +113,7 @@ export default {
         const deleteSetPrompt = (index: number) => {
             // プロンプト一覧から選択したプロンプトの場合親コンポーネントに伝えて選択を解除
             if (setPrompt.value[index].index !== null) {
-                context.emit('deleteSetPrompt', setPrompt.value[index].index)
+                context.emit('unSelectedPrompt', setPrompt.value[index].index)
             }
             
             setPrompt.value.splice(index, 1)

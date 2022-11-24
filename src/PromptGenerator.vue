@@ -59,7 +59,7 @@
                     :hoverPromptName="hoverPromptName"
                     @updateSetPrompt="updateSetPrompt"
                     @addManualPrompt="addManualPrompt"
-                    @deleteSetPrompt="deleteSetPrompt"
+                    @unSelectedPrompt="unSelectedPrompt"
                     @openSaveModal="openSaveModal"
                 />
             </div>
@@ -153,17 +153,6 @@ export default {
             // プロンプト一覧における個々の表示状態を設定
             setDisplayNsfw(displayNsfw.value)
             return commandList
-        }
-
-        // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
-        const getMasterData = async(): Promise<void> => {
-            const url = registerPath + 'api/getMasterData.php?from=spell_generator'
-            await axios.get(url)
-                .then(response => promptList.value = convertJsonToTagList(response.data))
-                .catch(error => {
-                    promptList.value = convertJsonToTagList(JSON.parse(master_data))
-                    console.log(error)
-                })
         }
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
@@ -329,7 +318,7 @@ export default {
         }
 
         // セットキューから指定したプロンプトを削除
-        const deleteSetPrompt = (promptListIndex: string): void => {
+        const unSelectedPrompt = (promptListIndex: string): void => {
             const tagsIndexList = promptListIndex.split(',')
             const i = parseInt(tagsIndexList[0])
             const j = parseInt(tagsIndexList[1])
@@ -348,6 +337,17 @@ export default {
         
         // モーダルの表示状態を更新する
         const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
+
+        // 画面読み込み時にマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
+        const getMasterData = async(): Promise<void> => {
+            const url = registerPath + 'api/getMasterData.php?from=spell_generator'
+            await axios.get(url)
+                .then(response => promptList.value = convertJsonToTagList(response.data))
+                .catch(error => {
+                    promptList.value = convertJsonToTagList(JSON.parse(master_data))
+                    console.log(error)
+                })
+        }
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
@@ -380,7 +380,7 @@ export default {
             toggleDisplayNsfw,
             addManualPrompt,
             updateSetPrompt,
-            deleteSetPrompt,
+            unSelectedPrompt,
             openSaveModal,
             updateModalState,
         }
