@@ -142,8 +142,8 @@ export default {
         } 
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
-        const convertJsonToTagList = (json: string | object): {[key: string]: any}[] => {
-            const jsonObj = typeof json === 'string' ? JSON.parse(json) : json
+        const convertJsonToTagList = (json: {[key: string]: any}): {[key: string]: any}[] => {
+            const jsonObj = json
             const commandListQueue: {[key: string]: any}[] = []
             Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
 
@@ -174,7 +174,7 @@ export default {
                     setDisplayNsfw(displayNsfw.value)
                 })
                 .catch(error => {
-                    promptList.value = convertJsonToTagList(master_data)
+                    promptList.value = convertJsonToTagList(JSON.parse(master_data))
                     setDisplayNsfw(displayNsfw.value)
                     console.log(error)
                 })
@@ -218,8 +218,19 @@ export default {
             colorTag: string = '',
             colorTagJP: string = ''
         ): void => { 
+            const selected = promptList.value[i].content[j].selected
             const queue = promptList.value[i].content[j]
-            
+
+            // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
+            if (selected) {
+                for (let index = 0; index < setPrompt.value.length; index++) {
+                    if (setPrompt.value[index].tag === queue.tag) {
+                        setPrompt.value.splice(index, 1)
+                        promptList.value[i].content[j].selected = false
+                    }
+                }
+            }
+
             // プロンプト設定に必要なプロパティを挿入
             queue['output_prompt'] = queue.tag
             queue['enhance'] = enhanceCount
@@ -241,21 +252,8 @@ export default {
                 queue.jp = queue.jp + + ' (' + colorTagJP + ')'
             }
 
-            const selected = promptList.value[i].content[j].selected
-
-            if (!selected) {
-                if (!setPrompt.value.includes(queue)) {
-                    setPrompt.value.push(queue)
-                    promptList.value[i].content[j].selected = true
-                }
-            } else {
-                for (let index = 0; index < setPrompt.value.length; index++) {
-                    if (setPrompt.value[index].tag === queue.tag) {
-                        setPrompt.value.splice(index, 1)
-                        promptList.value[i].content[j].selected = false
-                    }
-                }
-            }
+            setPrompt.value.push(queue)
+            promptList.value[i].content[j].selected = true            
         }
 
         // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
@@ -311,7 +309,7 @@ export default {
             const tagsQueue = spell.split(',')
             const tags = tagsQueue.map(tag => tag.trim())
             tags.map((tag: string, index: number) => {
-                if(tag.trim() === " " || tag.trim() === "") {
+                if(tag.trim() === "") {
                     tags.splice(index, 1)
                 } else {
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
