@@ -62,7 +62,7 @@
 import registerPath from '@/assets/ts/registerPath'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
-import '../assets/scss/modalDB.scss'
+import '../../assets/scss/modalDB.scss'
 
 export default {
     emits: ['updateModal', 'updateText'],

@@ -61,7 +61,7 @@
                         <div class="manual-input-area">
                             <label :for="'manual-input'">手動追加</label>
                             <input type="text" :id="'manual-input'" v-model="manualInput">
-                            <button class="btn-common green" @click="addManualPromptToList(manualInput)">追加</button>
+                            <button class="btn-common green" @click="addManualPrompt(manualInput)">追加</button>
                         </div>
                     </div>
                     <draggable 
@@ -97,7 +97,7 @@
                                     <button @click="setSpells[index].enhance += 1" class="btn-common green">＋</button>
                                 </div>
                                 <div class="delete-area">
-                                    <button @click="deleteSetPromptList(index)" class="btn-common red">削除</button>
+                                    <button @click="deleteSetPrompt(index)" class="btn-common red">削除</button>
                                 </div>
                             </div>
                         </template>
@@ -149,7 +149,7 @@ import axios from 'axios'
 import draggable from 'vuedraggable'
 import './assets/scss/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
-import ModalDBComponent from './components/ModalDBComponent.vue'
+import ModalDBComponent from './components/generator/ModalDBComponent.vue'
 
 export default {
     components: {
@@ -252,7 +252,7 @@ export default {
         }
 
         // 手動入力でのプロンプトの追加
-        const addManualPromptToList = (input: string, enhanceCount: number = 0): void => {
+        const addManualPrompt = (input: string, enhanceCount: number = 0): void => {
             let isAlreadySetPrompt = false
             // 既に追加されているプロンプト名の場合追加しない
             setSpells.value.map((prompt: {[key: string]: any}) => {
@@ -334,7 +334,7 @@ export default {
                     } 
                 }
             }
-            addManualPromptToList(tagname, enhanceCount)
+            addManualPrompt(tagname, enhanceCount)
             return
         }
 
@@ -422,7 +422,7 @@ export default {
         } 
 
         // セットキューから指定したプロンプトを削除
-        const deleteSetPromptList = (index: number): void => {
+        const deleteSetPrompt = (index: number): void => {
             if (setSpells.value[index].index !== null) {
                 const tagsIndexList = setSpells.value[index].index.split(',')
                 const i = parseInt(tagsIndexList[0])
@@ -526,8 +526,8 @@ export default {
             toggleSetPromptList,
             toggleDisplayNsfw,
             changePromptColor,
-            addManualPromptToList,
-            deleteSetPromptList,
+            addManualPrompt,
+            deleteSetPrompt,
             convertToNovelAITags,
             toggleEnhanceBrace,
             openSaveModal,
