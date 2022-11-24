@@ -205,6 +205,7 @@ export default {
                     if (setPrompt.value[index].tag === queue.tag) {
                         setPrompt.value.splice(index, 1)
                         promptList.value[i].content[j].selected = false
+                        return
                     }
                 }
             }
