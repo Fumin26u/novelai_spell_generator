@@ -178,7 +178,6 @@ export default {
                 sendData.options = sendData.options.join(',')
             }
             const formData = JSON.stringify(sendData)
-            console.log(formData)
             
             axios.post(formUrl, formData).then(() => {
                 alert('プロンプトをデータベースに登録しました。')

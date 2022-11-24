@@ -4,6 +4,8 @@
             <div class="submit-area top">
                 <p>{{ 'preset_id' in preset ? 'データ編集':'新規追加' }}</p>
                 <div>
+                    <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
+                    <label for="senior-mode">上級者向け設定あり</label>
                     <button class="btn-common red" @click="deletePreset()">削除</button>
                     <button class="btn-common blue" @click="savePreset()">保存</button>
                 </div>
@@ -56,6 +58,48 @@
                         <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
                     </select>
                 </li>
+                <section v-if="isSeniorMode">
+                    <li>
+                        <h3>モデル名</h3>
+                        <div class="radio-select">
+                            <input type="radio" v-model="preset.model" value="NovelAI" id="model_NovelAI">
+                            <label for="model_NovelAI">NovelAI</label>
+                            <input type="radio" v-model="preset.model" value="Waifu Diffusion" id="model_Waifu_Diffusion">
+                            <label for="model_Waifu_Diffusion">Waifu Diffusion</label>
+                            <input type="radio" v-model="preset.model" value="Anything V3" id="model_Anything_V3">
+                            <label for="model_Anything_V3">Anything V3</label>
+                        </div>
+                    </li>
+                    <li>
+                        <h3>サンプリング回数(Step)</h3>
+                        <input type="number" step="1" v-model="preset.sampling">
+                    </li>
+                    <li>
+                        <h3>サンプリングアルゴリズム</h3>
+                        <select v-model="preset.sampling_algo">
+                            <option v-for="(algorithm, index) in algorithms" :key="index">{{ algorithm }}</option>
+                        </select>
+                    </li>
+                    <li>
+                        <h3>Scale値</h3>
+                        <input type="number" step="1" v-model="preset.scale">
+                    </li>
+                    <li>
+                        <h3>オプション</h3>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Restore Faces" id="Restore_Faces">
+                            <label for="Restore_Faces">Restore Faces(顔修復)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Tiling" id="Tiling">
+                            <label for="Tiling">Tiling(テクスチャ生成)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" v-model="preset.options" value="Highres. Fix" id="Highres_Fix">
+                            <label for="Highres_Fix">Highres. Fix(高解像度修正)</label>
+                        </div>
+                    </li>
+                </section>
                 <li class="other">
                     <h3>備考</h3>
                     <textarea v-model="preset.others"></textarea>
@@ -67,6 +111,7 @@
 </template>
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'
+import { resolutionList, algorithms } from '@/assets/ts/dbSelectList'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
@@ -90,18 +135,19 @@ export default {
         
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
-        const preset = ref<{[key: string]: any}>({
-            image: '',
-            from: 'generator',
-            commands: '',
-            commands_ban: '',
-            description: '',
-            nsfw: 'A',
-            seed: '',
-            resolution: 'Portrait (Normal) 512x768',
-            others: '',
+        const preset = ref<{[key: string]: any}>(props.selected)
+        watchEffect(() => {
+            preset.value = props.selected
+            if (typeof preset.value.options === 'string') {
+                preset.value.options = preset.value.options === '' 
+                    ? []
+                    : preset.value.options.split(',')
+            }
+            console.log(preset.value)
         })
-        watchEffect(() => preset.value = props.selected)
+
+        // 上級者向け設定の表示可否
+        const isSeniorMode = ref<boolean>(false)
 
         // プリセットをDBに保存する
         const formUrl = registerPath + 'api/registerPreset.php'
@@ -120,7 +166,18 @@ export default {
                 preset.value.image = base64Image.value
             }
 
-            const formData = JSON.stringify(preset.value)
+            const sendData = {...preset.value}
+            // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
+            if (!isSeniorMode.value) {
+                sendData.model = null
+                sendData.sampling = null
+                sendData.sampling_algo = null
+                sendData.scale = null
+                sendData.options = null
+            } else {
+                sendData.options = sendData.options.join(',')
+            }
+            const formData = JSON.stringify(sendData)
             
             axios.post(formUrl, formData).then(() => {
                 context.emit('setAlertText', 'プロンプトをデータベースに登録しました。')
@@ -175,19 +232,11 @@ export default {
 
         return {
             preset,
+            resolutionList,
+            algorithms,
             previewImagePath,
-            resolutionList: [
-                'Portrait (Normal) 512x768',
-                'LandScape (Normal) 768x512',
-                'Square (Normal) 640x640',
-                'Portrait (Small) 384x640',
-                'LandScape (Small) 640x384',
-                'Square (Small) 512x512',
-                'Portrait (Large) 512x1024',
-                'LandScape (Large) 1024x512',
-                'Square (Large) 1024x1024',
-            ],
             isDisplayPreview: isDisplayPreview,
+            isSeniorMode: isSeniorMode,
 
             savePreset,
             deletePreset,
