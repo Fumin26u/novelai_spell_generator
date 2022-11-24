@@ -25,4 +25,5 @@ pnpm-debug.log*
 register/old/
 register/images/preset/original/*
 register/images/preset/thumbnail/*
+*/fetchData.ts
 
