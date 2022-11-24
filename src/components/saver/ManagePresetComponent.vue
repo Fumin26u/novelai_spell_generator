@@ -135,19 +135,21 @@ export default {
         
         // DB保存用のデータ
         // プリセットデータを監視し値が更新された場合DB保存用データを書き換える
-        const preset = ref<{[key: string]: any}>(props.selected)
-        watchEffect(() => {
-            preset.value = props.selected
-            if (typeof preset.value.options === 'string') {
-                preset.value.options = preset.value.options === '' 
-                    ? []
-                    : preset.value.options.split(',')
-            }
-            console.log(preset.value)
+        const preset = ref<{[key: string]: any}>({
+            image: '',
+            from: 'generator',
+            commands: '',
+            commands_ban: '',
+            description: '',
+            nsfw: 'A',
+            seed: '',
+            resolution: 'Portrait (Normal) 512x768',
+            others: '',
         })
+        watchEffect(() => preset.value = props.selected)
 
         // 上級者向け設定の表示可否
-        const isSeniorMode = ref<boolean>(false)
+        const isSeniorMode = ref<boolean>(preset.value.model !== null)
 
         // プリセットをDBに保存する
         const formUrl = registerPath + 'api/registerPreset.php'

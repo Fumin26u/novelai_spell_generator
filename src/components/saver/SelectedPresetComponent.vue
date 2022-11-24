@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <h3>オプション</h3>
-                        <p>{{ preset.options }}</p>
+                        <p>{{ preset.options.join(',') }}</p>
                     </div>
                 </li>
                 <li class="other">

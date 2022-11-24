@@ -92,6 +92,17 @@ export default {
         
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(false)
+
+        // 文字列で保管されているオプションデータを配列に戻す
+        const revertOptionsData = (presets: {[key: string]: any}[]) => {
+            presets.map((preset, index) => {
+                if (preset.options !== null && preset.options !== '') {
+                    savedPromptList.value[index].options = preset.options.split(',')
+                } else {
+                    savedPromptList.value[index].options = []
+                }
+            })
+        }
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[]) => {
@@ -173,6 +184,7 @@ export default {
             }).then(response => {
                     if (response.data !== '') {
                         savedPromptList.value = response.data
+                        revertOptionsData(savedPromptList.value)
                         setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
                     }
