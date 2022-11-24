@@ -7,8 +7,8 @@
                     <section class="user-setting-area">
                         <div class="upload-prompt">
                             <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                            <input type="text" :id="'upload-prompt'" v-model="spellsByUser" @keyup.enter="uploadSpell(spellsByUser)">
-                            <button @click="uploadSpell(spellsByUser)" class="btn-common green">アップロード</button>
+                            <input type="text" :id="'upload-prompt'" v-model="uploadPromptInput" @keyup.enter="uploadPrompt(uploadPromptInput)">
+                            <button @click="uploadPrompt(uploadPromptInput)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
                             <button @click="toggleDisplayNsfw('C')" v-if="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
@@ -66,10 +66,8 @@
         </div>
         <ModalDBComponent
             :prompts="outputPrompt"
-            :copyMessage="copyAlert"
             :displayModalState="isOpenSaveModal"
             @updateModal="updateModalState"
-            @updateText="updateAlertText"
             :style="[isOpenSaveModal ? 'display: block' : 'display: none']"
         />
     </div>
@@ -101,24 +99,15 @@ export default {
         // Hover中のタグ
         const hoverPromptName = ref<string>('')
         // アップロード用プロンプト
-        const spellsByUserText = ref<string>('')
+        const uploadPromptInput = ref<string>('')
         // 手動入力内容
-        const manualInputText = ref<string>('')
+        const manualInput = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
         const setPrompt = ref<{[key: string]: any}[]>([])
         // カラー設定可能なプロンプトの選択されたカラーを格納する配列
         const selectedColor = ref<{[key: string]: string}>({})
 
-        // 指定されたタグ名に該当するプロンプトを選択状態にする
-        const selectPromptFromSearch = (word: string): void => {
-            promptList.value.map((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((prompt: {[key: string]: any}, j: number) => {           
-                    if (prompt.tag === word)  promptList.value[i].content[j].selected = true              
-                })
-            })
-        }
-
-        // nsfwコンテンツの表示設定
+        // 年齢制限表示に応じた個々のプロンプトの表示状態を設定する
         const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
             switch (limit) {
                 case 'A':
@@ -131,7 +120,6 @@ export default {
                     return promptNsfw === 'A' ? true:false
             }
         }
-        
         const setDisplayNsfw = (limit: string): void => {
             promptList.value.map ((genre: {[key: string]: any}, i: number) => {
                 promptList.value[i]['display'] = judgeIsDisplay(limit, promptList.value[i].nsfw)
@@ -162,6 +150,8 @@ export default {
                 commandList.push(genre)
             })
 
+            // プロンプト一覧における個々の表示状態を設定
+            setDisplayNsfw(displayNsfw.value)
             return commandList
         }
 
@@ -169,15 +159,20 @@ export default {
         const getMasterData = async(): Promise<void> => {
             const url = registerPath + 'api/getMasterData.php?from=spell_generator'
             await axios.get(url)
-                .then(response => {
-                    promptList.value = convertJsonToTagList(response.data)
-                    setDisplayNsfw(displayNsfw.value)
-                })
+                .then(response => promptList.value = convertJsonToTagList(response.data))
                 .catch(error => {
                     promptList.value = convertJsonToTagList(JSON.parse(master_data))
-                    setDisplayNsfw(displayNsfw.value)
                     console.log(error)
                 })
+        }
+
+        // 指定されたタグ名に該当するプロンプトを選択状態にする
+        const selectPromptFromSearch = (word: string): void => {
+            promptList.value.map((genre: {[key: string]: any}, i: number) => {
+                genre.content.map((prompt: {[key: string]: any}, j: number) => {           
+                    if (prompt.tag === word)  promptList.value[i].content[j].selected = true              
+                })
+            })
         }
         
         // 年齢制限切り替えボタンを押した際の処理
@@ -256,21 +251,21 @@ export default {
             promptList.value[i].content[j].selected = true            
         }
 
-        // タグ一覧から指定のタグ名を検索し、親タグと日本語名を返す
-        const setPromptFromUploadText = (uploadPrompt: string, enhanceCount: number): void => {            
-            // アップロードされたプロンプトにカラータグが付いているか調べる
-            const spaceIndex = uploadPrompt.indexOf(' ')
-            const colorTag = uploadPrompt.substring(0, spaceIndex)
+        // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入
+        const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {            
+            // アップロードされたプロンプトにスペースが存在するか調べる
+            const spaceIndex = uploadPromptName.indexOf(' ')
+            const colorTag = uploadPromptName.substring(0, spaceIndex)
             const colorTagJP = ref<string>('')
             
-            // カラータグが付いている場合何色か調べる
+            // スペースが存在する場合スペース以前の単語がカラータグかどうか調べる
             if (colorTag !== '') {
                 colorMulti.map(color => {
                     if (colorTag === color.prompt) colorTagJP.value = color.jp
                 })
             } 
-
-            const promptName = colorTagJP.value === '' ? uploadPrompt : uploadPrompt.substring(spaceIndex + 1)
+            // 検索するプロンプト名。カラータグが付いていた場合最初のスペース以後、それ以外の場合引数の値。
+            const promptName = colorTagJP.value === '' ? uploadPromptName : uploadPromptName.substring(spaceIndex + 1)
             
             for (let i = 0; i < promptList.value.length; i++) {
                 for (let j = 0; j < promptList.value[i].content.length; j++) {
@@ -279,7 +274,7 @@ export default {
                     // アップロードされたプロンプト名とリスト内のプロンプトが一致した場合、プロンプト設定のリストにそのプロンプトのデータを挿入
                     if (prompt.tag === promptName) {
                         toggleSetPromptList(i, j, enhanceCount, colorTag, colorTagJP.value)
-                        // 該当のプロンプトがnsfwワードだった場合R-18モードにする
+                        // nsfw設定をプロンプトのnsfw設定に上書き
                         if (displayNsfw.value === 'A' || (displayNsfw.value === 'C' && prompt.nsfw === 'Z')) {
                             displayNsfw.value = prompt.nsfw
                         } 
@@ -294,11 +289,11 @@ export default {
         }
 
         // 既存のタグがアップロードされた場合、セットキューに対象値を追加
-        const uploadSpell = (spell: string): void => {
+        const uploadPrompt = (spell: string): void => {
             if (spell.trim() === '') return
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setPrompt.value = []
-            manualInputText.value = ''
+            manualInput.value = ''
             promptList.value.map((genre: {[key: string]: any}, i: number) => {
                 genre.content.map((_: any, j: number) => {
                     promptList.value[i].content[j].selected = false
@@ -306,25 +301,24 @@ export default {
             })
 
             // タグごと配列の要素にする
-            const tagsQueue = spell.split(',')
-            const tags = tagsQueue.map(tag => tag.trim())
-            tags.map((tag: string, index: number) => {
-                if(tag.trim() === "") {
-                    tags.splice(index, 1)
+            const uploadedPromptList = spell.split(',').map(tag => tag.trim())
+            uploadedPromptList.map((prompt: string, index: number) => {
+                if(prompt.trim() === "") {
+                    uploadedPromptList.splice(index, 1)
                 } else {
                     // 文字の前後に{}または[]がある場合、その数分強化値を追加する
                     const enhanceCount = ref(0)
-                    if (tag.match(/\{/g) !== null) {
-                        enhanceCount.value = tag.match(/\{/g)!.length
-                    } else if (tag.match(/\[/g) !== null) {
-                        enhanceCount.value = tag.match(/\[/g)!.length * -1 
-                    } else if (tag.match(/\(/g) !== null) {
-                        enhanceCount.value = tag.match(/\(/g)!.length
+                    if (prompt.match(/\{/g) !== null) {
+                        enhanceCount.value = prompt.match(/\{/g)!.length
+                    } else if (prompt.match(/\[/g) !== null) {
+                        enhanceCount.value = prompt.match(/\[/g)!.length * -1 
+                    } else if (prompt.match(/\(/g) !== null) {
+                        enhanceCount.value = prompt.match(/\(/g)!.length
                     } 
-                    const tagname = tag.replace(/\{/g, "").replace(/\}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
+                    const promptName = prompt.replace(/\{/g, "").replace(/\}/g, "").replace(/\[/g, "").replace(/\]/g, "").replace(/\(/g, "").replace(/\)/g, "")
 
-                    // 設定プロンプトリストに必要情報を挿入 
-                    setPromptFromUploadText(tagname, enhanceCount.value)      
+                    // プロンプト一覧から指定したプロンプトを検索
+                    searchPrompt(promptName, enhanceCount.value)      
                 }
             })
         }
@@ -352,11 +346,6 @@ export default {
             isOpenSaveModal.value = modalState
         }
         
-        // プロンプトをコピーした際のアラート
-        const copyAlert = ref('')
-
-        // コンポーネントから受け取ったアラートテキストを更新する
-        const updateAlertText = (text: string): string => copyAlert.value = text
         // モーダルの表示状態を更新する
         const updateModalState = (isDisplay: boolean): boolean => isOpenSaveModal.value = isDisplay
 
@@ -380,21 +369,19 @@ export default {
             user_id,
             hoverPromptName,
             setPrompt,
-            copyAlert,
             isOpenSaveModal,
             displayNsfw: displayNsfw,
-            manualInput: manualInputText,
-            spellsByUser: spellsByUserText,
+            manualInput: manualInput,
+            uploadPromptInput: uploadPromptInput,
             selectedColor: selectedColor,
             outputPrompt: outputPrompt,
-            uploadSpell,
+            uploadPrompt,
             toggleSetPromptList,
             toggleDisplayNsfw,
             addManualPrompt,
             updateSetPrompt,
             deleteSetPrompt,
             openSaveModal,
-            updateAlertText,
             updateModalState,
         }
     }
