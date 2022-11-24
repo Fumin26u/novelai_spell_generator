@@ -7,7 +7,7 @@
                 <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
                 <div class="senior-mode-setting">
                     <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
-                    <label for="senior-mode">詳細設定を表示</label>
+                    <label for="senior-mode">上級者向け設定あり</label>
                 </div>
             </div>
             <div class="close-modal">
@@ -149,6 +149,9 @@ export default {
 
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
+        // 上級者向け設定の表示可否
+        const isSeniorMode = ref<boolean>(false)
+        
         // プリセットをDBに保存する
         const savePreset = () => {
             if (preset.value.commands === '') {
@@ -163,11 +166,23 @@ export default {
             }
 
             const formUrl = registerPath + 'api/registerPreset.php'
-            const sendData = Object.create(preset.value)
-            sendData.options = sendData.options.join(',')
+            const sendData = {...preset.value}
+            console.log(sendData)
+            // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
+            if (!isSeniorMode.value) {
+                sendData.model = null
+                sendData.sampling = null
+                sendData.sampling_algo = null
+                sendData.scale = null
+                sendData.options = null
+            } else {
+                sendData.options = sendData.options.join(',')
+            }
             const formData = JSON.stringify(sendData)
+            console.log(formData)
             
-            axios.post(formUrl, formData).then(() => {
+            axios.post(formUrl, formData).then((response) => {
+                console.log(response)
                 alert('プロンプトをデータベースに登録しました。')
             }).catch(error => {
                 alert('データベース接続に失敗しました。')
@@ -189,9 +204,6 @@ export default {
                 reader.readAsDataURL(file)
             }
         }
-
-        // 詳細設定の表示可否
-        const isSeniorMode = ref<boolean>(false)
 
         return {
             preset,
