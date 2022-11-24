@@ -1,76 +1,72 @@
 <template>
-    <div class="top-content">
-        <div class="main">
-            <HeaderComponent :user="user_id"></HeaderComponent>
-            <div class="content">
-                <div class="main-content">
-                    <section class="user-setting-area">
-                        <div class="upload-prompt">
-                            <label :id="'upload-prompt'">プロンプトをアップロード</label>
-                            <input type="text" :id="'upload-prompt'" v-model="uploadPromptInput" @keyup.enter="uploadPrompt(uploadPromptInput)">
-                            <button @click="uploadPrompt(uploadPromptInput)" class="btn-common green">アップロード</button>
-                        </div>
-                        <div class="toggle-nsfw">
-                            <button @click="toggleDisplayNsfw('C')" v-show="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
-                            <button @click="toggleDisplayNsfw('Z')" v-show="displayNsfw === 'C'" class="btn-common green">R-15</button>
-                            <button @click="toggleDisplayNsfw('A')" v-show="displayNsfw === 'Z'" class="btn-common pink">R-18</button>            
-                        </div>
-                    </section>
-                    <section class="tag-list">
-                        <div 
-                            class="spell-list"
-                            v-for="(genre, i) in promptList"                 
-                            :key="genre.slag"
-                            :style="[genre.display ? 'display:block' : 'display:none']"
-                        >
-                            <div class="description">
-                                <div>
-                                    <p class="genre">{{ genre.jp }}</p>
-                                    <p class="caption">{{ genre.caption }}</p>
-                                </div>
-                                <div>
-                                    <span @click="promptList[i]['show_all'] = true" v-if="!promptList[i]['show_all']">▼</span>
-                                    <span @click="promptList[i]['show_all'] = false" v-if="promptList[i]['show_all']">▲</span>
-                                </div>
-                            </div>
-                            <div :style="[promptList[i]['show_all'] ? 'max-height:none;' : 'max-height:240px;']">
-                                <div 
-                                    v-for="(prompt, j) in genre.content" 
-                                    :key="prompt.slag" 
-                                    :style="[prompt.display ? 'display:block; position:relative;' : 'display:none']">
-                                    <button 
-                                        :class="[
-                                            prompt.selected ? 'btn-toggle selected' : 'btn-toggle', 
-                                            'nsfw_' + prompt.nsfw
-                                        ]" 
-                                        @click="toggleSetPromptList(i, j)"
-                                        @mouseover="hoverPromptName = prompt.tag"
-                                        @mouseleave="hoverPromptName = ''"
-                                    >
-                                    {{ prompt.jp }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+    <HeaderComponent :user="user_id"></HeaderComponent>
+    <main class="content">
+        <div class="prompt-list">
+            <section class="user-setting-area">
+                <div class="upload-prompt">
+                    <label :id="'upload-prompt'">プロンプトをアップロード</label>
+                    <input type="text" :id="'upload-prompt'" v-model="uploadPromptInput" @keyup.enter="uploadPrompt(uploadPromptInput)">
+                    <button @click="uploadPrompt(uploadPromptInput)" class="btn-common green">アップロード</button>
                 </div>
-                <SetPromptComponent 
-                    :setPromptList="setPrompt"
-                    :hoverPromptName="hoverPromptName"
-                    @updateSetPrompt="updateSetPrompt"
-                    @addManualPrompt="addManualPrompt"
-                    @unSelectedPrompt="unSelectedPrompt"
-                    @openSaveModal="openSaveModal"
-                />
-            </div>
+                <div class="toggle-nsfw">
+                    <button @click="toggleDisplayNsfw('C')" v-show="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
+                    <button @click="toggleDisplayNsfw('Z')" v-show="displayNsfw === 'C'" class="btn-common green">R-15</button>
+                    <button @click="toggleDisplayNsfw('A')" v-show="displayNsfw === 'Z'" class="btn-common pink">R-18</button>            
+                </div>
+            </section>
+            <section class="prompt-list-area">
+                <div 
+                    class="prompt-list-genre"
+                    v-for="(genre, i) in promptList"                 
+                    :key="genre.slag"
+                    :style="[genre.display ? 'display:block' : 'display:none']"
+                >
+                    <div class="description">
+                        <div>
+                            <p class="genre">{{ genre.jp }}</p>
+                            <p class="caption">{{ genre.caption }}</p>
+                        </div>
+                        <div>
+                            <span @click="promptList[i]['show_all'] = true" v-if="!promptList[i]['show_all']">▼</span>
+                            <span @click="promptList[i]['show_all'] = false" v-if="promptList[i]['show_all']">▲</span>
+                        </div>
+                    </div>
+                    <div :style="[promptList[i]['show_all'] ? 'max-height:none;' : 'max-height:240px;']" class="prompt-list-prompt">
+                        <div 
+                            v-for="(prompt, j) in genre.content" 
+                            :key="prompt.slag" 
+                            :style="[prompt.display ? 'display:block' : 'display:none']">
+                            <button 
+                                :class="[
+                                    prompt.selected ? 'btn-toggle selected' : 'btn-toggle', 
+                                    'nsfw_' + prompt.nsfw
+                                ]" 
+                                @click="toggleSetPromptList(i, j)"
+                                @mouseover="hoverPromptName = prompt.tag"
+                                @mouseleave="hoverPromptName = ''"
+                            >
+                            {{ prompt.jp }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        <ModalDBComponent
-            :prompts="outputPrompt"
-            :displayModalState="isOpenSaveModal"
-            @updateModal="updateModalState"
-            :style="[isOpenSaveModal ? 'display: block' : 'display: none']"
+        <SetPromptComponent 
+            :setPromptList="setPrompt"
+            :hoverPromptName="hoverPromptName"
+            @updateSetPrompt="updateSetPrompt"
+            @addManualPrompt="addManualPrompt"
+            @unSelectedPrompt="unSelectedPrompt"
+            @openSaveModal="openSaveModal"
         />
-    </div>
+    </main>
+    <ModalDBComponent
+        :prompts="outputPrompt"
+        :displayModalState="isOpenSaveModal"
+        @updateModal="updateModalState"
+        :style="[isOpenSaveModal ? 'display: block' : 'display: none']"
+    />
     <router-view></router-view>
 </template>
 

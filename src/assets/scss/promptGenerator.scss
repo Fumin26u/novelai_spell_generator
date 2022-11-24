@@ -1,14 +1,15 @@
 @import "./style.scss";
 
-.content {
+main.content {
     position: relative;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
     margin: 0 8px;
-
+    
     @include mediaQuery(medium) {
-        > .main-content {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        
+        > .prompt-list {
             width: calc(100% - 500px);
             border-right: 1px solid $border-color;
         }
@@ -81,7 +82,7 @@
     }
 }
 
-.tag-list {
+.prompt-list-area {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -91,7 +92,7 @@
     }
 }
 
-.spell-list {
+.prompt-list-genre {
     width: 45%;
     padding: 0 6px 6px;
     margin: 26px 0 1em;
@@ -106,8 +107,11 @@
     @include mediaQuery(larger) {
         width: 17%;
     }
-
-    > .description {
+    
+    > div {
+        margin: 8px auto 0;
+    }
+    > div.description {
         display: flex;
         justify-content: space-between;
         > div {
@@ -128,8 +132,7 @@
     .caption {
         font-size: 14px;
     }
-    > div {
-        margin: 8px auto 0;
+    > div.prompt-list-prompt {
         overflow-y: auto;
     }
 }
