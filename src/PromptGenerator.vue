@@ -197,7 +197,7 @@ export default {
             colorTagJP: string = ''
         ): void => { 
             const selected = promptList.value[i].content[j].selected
-            const queue = promptList.value[i].content[j]
+            const queue = Object.create(promptList.value[i].content[j])
 
             // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
             if (selected) {
