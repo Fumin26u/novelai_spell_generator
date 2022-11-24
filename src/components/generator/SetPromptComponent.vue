@@ -82,12 +82,8 @@ export default {
         draggable,
     },
     props: {
-        setPromptList: {
-            type: Object,
-        },
-        hoverPromptName: {
-            type:String
-        }
+        setPromptList: Object,
+        hoverPromptName: String,
     },
     emits: [
         'updateSetPrompt',
@@ -98,6 +94,7 @@ export default {
     setup(props: any, context: any) {
         const setPrompt = ref<{[key: string]: any}[]>([])
         watchEffect(() => setPrompt.value = props.setPromptList)
+        // カーソルを合わせているプロンプトの英語名
         const hoverPrompt = computed(() => props.hoverPromptName)
 
         // 親子間のプロンプト設定を同期させる
@@ -115,7 +112,6 @@ export default {
             if (setPrompt.value[index].index !== null) {
                 context.emit('unSelectedPrompt', setPrompt.value[index].index)
             }
-            
             setPrompt.value.splice(index, 1)
         }
 
@@ -135,6 +131,7 @@ export default {
 
         // 生成されたNovelAI形式のプロンプト
         const outputPrompt = ref('')
+        const enhanceBraceText = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
         const convertToOutputPrompt = (spells: {[key: string]: any}[]): void => {
             const text = ref('')
@@ -153,12 +150,14 @@ export default {
                     text.value += '['.repeat(num) + spell.output_prompt + ']'.repeat(num)
                 }
                 text.value += ', '
-            })         
+            })
+            
+            // 強化値は{}に強制変更されるのでボタンの表示を変更
+            enhanceBraceText.value = '( )に変換'
             outputPrompt.value = text.value
         }
 
         // 強化値の()と{}を切り替える
-        const enhanceBraceText = ref<string>('( )に変換')
         const toggleEnhanceBrace = () => {
             if (enhanceBraceText.value === '( )に変換') {
                 enhanceBraceText.value = '{ }に変換'
