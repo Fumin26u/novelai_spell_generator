@@ -73,26 +73,35 @@
     </div>
 </template>
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import draggable from 'vuedraggable'
-import './assets/scss/promptGenerator.scss'
+import '../../assets/scss/promptGenerator.scss'
 
 export default {
     components: {
         draggable,
     },
     props: {
-        setSpells: {
+        setPromptList: {
             type: Object,
         },
         hoverPromptName: {
             type:String
         }
     },
-    emits: ['addManualPrompt', 'deleteSetPrompt', 'openSaveModal'],
+    emits: [
+        'updateSetPrompt',
+        'addManualPrompt', 
+        'deleteSetPrompt', 
+        'openSaveModal'
+    ],
     setup(props: any, context: any) {
-        const setPrompt = ref<{[key: string]: any}[]>(props.setSpells)
-        const hoverPrompt = ref<string>(props.hoverPromptName)
+        const setPrompt = ref<{[key: string]: any}[]>([])
+        watchEffect(() => setPrompt.value = props.setPromptList)
+        const hoverPrompt = computed(() => props.hoverPromptName)
+
+        // プロンプト設定の内容が変更された場合、親コンポーネントのプロンプト設定も同時に更新する
+        watchEffect(() => context.emit('updateSetPrompt', setPrompt.value))
 
         // 手動入力でのプロンプトの追加
         const manualInput = ref<string>('')
@@ -100,9 +109,14 @@ export default {
             context.emit('addManualPrompt', input, enhanceCount)
         }
 
-        // 削除ボタンが押された場合親コンポーネントにプロンプトの削除を伝える
+        // プロンプト設定欄からボタンが押されたプロンプトを削除
         const deleteSetPrompt = (index: number) => {
-            context.emit('deleteSetPrompt', index)
+            // プロンプト一覧から選択したプロンプトの場合親コンポーネントに伝えて選択を解除
+            if (setPrompt.value[index].index !== null) {
+                context.emit('deleteSetPrompt', setPrompt.value[index].index)
+            }
+            
+            setPrompt.value.splice(index, 1)
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
@@ -157,7 +171,8 @@ export default {
 
         // DB保存用のモーダルを開く
         const openSaveModal = (promptList: {[key: string]: any}[], modalState: boolean): void => {
-            context.emit('openSaveModal', promptList, modalState)
+            convertToOutputPrompt(promptList)
+            context.emit('openSaveModal', modalState, outputPrompt.value)
         }
         
         // プロンプトをコピーした際のアラート
