@@ -5,13 +5,13 @@
     セーバートップ共通
 
 --------------------*/
-.content {
+.preset-info {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
 }
 
-.content.not-login {
+.preset-info.not-login {
     display: block;
     > a {
         font-size: 18px;
@@ -179,7 +179,7 @@
     プリセット情報
 
 --------------------*/
-.preset-info {
+.preset-message {
     width: 100%;
     margin-bottom: 8px;
     display: flex;

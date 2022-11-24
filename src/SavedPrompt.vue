@@ -1,12 +1,12 @@
 <template>
-    <div class="main">
-        <HeaderComponent :user="user_id"></HeaderComponent> 
-        <div class="content not-login" v-if="user_id === ''">
+    <HeaderComponent :user="user_id"></HeaderComponent> 
+    <main class="content">
+        <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a href="./register/login.php">ログイン</a>
             <a href="./register/register.php">ユーザー登録</a>
         </div>
-        <div class="content" v-else>
+        <div class="preset-info" v-else>
             <section class="search-area">
                 <div class="title">
                     <div class="display-form">
@@ -30,7 +30,7 @@
                     @getPresetData="getPresetData"
                 />
             </section>
-            <section class="preset-info">
+            <section class="preset-message">
                 <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
                 <p class="copy-alert">{{ alertText }}</p>
             </section>
@@ -67,7 +67,7 @@
                 @setRegisterMode="setRegisterMode"
             />
         </div>
-    </div>
+    </main>
 </template>
 <script lang="ts">
 import fetchData from '@/assets/ts/fetchData'
