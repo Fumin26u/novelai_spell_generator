@@ -62,10 +62,10 @@
 import registerPath from '@/assets/ts/registerPath'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
-import '../assets/scss/modalDB.scss'
+import '../../assets/scss/modalDB.scss'
 
 export default {
-    emits: ['updateModal', 'updateText'],
+    emits: ['updateModal',],
     props: {
         prompts: {
             type: String,
@@ -91,18 +91,17 @@ export default {
         })
         watchEffect(() => preset.value.commands = props.prompts)
 
-        const updateText = (text: string) => context.emit('updateText', text)
         const updateModal = (isDisplay: boolean) => context.emit('updateModal', isDisplay)
         
         // プリセットをDBに保存する
         const savePreset = () => {
             if (preset.value.commands === '') {
-                updateText('コマンドが入力されていません。')
+                alert('コマンドが入力されていません。')
                 updateModal(false)
                 return
             }
             if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {
-                updateText('Seed値が数値で入力されていません。')
+                alert('Seed値が数値で入力されていません。')
                 updateModal(false)
                 return
             }
@@ -111,9 +110,9 @@ export default {
             const formData = JSON.stringify(preset.value)
             
             axios.post(formUrl, formData).then(() => {
-                updateText('プロンプトをデータベースに登録しました。')
+                alert('プロンプトをデータベースに登録しました。')
             }).catch(error => {
-                updateText('データベース接続に失敗しました。')
+                alert('データベース接続に失敗しました。')
                 console.log(error)
             })
 

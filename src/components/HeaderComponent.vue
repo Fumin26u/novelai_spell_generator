@@ -1,5 +1,5 @@
 <template>
-    <div class="header">
+    <header class="header">
         <h1><a href="https://novelai.net/image">NovelAI</a> プロンプトジェネレーター</h1>
         <div :class="[isOpenHBGMenu ? 'link-area open':'link-area' ]">
             <div class="main-link">
@@ -26,7 +26,7 @@
             <span class="bar"></span>
             <span class="bar"></span>
         </div>
-    </div>
+    </header>
 </template>
 <script lang="ts">
 import { computed, ref } from 'vue'

@@ -196,6 +196,7 @@ export default {
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
+            document.title = 'NovelAI プロンプトセーバー'
             getUserInfo()
             getPresetData()
         })
