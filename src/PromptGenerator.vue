@@ -227,7 +227,7 @@ export default {
 
             // カラータグが存在する場合はタグ名と表示名を上書き
             if (colorTag !== '' && colorTagJP !== '') {
-                queue.tag = colorTag
+                queue.output_prompt = colorTag + ' ' + queue.tag
                 queue.jp = queue.jp + ' (' + colorTagJP + ')'
             }
 

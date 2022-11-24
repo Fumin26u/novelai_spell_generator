@@ -118,7 +118,10 @@ export default {
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
         const selectedColor = ref<{[key: string]: string}>({})
         const changePromptColor = (colorTag: {[key: string]: string}, index: number): void => {
+            // 一度表示名とタグ名をリセット
             const braceIndex = setPrompt.value[index].jp.indexOf('(')
+            setPrompt.value[index].output_prompt = setPrompt.value[index].tag
+
             if (braceIndex !== -1) {
                 setPrompt.value[index].jp = setPrompt.value[index].jp.substring(0, braceIndex-1)
             }
