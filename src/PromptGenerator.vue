@@ -11,9 +11,9 @@
                             <button @click="uploadPrompt(uploadPromptInput)" class="btn-common green">アップロード</button>
                         </div>
                         <div class="toggle-nsfw">
-                            <button @click="toggleDisplayNsfw('C')" v-if="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
-                            <button @click="toggleDisplayNsfw('Z')" v-if="displayNsfw === 'C'" class="btn-common green">R-15</button>
-                            <button @click="toggleDisplayNsfw('A')" v-if="displayNsfw === 'Z'" class="btn-common pink">R-18</button>            
+                            <button @click="toggleDisplayNsfw('C')" v-show="displayNsfw === 'A'" class="btn-common blue">全年齢</button>
+                            <button @click="toggleDisplayNsfw('Z')" v-show="displayNsfw === 'C'" class="btn-common green">R-15</button>
+                            <button @click="toggleDisplayNsfw('A')" v-show="displayNsfw === 'Z'" class="btn-common pink">R-18</button>            
                         </div>
                     </section>
                     <section class="tag-list">

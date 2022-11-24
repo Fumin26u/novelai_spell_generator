@@ -50,11 +50,11 @@
         <div class="output-area">
             <div class="text-area">
                 <p class="output"><b>出力値</b> (クリックで編集可)<br>
-                    <span v-if="!isEditPrompt" @click="isEditPrompt = true">
+                    <span v-show="!isEditPrompt" @click="isEditPrompt = true">
                         {{ outputPrompt }}
                     </span>
                 </p>
-                <textarea v-if="isEditPrompt" v-model="outputPrompt" @keyup.enter="isEditPrompt = false"></textarea>
+                <textarea v-show="isEditPrompt" v-model="outputPrompt" @keyup.enter="isEditPrompt = false"></textarea>
             </div>
             <div class="button-area">
                 <div class="generate">
