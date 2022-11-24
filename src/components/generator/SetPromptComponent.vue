@@ -42,7 +42,7 @@
                         <button @click="setPrompt[index].enhance += 1" class="btn-common green">＋</button>
                     </div>
                     <div class="delete-area">
-                        <button @click="deleteSetPromptList(index)" class="btn-common red">削除</button>
+                        <button @click="deleteSetPrompt(index)" class="btn-common red">削除</button>
                     </div>
                 </div>
             </template>
@@ -50,35 +50,37 @@
         <div class="output-area">
             <div class="text-area">
                 <p class="output"><b>出力値</b> (クリックで編集可)<br>
-                    <span v-if="!isEditNAIPrompt" @click="isEditNAIPrompt = true">
-                        {{ spellsNovelAI }}
+                    <span v-if="!isEditPrompt" @click="isEditPrompt = true">
+                        {{ outputPrompt }}
                     </span>
                 </p>
-                <textarea v-if="isEditNAIPrompt" v-model="spellsNovelAI" @keyup.enter="isEditNAIPrompt = false"></textarea>
+                <textarea v-if="isEditPrompt" v-model="outputPrompt" @keyup.enter="isEditPrompt = false"></textarea>
             </div>
             <div class="button-area">
                 <div class="generate">
-                    <button @click="convertToNovelAITags(setPrompt)" class="btn-common green">呪文生成</button>
-                    <button @click="toggleEnhanceBrace()" :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']">{{ enhanceBraceMessage }}</button>
+                    <button @click="convertToOutputPrompt(setPrompt)" class="btn-common green">呪文生成</button>
+                    <button @click="toggleEnhanceBrace()" :class="[enhanceBraceText === '( )に変換' ? 'btn-common blue':'btn-common green']">{{ enhanceBraceText }}</button>
                 </div>
                 <div class="save">
-                    <button @click="copyToClipboard(spellsNovelAI)" class="btn-common orange">コピー</button>
+                    <button @click="copyToClipboard(outputPrompt)" class="btn-common orange">コピー</button>
                     <button 
                         @click="openSaveModal(setPrompt, true)" class="btn-common blue open-save-modal"
                     >保存</button>
                 </div>                
             </div>
-            <span class="copy-alert">{{ copyAlert }}</span>           
+            <span class="copy-alert">{{ copyAlertText }}</span>           
         </div>
     </div>
 </template>
 <script lang="ts">
-import { colorMulti, colorMono } from './assets/ts/colorVariation'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import './assets/scss/promptGenerator.scss'
 
 export default {
+    components: {
+        draggable,
+    },
     props: {
         setSpells: {
             type: Object,
@@ -87,7 +89,7 @@ export default {
             type:String
         }
     },
-    emits: ['addManualPrompt', ],
+    emits: ['addManualPrompt', 'deleteSetPrompt', 'openSaveModal'],
     setup(props: any, context: any) {
         const setPrompt = ref<{[key: string]: any}[]>(props.setSpells)
         const hoverPrompt = ref<string>(props.hoverPromptName)
@@ -96,6 +98,11 @@ export default {
         const manualInput = ref<string>('')
         const addManualPrompt = (input: string, enhanceCount: number = 0): void => {
             context.emit('addManualPrompt', input, enhanceCount)
+        }
+
+        // 削除ボタンが押された場合親コンポーネントにプロンプトの削除を伝える
+        const deleteSetPrompt = (index: number) => {
+            context.emit('deleteSetPrompt', index)
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
@@ -112,14 +119,75 @@ export default {
             selectedColor.value = {}
         }
 
+        // 生成されたNovelAI形式のプロンプト
+        const outputPrompt = ref('')
+        // キューにセットされているタグをNovelAIで使える形に変換する
+        const convertToOutputPrompt = (spells: {[key: string]: any}[]): void => {
+            const text = ref('')
+            
+            spells.map(spell => {
+                // タグの付与
+                // 強化値が0の場合そのまま追加
+                if (spell.enhance === 0) {
+                    text.value += spell.output_prompt
+                } else if (spell.enhance > 0) {
+                    // 強化値が1以上の場合前後に{}を数値分追加
+                    text.value += '{'.repeat(spell.enhance) + spell.output_prompt + '}'.repeat(spell.enhance) 
+                } else if (spell.enhance < 0) {
+                    // 強化値が-1以下の場合前後に[]を数値分追加
+                    const num = spell.enhance * -1
+                    text.value += '['.repeat(num) + spell.output_prompt + ']'.repeat(num)
+                }
+                text.value += ', '
+            })         
+            outputPrompt.value = text.value
+        }
+
+        // 強化値の()と{}を切り替える
+        const enhanceBraceText = ref<string>('( )に変換')
+        const toggleEnhanceBrace = () => {
+            if (enhanceBraceText.value === '( )に変換') {
+                enhanceBraceText.value = '{ }に変換'
+                outputPrompt.value = outputPrompt.value.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
+            } else {
+                enhanceBraceText.value = '( )に変換'
+                outputPrompt.value = outputPrompt.value.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
+            }
+        }
+
+        // DB保存用のモーダルを開く
+        const openSaveModal = (promptList: {[key: string]: any}[], modalState: boolean): void => {
+            context.emit('openSaveModal', promptList, modalState)
+        }
+        
+        // プロンプトをコピーした際のアラート
+        const copyAlertText = ref('')
+        // プロンプトをクリップボードにコピーする
+        const copyToClipboard = (text: string): void => {
+            navigator.clipboard.writeText(text)
+            copyAlertText.value = 'クリップボードにコピーしました。'
+        }
+
+        // 出力値の編集状態
+        const isEditPrompt = ref<boolean>(false)
+
         return {
             setPrompt,
             hoverPrompt,
             manualInput: manualInput,
             selectedColor: selectedColor,
+            outputPrompt: outputPrompt,
+            enhanceBraceText: enhanceBraceText,
+            copyAlertText: copyAlertText,
+            isEditPrompt: isEditPrompt,
 
             addManualPrompt,
+            deleteSetPrompt,
             changePromptColor,
+            convertToOutputPrompt,
+            toggleEnhanceBrace,
+            openSaveModal,
+            copyToClipboard,
         }
     } 
 }
