@@ -1,12 +1,12 @@
 <template>
-    <div class="main">
-        <HeaderComponent :user="user_id"></HeaderComponent> 
-        <div class="content not-login" v-if="user_id === ''">
+    <HeaderComponent :user="user_id"></HeaderComponent> 
+    <main class="content">
+        <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a href="./register/login.php">ログイン</a>
             <a href="./register/register.php">ユーザー登録</a>
         </div>
-        <div class="content" v-else>
+        <div class="preset-info" v-else>
             <section class="search-area">
                 <div class="title">
                     <div class="display-form">
@@ -30,7 +30,7 @@
                     @getPresetData="getPresetData"
                 />
             </section>
-            <section class="preset-info">
+            <section class="preset-message">
                 <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
                 <p class="copy-alert">{{ alertText }}</p>
             </section>
@@ -67,10 +67,9 @@
                 @setRegisterMode="setRegisterMode"
             />
         </div>
-    </div>
+    </main>
 </template>
 <script lang="ts">
-import fetchData from '@/assets/ts/fetchData'
 import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
@@ -93,6 +92,17 @@ export default {
         
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(false)
+
+        // 文字列で保管されているオプションデータを配列に戻す
+        const revertOptionsData = (presets: {[key: string]: any}[]) => {
+            presets.map((preset, index) => {
+                if (preset.options !== null && preset.options !== '') {
+                    savedPromptList.value[index].options = preset.options.split(',')
+                } else {
+                    savedPromptList.value[index].options = []
+                }
+            })
+        }
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
         const setImages = (presets: {[key: string]: any}[]) => {
@@ -132,6 +142,11 @@ export default {
             nsfw: 'A',
             seed: '',
             resolution: 'Portrait (Normal) 512x768',
+            model: 'NovelAI',
+            sampling: 28,
+            sampling_algo: 'Euler a',
+            scale: 11,
+            options: ['Highres. Fix'],
             others: '',
         }
         const selectedPreset = ref<object>(presetInitialData)
@@ -169,14 +184,12 @@ export default {
             }).then(response => {
                     if (response.data !== '') {
                         savedPromptList.value = response.data
+                        revertOptionsData(savedPromptList.value)
                         setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
                     }
                 })
                 .catch(error => {
-                    savedPromptList.value = fetchData
-                    setImages(savedPromptList.value)
-                    setIsNsfw(savedPromptList.value)
                     console.log(error) 
                 })
         }

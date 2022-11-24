@@ -13,22 +13,17 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 900px;
+    max-width: 1000px;
     width: 70%;
-    height: 64vh;
+    height: 72vh;
     overflow-y: auto;
     background: white;
     z-index: 99;
     box-sizing: border-box;
     > div {
-        h3 { 
-            margin: 8px;
-            display: inline-block;
-        }
-        p {
+        > * {
             display: inline-block;
             margin-left: 8px;
-            vertical-align: bottom;
         }
     }
 }
@@ -37,7 +32,7 @@
     margin: 8px;
     display: block;
     text-align: center;
-    > div {
+    > div, >.senior-settings > div {
         margin: 8px;
         padding: 8px;
         display: flex;
@@ -60,7 +55,7 @@
         width: 94%;
         font-size: 16px;
     }
-    input[type=radio], label {
+    input[type=radio], input[type=checkbox], label {
         width: auto;
     }
     label {

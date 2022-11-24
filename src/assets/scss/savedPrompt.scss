@@ -5,13 +5,13 @@
     セーバートップ共通
 
 --------------------*/
-.content {
+.preset-info {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
 }
 
-.content.not-login {
+.preset-info.not-login {
     display: block;
     > a {
         font-size: 18px;
@@ -179,7 +179,7 @@
     プリセット情報
 
 --------------------*/
-.preset-info {
+.preset-message {
     width: 100%;
     margin-bottom: 8px;
     display: flex;
@@ -222,15 +222,15 @@
         border-bottom: 1px solid $border-color;
         display: block;
         width: 100%;
-        > h3, button {
+        h3, button {
             display: inline-block;
             vertical-align: middle;
             margin: 0;
         }
-        > h3 {
+        h3 {
             font-size: 16px;
         }
-        > button {
+        button {
             margin-left: 8px;
             padding: 0 8px;
             font-weight: bold;
@@ -259,6 +259,17 @@
             font-size: 16px;
         }
     }
+    // セパレートクラス付きの場合左右2分割で表示
+    > div > ul li.separate {
+        display: flex;
+        justify-content: space-between;
+        > div {
+            width: 49%;
+            &:first-child {
+                border-right: 1px solid $border-color;
+            }
+        }
+    }
 }
 
 /*--------------------
@@ -272,7 +283,7 @@
         margin: 0;
         font-size: 16px;
     }
-    input[type=text], input[type=file], select, textarea {
+    input[type=text], input[type=number], input[type=file], select, textarea {
         display: block;
         width: 99%;
         font-size: 16px;

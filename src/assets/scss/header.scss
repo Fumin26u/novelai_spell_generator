@@ -2,7 +2,7 @@
 
 .header {
     border-bottom: 2px dashed $border-color;
-    margin: 0 0 1em;
+    margin: 0 auto 1em;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,7 +17,6 @@
     > h1 {
         width: 20%;
         min-width: 290px;
-        margin-left: 8px;
         @include mediaQuery(larger) {
             margin-left: none;
         }
@@ -49,7 +48,7 @@
             display: flex;
             justify-content: space-between;
             > div a { 
-                margin: 0 8px; 
+                margin-left: 8px; 
             }
             > div p { 
                 display: inline-block; 

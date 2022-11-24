@@ -9,23 +9,19 @@
                 <li class="image">
                     <img :src="preset.originalImage" alt="">
                 </li>
-                <li class="nsfw">
-                    <h3>nsfw</h3>
-                    <p>{{ preset.nsfw_display }}</p>
-                </li>
                 <li class="prompt copy">
                     <h3>プロンプト</h3>
                     <button 
-                        :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
-                        @click="toggleEnhanceBrace()"
+                    :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
+                    @click="toggleEnhanceBrace()"
                     >{{ enhanceBraceMessage }}</button>
                     <p @click="copyText(preset.commands, 'プロンプト')">{{ preset.commands }}</p>
                 </li>
                 <li class="prompt-ban copy">
                     <h3>BANプロンプト</h3>
                     <button 
-                        :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
-                        @click="toggleEnhanceBrace()"
+                    :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
+                    @click="toggleEnhanceBrace()"
                     >{{ enhanceBraceMessage }}</button>
                     <p @click="copyText(preset.commands_ban, 'BANプロンプト')">{{ preset.commands_ban }}</p>
                 </li>
@@ -36,6 +32,36 @@
                 <li class="resolution">
                     <h3>解像度</h3>
                     <p>{{ preset.resolution }}</p>
+                </li>
+                <li class="nsfw model separate">
+                    <div>
+                        <h3>モデル</h3>
+                        <p>{{ preset.model }}</p>
+                    </div>
+                    <div>
+                        <h3>nsfw</h3>
+                        <p>{{ preset.nsfw_display }}</p>
+                    </div>
+                </li>
+                <li class="sampling separate">
+                    <div>
+                        <h3>サンプリング回数(Step)</h3>
+                        <p>{{ preset.sampling }}</p>
+                    </div>
+                    <div>
+                        <h3>サンプリングアルゴリズム</h3>
+                        <p>{{ preset.sampling_algo }}</p>
+                    </div>
+                </li>
+                <li class="scale options separate">
+                    <div>
+                        <h3>スケール値</h3>
+                        <p>{{ preset.scale }}</p>
+                    </div>
+                    <div>
+                        <h3>オプション</h3>
+                        <p>{{ preset.options.join(',') }}</p>
+                    </div>
                 </li>
                 <li class="other">
                     <h3>備考</h3>
