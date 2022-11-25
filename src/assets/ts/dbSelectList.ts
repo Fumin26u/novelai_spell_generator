@@ -1,13 +1,5 @@
 export const resolutionList = [
-    'Portrait (Normal) 512x768',
-    'LandScape (Normal) 768x512',
-    'Square (Normal) 640x640',
-    'Portrait (Small) 384x640',
-    'LandScape (Small) 640x384',
-    'Square (Small) 512x512',
-    'Portrait (Large) 512x1024',
-    'LandScape (Large) 1024x512',
-    'Square (Large) 1024x1024',
+    64,128,192,256,320,384,448,512,
 ]
 
 export const algorithms = [

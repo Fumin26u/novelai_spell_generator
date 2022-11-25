@@ -46,11 +46,11 @@
                     <dd><input type="text" v-model="preset.seed"></dd>
                 </div>
                 <div>
-                    <dt>解像度</dt>
-                    <dd>
-                        <select v-model="preset.resolution">
-                            <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
-                        </select>
+                    <dt>解像度(px)</dt>
+                    <dd class="resolution">
+                        <input type="number" v-model="preset.resolution_width" step="64" min="64" max="2048">
+                        <span> X </span>
+                        <input type="number" v-model="preset.resolution_height" step="64" min="64" max="2048">
                     </dd>
                 </div>
                 <section v-if="isSeniorMode" class="senior-settings">
@@ -137,7 +137,8 @@ export default {
             description: '',
             nsfw: 'A',
             seed: '',
-            resolution: 'Portrait (Normal) 512x768',
+            resolution_width: 512,
+            resolution_height: 768,
             model: 'NovelAI',
             sampling: 28,
             sampling_algo: 'Euler a',
@@ -167,6 +168,8 @@ export default {
 
             const formUrl = registerPath + 'api/registerPreset.php'
             const sendData = {...preset.value}
+            // 解像度を結合して文字列に変更
+            sendData.resolution = preset.value.resolution_width + 'x' + preset.value.resolution_height
             // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
             if (!isSeniorMode.value) {
                 sendData.model = null
