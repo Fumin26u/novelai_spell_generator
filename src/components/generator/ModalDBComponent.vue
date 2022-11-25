@@ -110,7 +110,7 @@
 </template>
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'
-import { resolutionList, algorithms } from '@/assets/ts/dbSelectList'
+import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/modalDB.scss'
@@ -208,7 +208,6 @@ export default {
         return {
             preset,
             isOpenSaveModal,
-            resolutionList,
             algorithms,
             isSeniorMode: isSeniorMode,
             savePreset,

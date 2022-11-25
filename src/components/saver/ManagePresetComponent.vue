@@ -54,9 +54,11 @@
                 </li>
                 <li class="resolution">
                     <h3>解像度</h3>
-                    <select v-model="preset.resolution">
-                        <option v-for="(resolution, index) in resolutionList" :key="index">{{ resolution }}</option>
-                    </select>
+                    <div>
+                        <input type="number" v-model="preset.resolution_width" step="64" min="64" max="2048">
+                        <span> X </span>
+                        <input type="number" v-model="preset.resolution_height" step="64" min="64" max="2048">
+                    </div>
                 </li>
                 <section v-if="isSeniorMode">
                     <li>
@@ -111,7 +113,7 @@
 </template>
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'
-import { resolutionList, algorithms } from '@/assets/ts/dbSelectList'
+import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '../../assets/scss/savedPrompt.scss'
@@ -143,7 +145,13 @@ export default {
             description: '',
             nsfw: 'A',
             seed: '',
-            resolution: 'Portrait (Normal) 512x768',
+            resolution_width: 512,
+            resolution_height: 768,
+            model: 'NovelAI',
+            sampling: 28,
+            sampling_algo: 'Euler a',
+            scale: 11,
+            options: ['Highres. Fix'],
             others: '',
         })
         watchEffect(() => preset.value = props.selected)
@@ -169,6 +177,8 @@ export default {
             }
 
             const sendData = {...preset.value}
+            // 解像度を結合して文字列に変更
+            sendData.resolution = preset.value.resolution_width + 'x' + preset.value.resolution_height
             // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
             if (!isSeniorMode.value) {
                 sendData.model = null
@@ -234,7 +244,6 @@ export default {
 
         return {
             preset,
-            resolutionList,
             algorithms,
             previewImagePath,
             isDisplayPreview: isDisplayPreview,

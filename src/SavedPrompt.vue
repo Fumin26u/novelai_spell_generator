@@ -93,13 +93,19 @@ export default {
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(false)
 
-        // 文字列で保管されているオプションデータを配列に戻す
-        const revertOptionsData = (presets: {[key: string]: any}[]) => {
+        // DBで文字列で保管されているオプションと解像度を表示できるように変更
+        const revertDBData = (presets: {[key: string]: any}[]) => {
             presets.map((preset, index) => {
                 if (preset.options !== null && preset.options !== '') {
                     savedPromptList.value[index].options = preset.options.split(',')
                 } else {
                     savedPromptList.value[index].options = []
+                }
+
+                if (preset.resolution !== null && preset.resolution !== '') {
+                    const resolutionList = preset.resolution.split('x')
+                    savedPromptList.value[index]['resolution_width'] = resolutionList[0]
+                    savedPromptList.value[index]['resolution_height'] = resolutionList[1]
                 }
             })
         }
@@ -184,7 +190,7 @@ export default {
             }).then(response => {
                     if (response.data !== '') {
                         savedPromptList.value = response.data
-                        revertOptionsData(savedPromptList.value)
+                        revertDBData(savedPromptList.value)
                         setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
                     }

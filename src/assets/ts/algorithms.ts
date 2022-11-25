@@ -1,8 +1,4 @@
-export const resolutionList = [
-    64,128,192,256,320,384,448,512,
-]
-
-export const algorithms = [
+const algorithms = [
     'Euler a',
     'Euler',
     'LMS',
@@ -21,3 +17,4 @@ export const algorithms = [
     'DDIM',
     'PLMS',
 ]
+export default algorithms
