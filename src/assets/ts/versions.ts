@@ -1,5 +1,10 @@
 const versions = [
     {
+        date: '2022年11月26日',
+        version: '1.7.2',
+        detail: 'プリセット内容にStable Diffusion WebUI (by AUTOMATIC1111)の項目を追加',
+    },
+    {
         date: '2022年11月23日',
         version: '1.7.1',
         detail: 'セーバートップページからプリセットの登録が可能に',

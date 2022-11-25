@@ -58,6 +58,9 @@
     input[type=radio], input[type=checkbox], label {
         width: auto;
     }
+    .resolution > input[type=number] {
+        width: 100px;
+    }
     label {
         margin-right: 8px;
     }
