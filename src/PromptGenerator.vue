@@ -62,6 +62,7 @@
         />
     </main>
     <ModalDBComponent
+        id="generator"
         :prompts="outputPrompt"
         :displayModalState="isOpenSaveModal"
         @updateModal="updateModalState"

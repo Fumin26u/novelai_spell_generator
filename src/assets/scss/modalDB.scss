@@ -1,6 +1,7 @@
 @import "./style.scss";
 
-.modal-cover {
+// タイトル部分 ジェネレーターのスタイル
+#generator.preset-register .modal-cover {
     width: 100%;
     background: rgba(0,0,0,0.5);
     z-index: 90;
@@ -8,7 +9,8 @@
     top: 0;
     bottom: 0;
 }
-.modal-window {
+
+#generator.preset-register .db-form-window {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -20,15 +22,74 @@
     background: white;
     z-index: 99;
     box-sizing: border-box;
-    > div {
+    > .generator-title-area {
         > * {
             display: inline-block;
             margin-left: 8px;
         }
     }
+    > .saver-title-area {
+        display: none;
+    }
 }
 
-.db-form {
+// タイトル部分 セーバーのスタイル
+#saver .modal-cover, #saver .close-modal, #saver .generator-title-area {
+    display: none;
+}
+
+#saver.preset-register {
+    position: sticky;
+    top: 1em;
+    left: 0;
+    width: 32.4%;
+    height: 96vh;
+    transform: none;
+    background: unset;
+}
+
+#saver .saver-title-area {
+    @include horizontalAlignFlex;
+    border-bottom: 2px dashed $border-color;
+    margin: 0 0 8px;
+    > p {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    > div > label {
+        margin-right: 8px;
+    }
+    > div > button {
+        margin: 0 0 8px 8px;
+        padding: 4px 1em;
+    }
+}
+
+// フォーム内容 共通
+#generator .db-form, #saver .db-form {
+    > button {
+        display: block;
+        width: 180px;
+        padding: 8px;
+        margin: 0 auto;
+        font-size: 16px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+    input[type=radio], input[type=checkbox], label {
+        width: auto;
+    }
+    .resolution > dd > input[type=number] {
+        width: 100px;
+        display: inline-block;
+    }
+    label {
+        margin-right: 8px;
+    }
+}
+
+// ジェネレーター フォーム内容
+#generator .db-form {
     margin: 8px;
     display: block;
     text-align: center;
@@ -53,23 +114,38 @@
         width: 94%;
         font-size: 16px;
     }
-    input[type=radio], input[type=checkbox], label {
+    > div.image > dd > * {
+        @include horizontalAlign;
         width: auto;
-    }
-    .resolution > input[type=number] {
-        width: 100px;
-    }
-    label {
-        margin-right: 8px;
     }
     textarea {
         height: 80px;
     }
-    > button {
-        width: 180px;
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 8px;
+}
+
+// セーバー フォーム内容
+#saver .db-form {
+    br {
+        display: none;
+    }
+    > div, > .senior-settings > div {
+        margin: 8px 0;
+        padding: 0 0 8px;
+        border-bottom: 1px solid $border-color;
+        display: block;
+        width: 100%;
+    }
+    dt, dd {
+        display: block;
+        margin: 0;
+    }
+    dt {
         font-weight: bold;
+    }
+    input[type=text], input[type=number], input[type=file], select, textarea {
+        display: block;
+        width: 99%;
+        font-size: 16px;
+        padding: 1px 0;
     }
 }

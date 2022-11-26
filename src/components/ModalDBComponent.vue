@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <section class="preset-register">
         <div class="modal-cover" @click="updateModal(false)"></div>
-        <div class="modal-window">
+        <div class="db-form-window">
             <div class="generator-title-area">
                 <h3>データをDBに登録</h3>
                 <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
@@ -14,7 +14,7 @@
                 <p>{{ 'preset_id' in preset ? 'データ編集':'新規追加' }}</p>
                 <div>
                     <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
-                    <label for="senior-mode">上級者向け設定あり</label>
+                    <label for="senior-mode">上級者向け設定</label>
                     <button class="btn-common red" @click="deletePreset()">削除</button>
                     <button class="btn-common blue" @click="savePreset()">保存</button>
                 </div>
@@ -23,23 +23,35 @@
                 <span @click="updateModal(false)" class="btn-close"></span>
             </div>
             <dl class="db-form">
-                <div>
+                <div class="description">
                     <dt>説明</dt>
                     <dd><input type="text" v-model="preset.description"></dd>
                 </div>
-                <div>
+                <div class="image">
                     <dt>画像</dt>
-                    <dd><input type="file" @change="uploadImage" accept="image/*"></dd>
+                    <dd>
+                        <input 
+                        type="file" 
+                        accept="image/*"
+                        @change="uploadImage" 
+                        @drop="dragImage"
+                        >
+                        <div v-if="previewImagePath !== null && previewImagePath !== ''" class="image-preview">
+                            <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
+                            <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
+                            <img v-if="isDisplayPreview" :src="previewImagePath" :alt="preset.description">
+                        </div>
+                    </dd>
                 </div>
-                <div>
+                <div class="prompt">
                     <dt>プロンプト</dt>
                     <dd><input type="text" v-model="preset.commands"></dd>
                 </div>
-                <div>
+                <div class="prompt_ban">
                     <dt>BANプロンプト</dt>
                     <dd><input type="text" v-model="preset.commands_ban"></dd>
                 </div>
-                <div>
+                <div class="nsfw">
                     <dt>年齢制限</dt>
                     <dd>
                         <input type="radio" v-model="preset.nsfw" value="A" id="nsfw_a">
@@ -50,20 +62,20 @@
                         <label for="nsfw_z">R-18</label>
                     </dd>
                 </div>
-                <div>
+                <div class="seed">
                     <dt>シード値</dt>
                     <dd><input type="text" v-model="preset.seed"></dd>
                 </div>
-                <div>
+                <div class="resolution">
                     <dt>解像度(px)</dt>
-                    <dd class="resolution">
+                    <dd>
                         <input type="number" v-model="preset.resolution_width" step="64" min="64" max="2048">
                         <span> X </span>
                         <input type="number" v-model="preset.resolution_height" step="64" min="64" max="2048">
                     </dd>
                 </div>
                 <section v-if="isSeniorMode" class="senior-settings">
-                    <div>
+                    <div class="model">
                         <dt>モデル名</dt>
                         <dd>
                             <input type="radio" v-model="preset.model" value="NovelAI" id="model_NovelAI">
@@ -74,11 +86,11 @@
                             <label for="model_Anything_V3">Anything V3</label>
                         </dd>
                     </div>
-                    <div>
+                    <div class="sampling">
                         <dt>サンプリング回数<br>(Step)</dt>
                         <dd><input type="number" step="1" v-model="preset.sampling"></dd>
                     </div>
-                    <div>
+                    <div class="sampling_algo">
                         <dt>サンプリング<br>アルゴリズム</dt>
                         <dd>
                             <select v-model="preset.sampling_algo">
@@ -86,11 +98,11 @@
                             </select>
                         </dd>
                     </div>
-                    <div>
+                    <div class="scale">
                         <dt>Scale値</dt>
                         <dd><input type="number" step="1" v-model="preset.scale"></dd>
                     </div>
-                    <div>
+                    <div class="options">
                         <dt>オプション</dt>
                         <dd>
                             <div>
@@ -108,14 +120,14 @@
                         </dd>
                     </div>
                 </section>
-                <div>
+                <div class="others">
                     <dt>その他</dt>
                     <dd><textarea v-model="preset.others"></textarea></dd>
                 </div>
-                <button @click="savePreset()" class="btn-common green">登録</button>
+                <button @click="savePreset()" class="btn-common blue">保存</button>
             </dl>
         </div>
-    </div>
+    </section>
 </template>
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'

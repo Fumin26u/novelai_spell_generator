@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent> 
-    <main class="content" id="saver">
+    <main class="content">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a href="./register/login.php">ログイン</a>
@@ -60,6 +60,7 @@
                 @setRegisterMode="setRegisterMode"
             />
             <ModalDBComponent 
+                id="saver"
                 v-else
                 :selected="selectedPreset"
                 @setAlertText="setAlertText"
