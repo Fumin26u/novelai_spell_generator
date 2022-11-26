@@ -62,7 +62,7 @@
             <ModalDBComponent 
                 id="saver"
                 v-else
-                :selected="selectedPreset"
+                :selectedPreset="selectedPreset"
                 @setAlertText="setAlertText"
                 @getPresetData="getPresetData"
                 @setRegisterMode="setRegisterMode"
@@ -118,7 +118,7 @@ export default {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
                 savedPromptList.value[index]['thumbnail'] = thumbnailPath
-                savedPromptList.value[index]['originalImage'] = originalImagePath
+                savedPromptList.value[index]['imagePath'] = originalImagePath
             })
         }
 

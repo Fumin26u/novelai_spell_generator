@@ -86,6 +86,12 @@
     label {
         margin-right: 8px;
     }
+
+    .image-preview img {
+        width: 100%;
+        display: block;
+        object-fit: cover;
+    }
 }
 
 // ジェネレーター フォーム内容
@@ -111,7 +117,7 @@
     }
     input, select, textarea {
         padding: 4px 8px;
-        width: 94%;
+        width: 97%;
         font-size: 16px;
     }
     > div.image > dd > * {

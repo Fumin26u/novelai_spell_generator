@@ -103,7 +103,6 @@ export default {
         const setPrompt = ref<{[key: string]: any}[]>([])
         // カラー設定可能なプロンプトの選択されたカラーを格納する配列
         const selectedColor = ref<{[key: string]: string}>({})
-        console.log(location.href)
 
         // 年齢制限表示に応じた個々のプロンプトの表示状態を設定する
         const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
