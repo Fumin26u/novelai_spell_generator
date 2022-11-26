@@ -79,7 +79,7 @@ import axios from 'axios'
 import './assets/scss/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SetPromptComponent from './components/generator/SetPromptComponent.vue'
-import ModalDBComponent from './components/generator/ModalDBComponent.vue'
+import ModalDBComponent from './components/ModalDBComponent.vue'
 
 export default {
     components: {
@@ -102,6 +102,7 @@ export default {
         const setPrompt = ref<{[key: string]: any}[]>([])
         // カラー設定可能なプロンプトの選択されたカラーを格納する配列
         const selectedColor = ref<{[key: string]: string}>({})
+        console.log(location.href)
 
         // 年齢制限表示に応じた個々のプロンプトの表示状態を設定する
         const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {

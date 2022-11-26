@@ -2,18 +2,31 @@
     <div>
         <div class="modal-cover" @click="updateModal(false)"></div>
         <div class="modal-window">
-            <div>
+            <div class="generator-title-area">
                 <h3>データをDBに登録</h3>
                 <small>※<a href="https://nai-pg.com/register/login.php" target="_blank" :style="'font-weight: bold;'">プロンプトセーバー</a>でのログインが必要です。</small>
                 <div class="senior-mode-setting">
                     <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
+                    <label for="senior-mode">上級者向け設定</label>
+                </div>
+            </div>
+            <div class="saver-title-area">
+                <p>{{ 'preset_id' in preset ? 'データ編集':'新規追加' }}</p>
+                <div>
+                    <input type="checkbox" v-model="isSeniorMode" id="senior-mode">
                     <label for="senior-mode">上級者向け設定あり</label>
+                    <button class="btn-common red" @click="deletePreset()">削除</button>
+                    <button class="btn-common blue" @click="savePreset()">保存</button>
                 </div>
             </div>
             <div class="close-modal">
                 <span @click="updateModal(false)" class="btn-close"></span>
             </div>
             <dl class="db-form">
+                <div>
+                    <dt>説明</dt>
+                    <dd><input type="text" v-model="preset.description"></dd>
+                </div>
                 <div>
                     <dt>画像</dt>
                     <dd><input type="file" @change="uploadImage" accept="image/*"></dd>
@@ -25,10 +38,6 @@
                 <div>
                     <dt>BANプロンプト</dt>
                     <dd><input type="text" v-model="preset.commands_ban"></dd>
-                </div>
-                <div>
-                    <dt>説明</dt>
-                    <dd><input type="text" v-model="preset.description"></dd>
                 </div>
                 <div>
                     <dt>年齢制限</dt>
@@ -113,7 +122,7 @@ import registerPath from '@/assets/ts/registerPath'
 import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
-import '../../assets/scss/modalDB.scss'
+import '@/assets/scss/modalDB.scss'
 
 export default {
     emits: ['updateModal',],

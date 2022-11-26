@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent> 
-    <main class="content">
+    <main class="content" id="saver">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a href="./register/login.php">ログイン</a>
@@ -59,7 +59,7 @@
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <ManagePresetComponent 
+            <ModalDBComponent 
                 v-else
                 :selected="selectedPreset"
                 @setAlertText="setAlertText"
@@ -74,7 +74,7 @@ import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import ManagePresetComponent from './components/saver/ManagePresetComponent.vue'
+import ModalDBComponent from './components/ModalDBComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -84,7 +84,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
-        ManagePresetComponent,
+        ModalDBComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
