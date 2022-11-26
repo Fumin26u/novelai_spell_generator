@@ -59,7 +59,7 @@
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <ModalDBComponent 
+            <PresetManagerComponent 
                 id="saver"
                 v-else
                 :selectedPreset="selectedPreset"
@@ -76,7 +76,7 @@ import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import ModalDBComponent from './components/ModalDBComponent.vue'
+import PresetManagerComponent from './components/PresetManagerComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -86,7 +86,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
-        ModalDBComponent,
+        PresetManagerComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
@@ -177,7 +177,6 @@ export default {
         const setRegisterMode = (state: boolean, mode: string = '') => {
             // 新規登録の場合は選択されているプリセット詳細データを初期化
             if (state && mode === 'register') selectPreset(-1)
-
             isRegisterMode.value = state
         }
 
