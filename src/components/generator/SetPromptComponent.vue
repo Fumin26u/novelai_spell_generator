@@ -147,8 +147,12 @@ export default {
                 if (prompt.enhance === 0) {
                     text.value += prompt.output_prompt
                 } else if (prompt.enhance > 0) {
-                    // 強化値が1以上の場合前後に{}を数値分追加
-                    text.value += '{'.repeat(prompt.enhance) + prompt.output_prompt + '}'.repeat(prompt.enhance) 
+                    // 強化値が1以上の場合前後に{}または()を数値分追加
+                    if (enhanceBraceText.value === '( )に変換') {
+                        text.value += '{'.repeat(prompt.enhance) + prompt.output_prompt + '}'.repeat(prompt.enhance) 
+                    } else if (enhanceBraceText.value === '{ }に変換') {
+                        text.value += '('.repeat(prompt.enhance) + prompt.output_prompt + ')'.repeat(prompt.enhance) 
+                    }
                 } else if (prompt.enhance < 0) {
                     // 強化値が-1以下の場合前後に[]を数値分追加
                     const num = prompt.enhance * -1
@@ -157,8 +161,6 @@ export default {
                 text.value += ', '
             })
             
-            // 強化値は{}に強制変更されるのでボタンの表示を変更
-            enhanceBraceText.value = '( )に変換'
             outputPrompt.value = text.value
         }
 
