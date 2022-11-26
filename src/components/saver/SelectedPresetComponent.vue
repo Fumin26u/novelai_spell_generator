@@ -7,7 +7,7 @@
             </div>
             <ul class="data-list">
                 <li class="image">
-                    <img :src="preset.originalImage" alt="">
+                    <img :src="preset.imagePath" alt="">
                 </li>
                 <li class="prompt copy">
                     <h3>プロンプト</h3>

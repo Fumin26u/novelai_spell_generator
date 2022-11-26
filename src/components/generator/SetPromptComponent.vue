@@ -1,8 +1,10 @@
 <template>
     <div class="prompt-settings">
         <div class="description">
-            <h2>設定プロンプト一覧</h2>
-            <small>選択中: {{hoverPrompt}}</small>
+            <div class="title-area">
+                <h2>設定プロンプト一覧</h2>
+                <small>選択中: {{hoverPrompt}}</small>
+            </div>
             <div class="manual-input-area">
                 <label :for="'manual-input'">手動追加</label>
                 <input type="text" :id="'manual-input'" v-model="manualInput">

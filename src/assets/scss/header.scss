@@ -1,11 +1,9 @@
 @import "./style.scss";
 
 .header {
+    @include horizontalAlignFlex;
     border-bottom: 2px dashed $border-color;
     margin: 0 auto 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 
     @include mediaQuery(medium, max) {
         position: sticky;

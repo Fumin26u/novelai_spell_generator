@@ -1,4 +1,4 @@
-<template lang="">
+<!-- <template lang="">
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
@@ -10,11 +10,11 @@
                     <button class="btn-common blue" @click="savePreset()">保存</button>
                 </div>
             </div>
-            <div class="title-area">
-                <h3>タイトル(プロンプトの説明)</h3>
-                <input type="text" v-model="preset.description">
-            </div>
             <ul class="data-list">
+                <li class="title">
+                    <h3>タイトル(プロンプトの説明)</h3>
+                    <input type="text" v-model="preset.description">
+                </li>
                 <li class="image">
                     <h3>画像(ドロップ可)</h3>
                     <input 
@@ -256,4 +256,4 @@ export default {
         }
     }
 }
-</script>
+</script> -->

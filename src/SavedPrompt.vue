@@ -59,9 +59,11 @@
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <ManagePresetComponent 
+            <PresetManagerComponent 
+                id="saver"
                 v-else
-                :selected="selectedPreset"
+                :selectedPreset="selectedPreset"
+                @selectPreset="selectPreset"
                 @setAlertText="setAlertText"
                 @getPresetData="getPresetData"
                 @setRegisterMode="setRegisterMode"
@@ -74,7 +76,7 @@ import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import ManagePresetComponent from './components/saver/ManagePresetComponent.vue'
+import PresetManagerComponent from './components/PresetManagerComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -84,7 +86,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
-        ManagePresetComponent,
+        PresetManagerComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
@@ -117,7 +119,7 @@ export default {
                 const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
                 const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
                 savedPromptList.value[index]['thumbnail'] = thumbnailPath
-                savedPromptList.value[index]['originalImage'] = originalImagePath
+                savedPromptList.value[index]['imagePath'] = originalImagePath
             })
         }
 
@@ -140,6 +142,7 @@ export default {
         
         // プリセット一覧から選択されたプリセットを読み込む
         const presetInitialData = {
+            index: 0,
             image: '',
             from: 'generator',
             commands: '',
@@ -147,7 +150,8 @@ export default {
             description: '',
             nsfw: 'A',
             seed: '',
-            resolution: 'Portrait (Normal) 512x768',
+            resolution_width: 512,
+            resolution_height: 768,
             model: 'NovelAI',
             sampling: 28,
             sampling_algo: 'Euler a',
@@ -155,11 +159,18 @@ export default {
             options: ['Highres. Fix'],
             others: '',
         }
-        const selectedPreset = ref<object>(presetInitialData)
+        // 選択されたプリセットデータ
+        const selectedPreset = ref<{[key:string]: string | string[] | number | null}>(presetInitialData)
         const selectedPresetIndex = ref<number>(-1)
-        const selectPreset = (index: number) => {
-            selectedPreset.value = index === -1 ? presetInitialData : {...savedPromptList.value[index]}
-            selectedPresetIndex.value = index
+        const selectPreset = (selectPresetIndex: number) => {
+            if (selectPresetIndex === -1) {
+                selectedPreset.value = {...presetInitialData}
+                selectedPreset.value.index = savedPromptList.value.length
+            } else {
+                selectedPreset.value = {...savedPromptList.value[selectPresetIndex]}
+                selectedPreset.value.index = selectPresetIndex
+            }
+            selectedPresetIndex.value = selectPresetIndex
         }
 
         // データ登録・編集モードの状態
@@ -167,7 +178,6 @@ export default {
         const setRegisterMode = (state: boolean, mode: string = '') => {
             // 新規登録の場合は選択されているプリセット詳細データを初期化
             if (state && mode === 'register') selectPreset(-1)
-
             isRegisterMode.value = state
         }
 
