@@ -157,9 +157,6 @@ export default {
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
         // Base64文字列に変換した画像
         const base64Image = ref<string | ArrayBuffer | null>('')
-        // 上級者向け設定の表示可否
-        const isSeniorMode = ref<boolean>(false)
-        
         // DB保存用のデータ
         const preset = ref<{[key: string]: any}>({
             image: '',
@@ -187,7 +184,10 @@ export default {
                 preset.value = props.selectedPreset
             }
         })
-
+        
+        // 上級者向け設定の表示可否
+        const isSeniorMode = ref<boolean>(preset.value.model !== null)
+        
         // ジェネレーターのモーダル表示状態更新処理
         const updateModal = (isDisplay: boolean) => {
             if (currentPath === 'generator') {
