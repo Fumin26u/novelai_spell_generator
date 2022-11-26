@@ -6,8 +6,7 @@
 
 --------------------*/
 .preset-info {
-    display: flex;
-    justify-content: space-between;
+    @include horizontalAlignFlex(flex-start);
     flex-wrap: wrap;
 }
 
@@ -28,12 +27,9 @@
 .search-area {
     width: 100%;
     > .title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        @include horizontalAlignFlex;
         > .display-form > * {
-            display: inline-block;
-            vertical-align: middle;
+            @include horizontalAlign;
         }
         > .display-form > button {
             margin-left: 1em;
@@ -60,8 +56,7 @@
         border-bottom: 1px solid $border-color;
         text-align: left;
         > dt, > dd {
-            display: inline-block;
-            vertical-align: middle;
+            @include horizontalAlign;
         }
         > dt {
             font-weight: bold;
@@ -97,11 +92,9 @@
     width: 66%;
 }
 .preset-content {
+    @include horizontalAlignFlex(flex-start);
     border-right: 1px solid $border-color;
     padding-right: 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     flex-wrap: wrap;
 
     > div {
@@ -180,10 +173,9 @@
 
 --------------------*/
 .preset-message {
+    @include horizontalAlignFlex;
     width: 100%;
     margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
 }
 
 /*--------------------
@@ -199,9 +191,7 @@
     height: 96vh;
     overflow-y: auto;
     > div > .title-area {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        @include horizontalAlignFlex;
         margin-bottom: 4px;
         > h2 {
             font-size: 17px;
@@ -222,12 +212,8 @@
         border-bottom: 1px solid $border-color;
         display: block;
         width: 100%;
-        h3, button {
-            display: inline-block;
-            vertical-align: middle;
-            margin: 0;
-        }
         h3 {
+            @include horizontalAlign;
             font-size: 16px;
         }
         button {
@@ -298,16 +284,13 @@
     }
     label {
         margin-right: 8px;
-        vertical-align: middle;
     }
     li {
         margin: 8px 0;
     }
 
     .submit-area.top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        @include horizontalAlignFlex;
         border-bottom: 2px dashed $border-color;
         margin: 0 0 8px;
         > p {
