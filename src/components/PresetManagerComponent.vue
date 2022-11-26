@@ -219,7 +219,7 @@ export default {
             }
 
             if (preset.value.commands === '') {
-                alert('コマンドが入力されていません。')
+                alert('プロンプトが入力されていません。')
                 return
             }
             if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {

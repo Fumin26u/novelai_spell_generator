@@ -1,4 +1,4 @@
-<template lang="">
+<!-- <template lang="">
     <section class="preset-detail register">
         <div>
             <div class="submit-area top">
@@ -256,4 +256,4 @@ export default {
         }
     }
 }
-</script>
+</script> -->
