@@ -15,32 +15,32 @@ if (isset($post['delete']) && $post['delete'] !== '') {
     $presetController->delete((int) h($post['delete']));
     echo json_encode($post, JSON_UNESCAPED_UNICODE);
     exit;
-}
-
-// 画像がBase64形式で送られてくるのでデコードして固有ファイル名に変換し保存
-$imageDirPath = '../images/preset/original/';
-$imageFileName = '';
-
-if (strpos($post['image'], ',') !== false) {
-    $imageBase64String = substr($post['image'], strpos($post['image'], ',')+1);
-    $imageData = base64_decode($imageBase64String);
-    
-    $imageController = new ImageController($imageDirPath);
-    
-    $imageFileName = $imageController->getUniqueID();
-    file_put_contents($imageDirPath . $imageFileName, $imageData);
-    // 保存した画像からサムネイルを抽出
-    $imageController->makeThumbnail($home);
-} else if (!is_null($post['image']) && $post['image'] !== '') {
-    // 編集時画像更新が無い場合は画像ファイル名をそのまま使用
-    $imageFileName = $post['image'];
-}
-
-// POSTされたデータのDB登録
-$presetController = new PresetController();
-if (isset($post['preset_id']) && $post['preset_id'] !== '') {
-    $presetController->update($post, $imageFileName, (int) h($post['preset_id']));
 } else {
-    $presetController->create($post, $imageFileName);
+    // 画像がBase64形式で送られてくるのでデコードして固有ファイル名に変換し保存
+    $imageDirPath = '../images/preset/original/';
+    $imageFileName = '';
+    
+    if (strpos($post['image'], ',') !== false) {
+        $imageBase64String = substr($post['image'], strpos($post['image'], ',')+1);
+        $imageData = base64_decode($imageBase64String);
+        
+        $imageController = new ImageController($imageDirPath);
+        
+        $imageFileName = $imageController->getUniqueID();
+        file_put_contents($imageDirPath . $imageFileName, $imageData);
+        // 保存した画像からサムネイルを抽出
+        $imageController->makeThumbnail($home);
+    } else if (!is_null($post['image']) && $post['image'] !== '') {
+        // 編集時画像更新が無い場合は画像ファイル名をそのまま使用
+        $imageFileName = $post['image'];
+    }
+    
+    // POSTされたデータのDB登録
+    $presetController = new PresetController();
+    if (isset($post['preset_id']) && $post['preset_id'] !== '') {
+        $presetController->update($post, $imageFileName, (int) h($post['preset_id']));
+    } else {
+        $presetController->create($post, $imageFileName);
+    }
 }
 ?>

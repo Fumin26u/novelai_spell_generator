@@ -63,6 +63,7 @@
                 id="saver"
                 v-else
                 :selectedPreset="selectedPreset"
+                @selectPreset="selectPreset"
                 @setAlertText="setAlertText"
                 @getPresetData="getPresetData"
                 @setRegisterMode="setRegisterMode"
@@ -141,6 +142,7 @@ export default {
         
         // プリセット一覧から選択されたプリセットを読み込む
         const presetInitialData = {
+            index: 0,
             image: '',
             from: 'generator',
             commands: '',
@@ -156,11 +158,18 @@ export default {
             options: ['Highres. Fix'],
             others: '',
         }
-        const selectedPreset = ref<object>(presetInitialData)
+        // 選択されたプリセットデータ
+        const selectedPreset = ref<{[key:string]: string | string[] | number | null}>(presetInitialData)
         const selectedPresetIndex = ref<number>(-1)
-        const selectPreset = (index: number) => {
-            selectedPreset.value = index === -1 ? presetInitialData : {...savedPromptList.value[index]}
-            selectedPresetIndex.value = index
+        const selectPreset = (selectPresetIndex: number) => {
+            if (selectPresetIndex === -1) {
+                selectedPreset.value = {...presetInitialData}
+                selectedPreset.value.index = savedPromptList.value.length
+            } else {
+                selectedPreset.value = {...savedPromptList.value[selectPresetIndex]}
+                selectedPreset.value.index = selectPresetIndex
+            }
+            selectedPresetIndex.value = selectPresetIndex
         }
 
         // データ登録・編集モードの状態

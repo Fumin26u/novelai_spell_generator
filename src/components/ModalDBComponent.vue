@@ -36,9 +36,9 @@
                         @change="uploadImage" 
                         @drop="dragImage"
                         >
+                        <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
+                        <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
                         <div v-if="preset.imagePath !== null && preset.imagePath !== ''" class="image-preview">
-                            <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
-                            <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
                             <img v-if="isDisplayPreview" :src="preset.imagePath" :alt="preset.description">
                         </div>
                     </dd>
@@ -137,7 +137,13 @@ import axios from 'axios'
 import '@/assets/scss/modalDB.scss'
 
 export default {
-    emits: ['updateModal',],
+    emits: [
+        'updateModal',
+        'selectPreset',
+        'setAlertText', 
+        'getPresetData', 
+        'setRegisterMode'
+    ],
     props: {
         prompts: String,
         selectedPreset: Object,
@@ -147,13 +153,13 @@ export default {
     setup(props: any, context: any) {
         // 現在のPathからツール名称を作成
         const currentPath = location.href.slice(-2) === '#/' ? 'generator' : 'saver'
-
         // DB保存モーダルの表示可否
         const isOpenSaveModal = ref<boolean>(props.displayModalState)
-
         // Base64文字列に変換した画像
         const base64Image = ref<string | ArrayBuffer | null>('')
-
+        // 上級者向け設定の表示可否
+        const isSeniorMode = ref<boolean>(false)
+        
         // DB保存用のデータ
         const preset = ref<{[key: string]: any}>({
             image: '',
@@ -173,6 +179,7 @@ export default {
             options: ['Highres. Fix'],
             others: '',
         })
+        // プリセットの内容が更新されたかどうかを監視する
         watchEffect(() => {
             if (currentPath === 'generator') {
                 preset.value.commands = props.prompts
@@ -181,50 +188,51 @@ export default {
             }
         })
 
+        // ジェネレーターのモーダル表示状態更新処理
         const updateModal = (isDisplay: boolean) => {
             if (currentPath === 'generator') {
                 context.emit('updateModal', isDisplay)
             }
         }
-        
-        // 上級者向け設定の表示可否
-        const isSeniorMode = ref<boolean>(false)
-        
+                
         // プリセットをDBに保存する
         const formUrl = registerPath + 'api/registerPreset.php'
         const registerPreset = (method: string = 'save') => {
-
             // 削除ボタンが押された場合、確認アラート表示後データ消去命令をAPIに送る
-            if (method === 'delete' && window.confirm('本当に削除しますか?')) {
-                axios.post(formUrl, {
-                    delete: preset.value.preset_id
-                }).then(() => {
-                    context.emit('setAlertText', 'プロンプトをデータベースから削除しました。')
-                    // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
-                    context.emit('getPresetData')
-                    context.emit('setRegisterMode', false, 'register')
-                }).catch((error) => {
-                    context.emit('setAlertText', 'データベース接続に失敗しました。')
-                    console.log(error)
-                })
-            } else {
-                return
+            if (currentPath === 'saver' && method === 'delete') {
+                if (confirm('本当に削除しますか？')) {
+                    axios.post(formUrl, {
+                        delete: preset.value.preset_id
+                    }).then(() => {
+                        alert('プロンプトをデータベースから削除しました。')
+                        // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
+                        context.emit('getPresetData')
+                        context.emit('setRegisterMode', false)
+                    }).catch((error) => {
+                        alert('データベース接続に失敗しました。')
+                        console.log(error)
+                    })
+                    return
+                } else {
+                    return
+                }
             }
 
             if (preset.value.commands === '') {
                 alert('コマンドが入力されていません。')
-                updateModal(false)
                 return
             }
             if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {
                 alert('Seed値が数値で入力されていません。')
-                updateModal(false)
                 return
             }
 
             const sendData = {...preset.value}
             // 解像度を結合して文字列に変更
             sendData.resolution = preset.value.resolution_width + 'x' + preset.value.resolution_height
+            // 画像をアップロードしている場合、Base64文字列に変換したものを画像データに上書き
+            if (base64Image.value !== '') sendData.image = base64Image.value
+            
             // 上級者向け設定をOFFにしている場合、該当項目のデータはNULLにする
             if (!isSeniorMode.value) {
                 sendData.model = null
@@ -233,18 +241,23 @@ export default {
                 sendData.scale = null
                 sendData.options = null
             } else {
+                // オプションが設定されている場合はカンマ区切りで文字列に変更
                 sendData.options = sendData.options.join(',')
             }
             const formData = JSON.stringify(sendData)
             
             axios.post(formUrl, formData).then(() => {
                 alert('プロンプトをデータベースに登録しました。')
+                if (currentPath === 'generator') {
+                    updateModal(false)
+                } else if (currentPath === 'saver') {
+                    context.emit('getPresetData')
+                    context.emit('setRegisterMode', false)
+                }
             }).catch(error => {
                 alert('データベース接続に失敗しました。')
                 console.log(error)
             })
-
-            updateModal(false)
         }
 
         // 画像がドラッグ&ドロップされたらファイルをインポートする
@@ -252,8 +265,7 @@ export default {
             const reader = new FileReader()
             reader.onloadend = () => {
                 base64Image.value = reader.result
-                preset.value.image = (URL.createObjectURL(file))
-                preset.value.imagePath = registerPath + 'images/preset/' + preset.value.image 
+                preset.value.imagePath = URL.createObjectURL(file)
             }
             reader.readAsDataURL(file)
         }
