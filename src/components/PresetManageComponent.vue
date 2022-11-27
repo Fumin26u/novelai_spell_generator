@@ -134,7 +134,7 @@ import registerPath from '@/assets/ts/registerPath'
 import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
-import '@/assets/scss/presetManager.scss'
+import '@/assets/scss/presetManage.scss'
 
 export default {
     emits: [
