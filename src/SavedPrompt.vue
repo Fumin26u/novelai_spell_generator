@@ -59,7 +59,7 @@
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <PresetManagerComponent 
+            <PresetManageComponent 
                 id="saver"
                 v-else
                 :selectedPreset="selectedPreset"
@@ -76,7 +76,7 @@ import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import PresetManagerComponent from './components/PresetManagerComponent.vue'
+import PresetManageComponent from './components/PresetManageComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -86,7 +86,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
-        PresetManagerComponent,
+        PresetManageComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
