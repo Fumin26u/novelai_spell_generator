@@ -34,13 +34,16 @@ h2 {
         > dd {
             width: 82%;
         }
+        > dd > .caption {
+            font-size: 13px;
+        }
         > dd > input {
             width: 100%;
             font-size: 16px;
             
         }
     }
-    input[type=submit] {
+    button.submit {
         width: 180px;
         padding: 8px;
         border-radius: 8px;

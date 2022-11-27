@@ -16,14 +16,20 @@
                     </div>
                     <div>
                         <dt>ユーザーID</dt>
-                        <dd><input type="text" id="user_id" v-model="account.user_id" autocomplete="username" required></dd>
+                        <dd>
+                            <p class="caption">6文字以上20文字以下</p>
+                            <input type="text" id="user_id" v-model="account.user_id" autocomplete="username" pattern="^.{6,20}$" required>
+                        </dd>
                     </div>
                     <div>
                         <dt>パスワード</dt>
-                        <dd><input type="password" id="password" v-model="account.password" autocomplete="current-password" required></dd>
+                        <dd>
+                            <p class="caption">半角英数字8文字以上20文字以下</p>
+                            <input type="password" id="password" v-model="account.password" autocomplete="current-password" pattern="^([a-zA-Z0-9]{8,20})$" required>
+                        </dd>
                     </div>
                 </dl>
-                <input type="submit" value="登録" class="btn-common green">
+                <button @click="submitAccountData()" class="btn-common green submit">{{ currentPath === 'register' ? '登録' : 'ログイン' }}</button>
             </form>
         </div>
     </main>
@@ -57,6 +63,11 @@ export default {
             password: '',
         })
 
+        // 登録ボタンが押された際、バリデーションを行いアカウント登録またはログイン
+        const submitAccountData = async() => {
+
+        }
+
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
@@ -73,6 +84,8 @@ export default {
             currentPath,
             account,
             user_id,
+
+            submitAccountData,
         }
     }
 }
