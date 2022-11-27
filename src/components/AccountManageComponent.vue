@@ -1,9 +1,9 @@
 <template lang="">
     <HeaderComponent :user="user_id"></HeaderComponent> 
-    <main>
+    <main class="account-manage">
         <div class="title-area">
-            <p></p>
             <h2>{{ currentPath === 'register' ? 'ユーザー新規登録' : 'ユーザーログイン' }}</h2>
+            <p>{{ responseMessage }}</p>
         </div>
         <div class="form-area">
             <a href="./#/login" v-if="currentPath === 'register'">既にアカウント登録している場合はこちら</a>
@@ -12,20 +12,20 @@
                 <dl>
                     <div v-if="currentPath === 'register'">
                         <dt>メールアドレス</dt>
-                        <dd><input type="text" id="email" v-model="account.email" required></dd>
+                        <dd><input type="text" id="email" v-model="account.email" :pattern="regex.email" required></dd>
                     </div>
                     <div>
                         <dt>ユーザーID</dt>
                         <dd>
                             <p class="caption">6文字以上20文字以下</p>
-                            <input type="text" id="user_id" v-model="account.user_id" autocomplete="username" pattern="^.{6,20}$" required>
+                            <input type="text" id="user_id" v-model="account.user_id" autocomplete="username" :pattern="regex.user_id" required>
                         </dd>
                     </div>
                     <div>
                         <dt>パスワード</dt>
                         <dd>
                             <p class="caption">半角英数字8文字以上20文字以下</p>
-                            <input type="password" id="password" v-model="account.password" autocomplete="current-password" pattern="^([a-zA-Z0-9]{8,20})$" required>
+                            <input type="password" id="password" v-model="account.password" autocomplete="current-password" :pattern="regex.password" required>
                         </dd>
                     </div>
                 </dl>
@@ -37,7 +37,7 @@
 </template>
 <script lang="ts">
 import { ref, watch, watchEffect, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import registerPath from '@/assets/ts/registerPath'
 import '../assets/scss/accountManage.scss'
@@ -48,9 +48,12 @@ export default {
         HeaderComponent,
     },
     setup() {
-        // ログインページか登録ページかの判定
         const currentURL = ref<string>('')
-        watch(useRoute(), (route) => currentURL.value = route.path)
+        const router = useRouter()
+        const route = useRoute()
+        watch(route, (route) => currentURL.value = route.path)
+        
+        // ログインページか登録ページかの判定
         const currentPath = ref<string>('')
         watchEffect(() => {
             currentPath.value = currentURL.value.match(/login/) ? 'login' : 'register'
@@ -58,14 +61,54 @@ export default {
 
         // 入力フォームのアカウント情報
         const account = ref<{[key: string]: string}>({
+            method: '',
             email: '',
             user_id: '',
             password: '',
         })
 
         // 登録ボタンが押された際、バリデーションを行いアカウント登録またはログイン
+        const responseMessage = ref<string>('')
+        const formUrl = registerPath + 'api/ManageAccountController.php'
+        const regex = {
+            email: new RegExp('^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*.)+[a-zA-Z]{2,}$'),
+            user_id: new RegExp('^.{6,20}$'),
+            password: new RegExp('^([a-zA-Z0-9]{8,20})$')
+        }
         const submitAccountData = async() => {
+            // 入力内容がパターンにマッチしない場合エラーメッセージを出力
+            if (!regex.email.test(account.value.email)) {
+                responseMessage.value = 'メールアドレスの入力内容が空または不正です。'
+                return
+            }
 
+            if (!regex.user_id.test(account.value.user_id)) {
+                responseMessage.value = 'ユーザーIDの入力内容が空または不正です。'
+                return
+            }
+
+            if (!regex.password.test(account.value.password)) {
+                responseMessage.value = 'パスワードの入力内容が空または不正です。'
+                return
+            }
+
+            // バリデーションを通過したらAPIを叩いてユーザーデータを登録
+            const sendData = {...account.value}
+            sendData.method = currentPath.value
+
+            const formData = JSON.stringify(sendData)
+            // APIから正規に返信が返された場合リダイレクト
+            axios.post(formUrl, formData).then(() => {
+                if (currentPath.value === 'register') {
+                    alert('アカウント登録が完了しました。')
+                    router.push('./#/login')
+                } else if (currentPath.value === 'login') {
+                    router.push('./')
+                }
+            }).catch(error => {
+                responseMessage.value = 'データベース接続に失敗しました。お手数ですが、時間を置いて再度お試しください。'
+                console.log(error)
+            })
         }
 
         // ログインユーザーIDを取得
@@ -84,6 +127,8 @@ export default {
             currentPath,
             account,
             user_id,
+            responseMessage,
+            regex,
 
             submitAccountData,
         }
