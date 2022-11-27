@@ -98,12 +98,16 @@ export default {
 
             const formData = JSON.stringify(sendData)
             // APIから正規に返信が返された場合リダイレクト
-            axios.post(formUrl, formData).then(() => {
-                if (currentPath.value === 'register') {
-                    alert('アカウント登録が完了しました。')
-                    router.push('./#/login')
-                } else if (currentPath.value === 'login') {
-                    router.push('./')
+            axios.post(formUrl, formData).then((response) => {
+                if (!response.data.error) {
+                    if (currentPath.value === 'register') {
+                        alert(response.data.content)
+                        router.push('./#/login')
+                    } else if (currentPath.value === 'login') {
+                        router.push('./')
+                    }
+                } else {
+                    responseMessage.value = response.data.content
                 }
             }).catch(error => {
                 responseMessage.value = 'データベース接続に失敗しました。お手数ですが、時間を置いて再度お試しください。'
