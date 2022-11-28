@@ -96,6 +96,10 @@ export default {
                 // 返答でエラーが無い場合は指定ページにリダイレクト
                 if (!response.data.error) {
                     if (currentPath.value === 'register') {
+                        // ログインページ遷移時メッセージと入力内容を初期化
+                        responseMessage.value = ''
+                        account.value.user_id = ''
+                        account.value.password = ''
                         router.push('./login')
                     } else if (currentPath.value === 'login') {
                         router.push('./')

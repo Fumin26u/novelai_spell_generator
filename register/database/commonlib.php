@@ -16,7 +16,9 @@ function dbConnect() {
 }
 
 // タイムアウト制限時間
-ini_set("max_execution_time", 600);
+ini_set("max_execution_time", 300);
+// セッションの開始
+session_start();
 
 // ダンプの簡略化
 function v($arg) {
