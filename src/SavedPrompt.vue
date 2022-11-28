@@ -1,10 +1,10 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent> 
-    <main class="content">
+    <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
-            <a href="./register/login.php">ログイン</a>
-            <a href="./register/register.php">ユーザー登録</a>
+            <a :href="originPath + '#/login'">ログイン</a>
+            <a :href="originPath + '#/register'">ユーザー登録</a>
         </div>
         <div class="preset-info" v-else>
             <section class="search-area">
@@ -59,7 +59,7 @@
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <PresetManagerComponent 
+            <ManagePresetComponent 
                 id="saver"
                 v-else
                 :selectedPreset="selectedPreset"
@@ -76,7 +76,7 @@ import registerPath from '@/assets/ts/registerPath'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import PresetManagerComponent from './components/PresetManagerComponent.vue'
+import ManagePresetComponent from './components/ManagePresetComponent.vue'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -86,7 +86,7 @@ export default {
         HeaderComponent,
         SearchBoxComponent,
         SelectedPresetComponent,
-        PresetManagerComponent,
+        ManagePresetComponent,
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
@@ -213,8 +213,10 @@ export default {
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
         const getUserInfo = async() => {
-            const url = registerPath + 'api/getUserInfo.php'
-            axios.get(url)
+            const url = registerPath + 'api/manageAccount.php'
+            axios.post(url, {
+                method: 'getUserData'
+            })
                 .then(response => user_id.value = response.data.user_id)
                 .catch(error => console.log(error))
         }
@@ -222,6 +224,10 @@ export default {
         // コピーした際のアラートを設定
         const alertText = ref<string>('')
         const setAlertText = (text: string) => alertText.value = text
+
+        // ページ遷移用のURI
+        // テストサーバーも含める為パス名を取得して結合
+        const originPath = new URL(location.href).origin + location.pathname
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
@@ -239,6 +245,7 @@ export default {
             alertText,
             isRegisterMode,
             user_id,
+            originPath,
 
             selectPreset,
             getPresetData,

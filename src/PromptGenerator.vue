@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent>
-    <main class="content">
+    <main class="prompt-generator">
         <div class="prompt-list">
             <section class="user-setting-area">
                 <div class="upload-prompt">
@@ -61,7 +61,7 @@
             @openSaveModal="openSaveModal"
         />
     </main>
-    <PresetManagerComponent
+    <ManagePresetComponent
         id="generator"
         :prompts="outputPrompt"
         :displayModalState="isOpenSaveModal"
@@ -80,13 +80,13 @@ import axios from 'axios'
 import './assets/scss/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SetPromptComponent from './components/generator/SetPromptComponent.vue'
-import PresetManagerComponent from './components/PresetManagerComponent.vue'
+import ManagePresetComponent from './components/ManagePresetComponent.vue'
 
 export default {
     components: {
         HeaderComponent,
         SetPromptComponent,
-        PresetManagerComponent,
+        ManagePresetComponent,
     },
     setup() {
         // 表示するタグ一覧
@@ -349,10 +349,15 @@ export default {
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-        const getUserInfo = async() => {
-            const url = registerPath + 'api/getUserInfo.php'
-            axios.get(url)
-                .then(response => user_id.value = response.data.user_id)
+            const getUserInfo = async() => {
+            const url = registerPath + 'api/manageAccount.php'
+            axios.post(url, {
+                method: 'getUserData'
+            })
+                .then(response => {
+                    console.log(response)
+                    user_id.value = response.data.user_id
+                })
                 .catch(error => console.log(error))
         }
 

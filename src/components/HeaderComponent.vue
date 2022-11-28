@@ -12,10 +12,10 @@
                 <a href="https://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
             </div>
             <div class="account-link">
-                <a href="./register/login.php" v-if="user_id === ''">ログイン</a>
-                <a href="./register/register.php" v-if="user_id === ''">アカウント登録</a>
+                <a :href="originPath + '#/login'" v-if="user_id === ''">ログイン</a>
+                <a :href="originPath + '#/register'" v-if="user_id === ''">アカウント登録</a>
                 <p v-if="user_id !== ''">{{ user_id }}さん</p>
-                <a href="./register/index.php?logout" v-if="user_id !== ''">ログアウト</a>
+                <a :href="originPath + '#/login'" @click="execLogout()" v-if="user_id !== ''">ログアウト</a>
             </div>
         </div>
         <div 
@@ -30,7 +30,9 @@
 </template>
 <script lang="ts">
 import { computed, ref } from 'vue'
+import registerPath from '@/assets/ts/registerPath'
 import '../assets/scss/header.scss'
+import axios from 'axios'
 
 export default {
     props: {
@@ -40,9 +42,28 @@ export default {
         const user_id = computed(() => props.user)
         const isOpenHBGMenu = ref<boolean>(false)
 
+        // ページ遷移用のURI
+        // テストサーバーも含める為パス名を取得して結合
+        const originPath = new URL(location.href).origin + location.pathname
+
+        // ログアウトリンクが押された場合APIに伝える
+        const formUrl = registerPath + 'api/manageAccount.php'
+        const execLogout = async() => {
+            const formData = JSON.stringify({
+                method: 'logout',
+                user_id: user_id.value,
+            })
+            await axios.post(formUrl, formData).catch((error) => {
+                console.log(error)
+            })
+        }
+
         return {
             user_id,
             isOpenHBGMenu: isOpenHBGMenu,
+            originPath,
+
+            execLogout,
         }
     }
 }

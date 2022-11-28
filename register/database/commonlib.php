@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:8080");
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');   
 
 // ClickJacking対策
@@ -16,7 +16,9 @@ function dbConnect() {
 }
 
 // タイムアウト制限時間
-ini_set("max_execution_time", 600);
+ini_set("max_execution_time", 300);
+// セッションの開始
+session_start();
 
 // ダンプの簡略化
 function v($arg) {
@@ -43,11 +45,15 @@ function periodReplace($text) {
     return $text;
 }
 
-// ログインページ以外の場合、SESSIONを開始
-session_start();
-
 // ログアウト処理
 if(isset($_GET['logout'])) {
     $_SESSION = [];
     header('location: ' . $home . 'login.php', true, 303);
 }
+
+// CORS使用リクエストを受け付けるドメイン
+$origins = [
+    'http://localhost:8080',
+    'https://fuminsv.sakura.ne.jp/sgtest',
+    'https://nai-pg.com',
+];

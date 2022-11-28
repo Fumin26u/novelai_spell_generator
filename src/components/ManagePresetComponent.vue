@@ -134,7 +134,7 @@ import registerPath from '@/assets/ts/registerPath'
 import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
-import '@/assets/scss/presetManager.scss'
+import '@/assets/scss/managePreset.scss'
 
 export default {
     emits: [
@@ -196,7 +196,7 @@ export default {
         }
                 
         // プリセットをDBに保存する
-        const formUrl = registerPath + 'api/registerPreset.php'
+        const formUrl = registerPath + 'api/managePreset.php'
         const registerPreset = (method: string = 'save') => {
             // 削除ボタンが押された場合、確認アラート表示後データ消去命令をAPIに送る
             if (currentPath === 'saver' && method === 'delete') {
