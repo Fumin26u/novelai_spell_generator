@@ -97,8 +97,8 @@ export default {
             sendData.method = currentPath.value
 
             const formData = JSON.stringify(sendData)
-            // APIから正規に返信が返された場合リダイレクト
             axios.post(formUrl, formData).then((response) => {
+                // 返答でエラーが無い場合は指定ページにリダイレクト
                 if (!response.data.error) {
                     if (currentPath.value === 'register') {
                         alert(response.data.content)
@@ -107,6 +107,7 @@ export default {
                         router.push('./')
                     }
                 } else {
+                    // エラーが返された場合は内容を画面に表示
                     responseMessage.value = response.data.content
                 }
             }).catch(error => {

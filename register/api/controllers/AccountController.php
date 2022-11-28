@@ -12,6 +12,14 @@ class AccountController {
         ];
     }
 
+    // 不正なデータ送信が行われた場合のエラーログ出力処理
+    public function sendErrorLog($content = '不正な送信が行われました。') {
+        $this->response['error'] = true;
+        $this->response['content'] = $content;
+        return $this->response;
+    }
+
+    // 送られてきたメアドとユーザーIDが既存かどうか調べる
     private function confirmIsExistSameData($email, $user_id) {
         try {
             $pdo = dbConnect();
@@ -31,6 +39,7 @@ class AccountController {
         }
     }
 
+    // アカウントの登録処理
     public function register($post) {
         $error = $this->confirmIsExistSameData(h($post['email']), h($post['user_id']));
 
@@ -54,6 +63,7 @@ class AccountController {
         return $this->response;
     }
 
+    // アカウントのログイン処理
     public function login($post) {
         $error = '';
 
@@ -85,6 +95,7 @@ class AccountController {
         return $this->response;
     }
 
+    // ユーザーIDを取得する
     public function getUserData() {
         if ($_SERVER['HTTP_HOST'] === 'localhost') {
             $this->response['user_id'] = 'Fumiya0719';
@@ -101,6 +112,7 @@ class AccountController {
         return $this->response;
     }
 
+    // ログアウト処理
     public function logout() {
         $_SESSION = [];
         $this->response['content'] = 'ログアウトしました。';
