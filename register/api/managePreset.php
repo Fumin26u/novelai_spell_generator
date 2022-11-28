@@ -1,13 +1,12 @@
 <?php
-// データ登録リクエストがジェネレーターから来た場合のDB登録API
 $home = '../';
 
 header('Content-Type: application/json; charset=utf-8', true, 200);
 $post = json_decode(file_get_contents('php://input'), true);
 
 require_once($home . 'database/commonlib.php');
-require_once($home . 'api/PresetController.php');
-require_once($home . 'api/ImageController.php');
+require_once($home . 'api/controllers/PresetController.php');
+require_once($home . 'api/controllers/ImageController.php');
 
 // データ削除が要求された場合削除し終了
 if (isset($post['delete']) && $post['delete'] !== '') {

@@ -40,7 +40,7 @@ import { ref, watch, watchEffect, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import registerPath from '@/assets/ts/registerPath'
-import '../assets/scss/accountManage.scss'
+import '../assets/scss/manageAccount.scss'
 import HeaderComponent from './HeaderComponent.vue'
 
 export default {
@@ -69,7 +69,7 @@ export default {
 
         // 登録ボタンが押された際、バリデーションを行いアカウント登録またはログイン
         const responseMessage = ref<string>('')
-        const formUrl = registerPath + 'api/ManageAccountController.php'
+        const formUrl = registerPath + 'api/manageAccount.php'
         const regex = {
             email: new RegExp('^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*.)+[a-zA-Z]{2,}$'),
             user_id: new RegExp('^.{6,20}$'),

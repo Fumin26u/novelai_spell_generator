@@ -1,8 +1,7 @@
 <?php
 $home = '../';
-require_once($home . 'database/commonlib.php');
 
-class ManageAccountController {
+class AccountController {
     private $response;
 
     public function __construct() {

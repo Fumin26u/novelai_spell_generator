@@ -61,7 +61,7 @@
             @openSaveModal="openSaveModal"
         />
     </main>
-    <PresetManageComponent
+    <ManagePresetComponent
         id="generator"
         :prompts="outputPrompt"
         :displayModalState="isOpenSaveModal"
@@ -80,13 +80,13 @@ import axios from 'axios'
 import './assets/scss/promptGenerator.scss'
 import HeaderComponent from './components/HeaderComponent.vue'
 import SetPromptComponent from './components/generator/SetPromptComponent.vue'
-import PresetManageComponent from './components/PresetManageComponent.vue'
+import ManagePresetComponent from './components/ManagePresetComponent.vue'
 
 export default {
     components: {
         HeaderComponent,
         SetPromptComponent,
-        PresetManageComponent,
+        ManagePresetComponent,
     },
     setup() {
         // 表示するタグ一覧
