@@ -112,9 +112,11 @@ export default {
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-        const getUserInfo = async() => {
-            const url = registerPath + 'api/getUserInfo.php'
-            axios.get(url)
+            const getUserInfo = async() => {
+            const url = registerPath + 'api/manageAccount.php'
+            axios.post(url, {
+                method: 'getUserData'
+            })
                 .then(response => user_id.value = response.data.user_id)
                 .catch(error => console.log(error))
         }

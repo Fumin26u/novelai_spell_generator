@@ -12,8 +12,8 @@
                 <a href="https://nai-pg.com/register/t/privacy_policy.php" target="_blank">プライバシーポリシー</a>
             </div>
             <div class="account-link">
-                <a href="./register/login.php" v-if="user_id === ''">ログイン</a>
-                <a href="./register/register.php" v-if="user_id === ''">アカウント登録</a>
+                <a href="./#/login" v-if="user_id === ''">ログイン</a>
+                <a href="./#/register" v-if="user_id === ''">アカウント登録</a>
                 <p v-if="user_id !== ''">{{ user_id }}さん</p>
                 <a href="#" @click.prevent.stop="execLogout()" v-if="user_id !== ''">ログアウト</a>
             </div>
