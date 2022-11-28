@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent>
-    <main class="content">
+    <main class="prompt-generator">
         <div class="prompt-list">
             <section class="user-setting-area">
                 <div class="upload-prompt">

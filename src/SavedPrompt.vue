@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent :user="user_id"></HeaderComponent> 
-    <main class="content">
+    <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
             <a :href="originPath + '#/login'">ログイン</a>
