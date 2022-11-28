@@ -15,7 +15,7 @@
                 <a href="./register/login.php" v-if="user_id === ''">ログイン</a>
                 <a href="./register/register.php" v-if="user_id === ''">アカウント登録</a>
                 <p v-if="user_id !== ''">{{ user_id }}さん</p>
-                <a href="./register/index.php?logout" v-if="user_id !== ''">ログアウト</a>
+                <a href="#" @click.prevent.stop="execLogout()" v-if="user_id !== ''">ログアウト</a>
             </div>
         </div>
         <div 
@@ -30,19 +30,37 @@
 </template>
 <script lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import registerPath from '@/assets/ts/registerPath'
 import '../assets/scss/header.scss'
+import axios from 'axios'
 
 export default {
     props: {
         user: String,
     },
     setup(props: any) {
+        const router = useRouter()
         const user_id = computed(() => props.user)
         const isOpenHBGMenu = ref<boolean>(false)
+
+        // ログアウトリンクが押された場合APIに伝える
+        const formUrl = registerPath + 'api/manageAccount.php'
+        const execLogout = async() => {
+            const formData = JSON.stringify({
+                method: 'logout',
+                user_id: user_id.value,
+            })
+            await axios.post(formUrl, formData).then(() => {
+                router.push('./login')
+            })
+        }
 
         return {
             user_id,
             isOpenHBGMenu: isOpenHBGMenu,
+
+            execLogout,
         }
     }
 }

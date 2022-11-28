@@ -53,9 +53,9 @@ class AccountController {
         $pdo->beginTransaction();
 
         $st = $pdo->prepare('INSERT INTO users (email, user_id, password) VALUES (:email, :user_id, :password)');
-        $st->bindValue(':email', h($_POST['email']), PDO::PARAM_STR);
-        $st->bindValue(':user_id', h($_POST['user_id']), PDO::PARAM_STR);
-        $st->bindValue(':password', password_hash(h($_POST['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
+        $st->bindValue(':email', h($post['email']), PDO::PARAM_STR);
+        $st->bindValue(':user_id', h($post['user_id']), PDO::PARAM_STR);
+        $st->bindValue(':password', password_hash(h($post['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
         $st->execute();
 
         $pdo->commit();
@@ -90,6 +90,7 @@ class AccountController {
             $this->response['content'] = $error;
         } else {
             session_start();
+            $_SESSION['user_id'] = h($post['user_id']);
             $this->response['content'] = 'ログイン認証が完了しました。';
         }
         return $this->response;

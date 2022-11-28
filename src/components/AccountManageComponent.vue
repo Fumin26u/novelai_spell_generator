@@ -8,11 +8,11 @@
         <div class="form-area">
             <a href="./#/login" v-if="currentPath === 'register'">既にアカウント登録している場合はこちら</a>
             <a href="./#/register" v-else>アカウント未登録の場合はこちら</a>
-            <form :action="currentURL">
+            <form @submit.prevent="submitAccountData()">
                 <dl>
                     <div v-if="currentPath === 'register'">
                         <dt>メールアドレス</dt>
-                        <dd><input type="text" id="email" v-model="account.email" :pattern="regex.email" required></dd>
+                        <dd><input type="email" id="email" v-model="account.email" :pattern="regex.email" required></dd>
                     </div>
                     <div>
                         <dt>ユーザーID</dt>
@@ -29,14 +29,14 @@
                         </dd>
                     </div>
                 </dl>
-                <button @click="submitAccountData()" class="btn-common green submit">{{ currentPath === 'register' ? '登録' : 'ログイン' }}</button>
+                <button type="submit" class="btn-common green submit">{{ currentPath === 'register' ? '登録' : 'ログイン' }}</button>
             </form>
         </div>
     </main>
     <router-view></router-view>
 </template>
 <script lang="ts">
-import { ref, watch, watchEffect, onMounted } from 'vue'
+import { ref, computed, watchEffect, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import registerPath from '@/assets/ts/registerPath'
@@ -48,10 +48,10 @@ export default {
         HeaderComponent,
     },
     setup() {
-        const currentURL = ref<string>('')
-        const router = useRouter()
         const route = useRoute()
-        watch(route, (route) => currentURL.value = route.path)
+        const router = useRouter()
+        router
+        const currentURL = computed(() => route.path)
         
         // ログインページか登録ページかの判定
         const currentPath = ref<string>('')
@@ -71,23 +71,18 @@ export default {
         const responseMessage = ref<string>('')
         const formUrl = registerPath + 'api/manageAccount.php'
         const regex = {
-            email: new RegExp('^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*.)+[a-zA-Z]{2,}$'),
-            user_id: new RegExp('^.{6,20}$'),
-            password: new RegExp('^([a-zA-Z0-9]{8,20})$')
+            user_id: '^.{6,20}$',
+            password: '^([a-zA-Z0-9]{8,20})$'
         }
+
         const submitAccountData = async() => {
             // 入力内容がパターンにマッチしない場合エラーメッセージを出力
-            if (!regex.email.test(account.value.email)) {
-                responseMessage.value = 'メールアドレスの入力内容が空または不正です。'
-                return
-            }
-
-            if (!regex.user_id.test(account.value.user_id)) {
+            if (!new RegExp(regex.user_id).test(account.value.user_id)) {
                 responseMessage.value = 'ユーザーIDの入力内容が空または不正です。'
                 return
             }
 
-            if (!regex.password.test(account.value.password)) {
+            if (!new RegExp(regex.password).test(account.value.password)) {
                 responseMessage.value = 'パスワードの入力内容が空または不正です。'
                 return
             }
@@ -101,8 +96,7 @@ export default {
                 // 返答でエラーが無い場合は指定ページにリダイレクト
                 if (!response.data.error) {
                     if (currentPath.value === 'register') {
-                        alert(response.data.content)
-                        router.push('./#/login')
+                        router.push('./login')
                     } else if (currentPath.value === 'login') {
                         router.push('./')
                     }

@@ -10,7 +10,7 @@ $accountController = new AccountController();
 
 $postMethods = ['logout', 'login', 'register'];
 // 指定された方式以外が送られてきた場合はエラーを流し強制終了
-if (!isset($post['method']) || in_array($post['method'], $postMethods)) {
+if (!isset($post['method']) || !in_array($post['method'], $postMethods)) {
     echo json_encode($accountController->sendErrorLog(), JSON_UNESCAPED_UNICODE);
     exit;
 }

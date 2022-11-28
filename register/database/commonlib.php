@@ -43,9 +43,6 @@ function periodReplace($text) {
     return $text;
 }
 
-// ログインページ以外の場合、SESSIONを開始
-session_start();
-
 // ログアウト処理
 if(isset($_GET['logout'])) {
     $_SESSION = [];
