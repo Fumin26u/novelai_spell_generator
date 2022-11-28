@@ -3,8 +3,8 @@
     <main class="content">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
-            <a href="./register/login.php">ログイン</a>
-            <a href="./register/register.php">ユーザー登録</a>
+            <a :href="originPath + '#/login'">ログイン</a>
+            <a :href="originPath + '#/register'">ユーザー登録</a>
         </div>
         <div class="preset-info" v-else>
             <section class="search-area">
@@ -225,6 +225,10 @@ export default {
         const alertText = ref<string>('')
         const setAlertText = (text: string) => alertText.value = text
 
+        // ページ遷移用のURI
+        // テストサーバーも含める為パス名を取得して結合
+        const originPath = new URL(location.href).origin + location.pathname
+
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
             document.title = 'NovelAI プロンプトセーバー'
@@ -241,6 +245,7 @@ export default {
             alertText,
             isRegisterMode,
             user_id,
+            originPath,
 
             selectPreset,
             getPresetData,
