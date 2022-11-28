@@ -354,7 +354,10 @@ export default {
             axios.post(url, {
                 method: 'getUserData'
             })
-                .then(response => user_id.value = response.data.user_id)
+                .then(response => {
+                    console.log(response)
+                    user_id.value = response.data.user_id
+                })
                 .catch(error => console.log(error))
         }
 

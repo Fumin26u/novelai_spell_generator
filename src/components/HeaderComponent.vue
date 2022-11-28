@@ -15,7 +15,7 @@
                 <a :href="originPath + '#/login'" v-if="user_id === ''">ログイン</a>
                 <a :href="originPath + '#/register'" v-if="user_id === ''">アカウント登録</a>
                 <p v-if="user_id !== ''">{{ user_id }}さん</p>
-                <a href="#" @click.prevent.stop="execLogout()" v-if="user_id !== ''">ログアウト</a>
+                <a :href="originPath + '#/login'" @click="execLogout()" v-if="user_id !== ''">ログアウト</a>
             </div>
         </div>
         <div 
@@ -30,7 +30,6 @@
 </template>
 <script lang="ts">
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import registerPath from '@/assets/ts/registerPath'
 import '../assets/scss/header.scss'
 import axios from 'axios'
@@ -40,7 +39,6 @@ export default {
         user: String,
     },
     setup(props: any) {
-        const router = useRouter()
         const user_id = computed(() => props.user)
         const isOpenHBGMenu = ref<boolean>(false)
 
@@ -55,8 +53,8 @@ export default {
                 method: 'logout',
                 user_id: user_id.value,
             })
-            await axios.post(formUrl, formData).then(() => {
-                router.resolve(originPath + '#/login')
+            await axios.post(formUrl, formData).catch((error) => {
+                console.log(error)
             })
         }
 
