@@ -15,7 +15,7 @@ if (isset($post['delete']) && $post['delete'] !== '') {
     echo json_encode($post, JSON_UNESCAPED_UNICODE);
     exit;
 } else {
-    // 画像がBase64形式で送られてくるのでデコードして固有ファイル名に変換し保存
+    // 画像を新規登録または更新する場合Base64形式で送られてくるのでデコードして固有ファイル名に変換し保存
     $imageDirPath = '../images/preset/original/';
     $imageFileName = '';
     
