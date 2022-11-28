@@ -56,7 +56,7 @@ export default {
                 user_id: user_id.value,
             })
             await axios.post(formUrl, formData).then(() => {
-                router.push(originPath + '#/login')
+                router.resolve(originPath + '#/login')
             })
         }
 
