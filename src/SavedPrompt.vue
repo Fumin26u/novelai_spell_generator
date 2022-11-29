@@ -191,6 +191,7 @@ export default {
 
         // 検索ボックスの入力内容
         const searchData = ref<SearchData>({
+            method: 'search',
             age: ['A'],
             item: ['description', 'commands'],
             word: '',

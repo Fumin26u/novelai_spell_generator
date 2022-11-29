@@ -65,6 +65,7 @@ export interface PresetDetail extends Preset {
 }
 
 export interface SearchData {
+    method: 'search',
     age: string[],
     item: string[],
     word: string,
