@@ -7,7 +7,11 @@ class PresetController {
     private $columns;
 
     public function __construct() {
-        $this->user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']);
+        $this->user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']);    
+    }
+
+    // データ登録・編集の際必要なDBのカラム名・初期値・型を設定する
+    private function setPresetColumns() {
         $this->columns = [
             // name: カラム名
             // init: 初期値、falseなら指定無し
@@ -148,6 +152,8 @@ class PresetController {
     }
 
     public function create($post, $imageFileName) {
+        $this->setPresetColumns();
+
         try {
             $pdo = dbConnect();
             $pdo->beginTransaction();
@@ -173,6 +179,8 @@ class PresetController {
     }
 
     public function update($post, $imageFileName, $preset_id) {
+        $this->setPresetColumns();
+        
         try {
             $pdo = dbConnect();
             $pdo->beginTransaction();
