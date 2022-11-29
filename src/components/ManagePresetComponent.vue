@@ -185,7 +185,6 @@ export default {
                 preset.value.commands = props.prompts
             } else if (currentPath === 'saver') {
                 preset.value = props.selectedPreset
-                console.log(preset.value)
             }
         })
         
@@ -250,9 +249,8 @@ export default {
             }
             const formData = JSON.stringify(sendData)
             
-            axios.post(formUrl, formData).then((response) => {
+            axios.post(formUrl, formData).then(() => {
                 alert('プロンプトをデータベースに登録しました。')
-                console.log(response.data)
                 if (currentPath === 'generator') {
                     updateModal(false)
                 } else if (currentPath === 'saver') {
