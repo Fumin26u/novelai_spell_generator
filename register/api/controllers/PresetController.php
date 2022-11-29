@@ -125,7 +125,7 @@ class PresetController implements DBControllers {
         try {
             $pdo = dbConnect();
             $pdo->beginTransaction();
-            
+
             $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id' . $searchQuery);
             $st->bindValue(':user_id', $this->user_id, PDO::PARAM_STR);
             $st->execute();
@@ -195,6 +195,7 @@ class PresetController implements DBControllers {
             }
             $sql .= 'NOW(), NOW())';   
 
+            // SQL文にデータバインドを行い登録
             $this->bindToExecSQL($pdo, $sql, $post);
 
             return '登録しました。';
@@ -212,6 +213,7 @@ class PresetController implements DBControllers {
             $pdo = dbConnect();
             $pdo->beginTransaction();
 
+            // SQL文の構築
             $sql = "UPDATE preset SET \n";
             foreach ($this->columns as $column) {
                 if ($column['name'] === 'user_id') continue;
@@ -221,6 +223,7 @@ class PresetController implements DBControllers {
             $sql .= "updated_at = NOW() \n";
             $sql .= "WHERE preset_id = :preset_id AND user_id = :user_id";  
 
+            // SQL文にデータバインドを行い更新
             $this->bindToExecSQL($pdo, $sql, $post, $preset_id);
 
             return '更新しました。';
