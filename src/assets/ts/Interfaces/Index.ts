@@ -17,7 +17,7 @@ export interface Prompt {
     selected: boolean,
     nsfw: Nsfw,
     variation: null | 'CC' | 'CM',
-    index: string,
+    index: string | null,
     detail: string | null
 }         
 export interface SetPrompt extends Prompt {

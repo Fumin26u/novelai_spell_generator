@@ -74,7 +74,7 @@
 <script lang="ts">
 import master_data from '@/assets/ts/master_data'
 import registerPath from '@/assets/ts/registerPath'
-import { Nsfw, Prompt, PromptList, SetPrompt } from '@/assets/ts/Interfaces/Index'
+import { Nsfw, ColorVariation, Prompt, PromptList, SetPrompt } from '@/assets/ts/Interfaces/Index'
 import { colorMulti, colorMono } from './assets/ts/colorVariation'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -102,9 +102,9 @@ export default {
         // 手動入力内容
         const manualInput = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
-        const setPrompt = ref<{[key: string]: any}[]>([])
+        const setPrompt = ref<SetPrompt[]>([])
         // カラー設定可能なプロンプトの選択されたカラーを格納する配列
-        const selectedColor = ref<{[key: string]: string}>({})
+        const selectedColor = ref<ColorVariation>({prompt: '', jp: ''})
 
         // 年齢制限表示に応じた個々のプロンプトの表示状態を設定する
         const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
@@ -171,21 +171,25 @@ export default {
         const addManualPrompt = (input: string, enhanceCount: number = 0): void => {
             let isAlreadySetPrompt = false
             // 既に追加されているプロンプト名の場合追加しない
-            setPrompt.value.map((prompt: {[key: string]: any}) => {
+            setPrompt.value.map((prompt: SetPrompt) => {
                 if (input.trim() === prompt.tag) isAlreadySetPrompt = true
             })
             if (!isAlreadySetPrompt && input.trim() !== '') {
                 setPrompt.value.push({
+                    id: -1,
                     tag: input,
-                    jp: input,
-                    output_prompt: input,
-                    parentTag: '手動',
-                    detail: '',
                     slag: input.replace(' ', '_'),
+                    jp: input,
+                    parentTag: '手動',
+                    display: false,
+                    selected: false,
+                    nsfw: 'A',
+                    variation: null,
+                    index: null,
+                    detail: '',
+                    output_prompt: input,
                     enhance: enhanceCount,
                     color_list: null,
-                    index: null,
-                    nsfw: 'A'
                 })
             }
         }
@@ -284,8 +288,8 @@ export default {
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setPrompt.value = []
             manualInput.value = ''
-            promptList.value.map((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((_: any, j: number) => {
+            promptList.value.map((genre: PromptList, i: number) => {
+                genre.content.map((_: Prompt, j: number) => {
                     promptList.value[i].content[j].selected = false
                 })
             })
@@ -314,7 +318,7 @@ export default {
         }
 
         // 子コンポーネントから伝えられたプロンプト設定欄の内容を更新
-        const updateSetPrompt = (childSetPrompt: {[key: string]: any}[]) => setPrompt.value = childSetPrompt
+        const updateSetPrompt = (childSetPrompt: SetPrompt[]) => setPrompt.value = childSetPrompt
         
         // セットキューから指定したプロンプトを削除
         const unSelectedPrompt = (promptListIndex: string): void => {
