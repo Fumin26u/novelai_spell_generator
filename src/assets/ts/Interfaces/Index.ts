@@ -36,7 +36,7 @@ export interface PromptList {
     content: Prompt[],
 }
 
-// Preset関連のInterface(DB用)
+// Preset関連のInterface
 export interface Preset {
     preset_id: number | null,
     image: string | ArrayBuffer | null,
@@ -47,8 +47,8 @@ export interface Preset {
     description: string | null,
     nsfw: Nsfw,
     seed: string,
-    resolution_width: number | null,
-    resolution_height: number | null,
+    resolution_width: string | number | null,
+    resolution_height: string | number | null,
     resolution: string | null,
     model: string | null,
     sampling: number | null,
@@ -57,3 +57,18 @@ export interface Preset {
     options: any,
     others: string,
 }
+
+export interface PresetDetail extends Preset {
+    index: number,
+    thumbnail: string,
+    nsfw_display: '全年齢' | 'R-15' | 'R-18',
+}
+
+export interface SearchData {
+    age: string[],
+    item: string[],
+    word: string,
+    sort: string,
+    order: string,
+}
+

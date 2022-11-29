@@ -64,6 +64,7 @@
 </template>
 <script lang="ts">
 import '../../assets/scss/savedPrompt.scss'
+import { SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
 
 export default {
@@ -73,7 +74,7 @@ export default {
     },
     setup(props: any, context: any) {
         // 検索ボックスの入力内容
-        const searchData = ref<any>(props.searchBoxData)
+        const searchData = ref<SearchData>(props.searchBoxData)
 
         watchEffect(() => context.emit('getPresetData', searchData.value))
 

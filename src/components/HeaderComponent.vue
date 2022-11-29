@@ -36,7 +36,7 @@ import axios from 'axios'
 
 export default {
     emits: ['getUserInfo'],
-    setup(context: any) {
+    setup(props: any, context: any) {
         const isOpenHBGMenu = ref<boolean>(false)
 
         // ページ遷移用のURI

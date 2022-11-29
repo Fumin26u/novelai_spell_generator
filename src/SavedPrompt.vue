@@ -1,5 +1,5 @@
 <template>
-    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent> 
+    <HeaderComponent @getUserInfo="getUserInfo" />
     <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
@@ -38,11 +38,11 @@
                 <div class="preset-content">
                     <div 
                         v-for="(prompt, index) in savedPromptList" 
-                        :key="prompt.preset_id" 
+                        :key="prompt.preset_id !== null ? prompt.preset_id : 0" 
                         :class="[selectedPresetIndex === index ? 'selected':'']"
                         @click="selectPreset(index), setRegisterMode(false)"
                     >
-                        <img :src="prompt.thumbnail" :alt="prompt.description">
+                        <img :src="prompt.thumbnail" :alt="prompt.description !== null ? prompt.description : ''">
                         <p>{{ prompt.description }}</p>
                     </div>
                     <div
@@ -77,6 +77,7 @@ import HeaderComponent from './components/HeaderComponent.vue'
 import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
 import ManagePresetComponent from './components/ManagePresetComponent.vue'
+import { Preset, PresetDetail, SearchData } from '@/assets/ts/Interfaces/Index'
 import './assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -90,13 +91,13 @@ export default {
     },
     setup() {
         // ログインユーザーの登録プリセット一覧
-        const savedPromptList = ref<any>([])
+        const savedPromptList = ref<PresetDetail[]>([])
         
         // 検索ボックスの表示有無
         const isDisplaySearchBox = ref<boolean>(false)
 
         // DBで文字列で保管されているオプションと解像度を表示できるように変更
-        const revertDBData = (presets: {[key: string]: any}[]) => {
+        const revertDBData = (presets: Preset[]) => {
             presets.map((preset, index) => {
                 if (preset.options !== null && preset.options !== '') {
                     savedPromptList.value[index].options = preset.options.split(',')
@@ -113,18 +114,20 @@ export default {
         }
         
         // 各プリセットに対応する画像とサムネイルのURLを取得
-        const setImages = (presets: {[key: string]: any}[]) => {
+        const setImages = (presets: Preset[]) => {
             const imgPath = registerPath + 'images/preset/'
             presets.map((preset, index) => {
-                const thumbnailPath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'thumbnail/' + preset.image
-                const originalImagePath = preset.image === null ? imgPath + 'noimage.png' : imgPath + 'original/' + preset.image
-                savedPromptList.value[index]['thumbnail'] = thumbnailPath
-                savedPromptList.value[index]['imagePath'] = originalImagePath
+                savedPromptList.value[index]['thumbnail'] = preset.image === null ?
+                    imgPath + 'noimage.png' : 
+                    imgPath + 'thumbnail/' + preset.image
+                savedPromptList.value[index]['imagePath'] = preset.image === null ?
+                    imgPath + 'noimage.png' : 
+                    imgPath + 'original/' + preset.image
             })
         }
 
         // 各プリセットがnsfwかどうか判定
-        const setIsNsfw = (presets: {[key: string]: any}[]) => {
+        const setIsNsfw = (presets: Preset[]) => {
             presets.map((_, index) => {
                 switch (savedPromptList.value[index].nsfw) {
                     case 'A':
@@ -141,9 +144,13 @@ export default {
         }
         
         // プリセット一覧から選択されたプリセットを読み込む
-        const presetInitialData = {
+        const presetInitialData: PresetDetail = {
             index: 0,
+            thumbnail: '',
+            nsfw_display: '全年齢',
+            preset_id: -1,
             image: '',
+            imagePath: '',
             from: 'generator',
             commands: '',
             commands_ban: '',
@@ -152,6 +159,7 @@ export default {
             seed: '',
             resolution_width: 512,
             resolution_height: 768,
+            resolution: '',
             model: 'NovelAI',
             sampling: 28,
             sampling_algo: 'Euler a',
@@ -160,7 +168,7 @@ export default {
             others: '',
         }
         // 選択されたプリセットデータ
-        const selectedPreset = ref<{[key:string]: string | string[] | number | null}>(presetInitialData)
+        const selectedPreset = ref<PresetDetail>(presetInitialData)
         const selectedPresetIndex = ref<number>(-1)
         const selectPreset = (selectPresetIndex: number) => {
             if (selectPresetIndex === -1) {
@@ -182,7 +190,7 @@ export default {
         }
 
         // 検索ボックスの入力内容
-        const searchData = ref<object>({
+        const searchData = ref<SearchData>({
             age: ['A'],
             item: ['description', 'commands'],
             word: '',
@@ -191,7 +199,7 @@ export default {
         })
        
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
-        const getPresetData = async(postData: {[key: string]: any} = searchData.value) => {
+        const getPresetData = async(postData: SearchData = searchData.value) => {
             const url = registerPath +  'api/getPreset.php'
             // プリセットを初期化
             savedPromptList.value = []
@@ -211,7 +219,7 @@ export default {
         }
         
         // コピーした際のアラートを設定
-        const alertText = ref<string>('')
+        const alertText = ref<string>('') 
         const setAlertText = (text: string) => alertText.value = text
         
         // ページ遷移用のURI
@@ -220,7 +228,10 @@ export default {
         
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-        const getUserInfo = (userId: string) => user_id.value = userId;
+        const getUserInfo = (userId: string) => {
+            user_id.value = userId
+            console.log(user_id.value)
+        };
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
