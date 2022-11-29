@@ -1,5 +1,4 @@
 <?php
-require_once('./DBControllers.php');
 // 非ログイン時かつローカル環境でない場合強制終了
 if ($_SERVER['HTTP_HOST'] !== 'localhost' && !isset($_SESSION['user_id'])) exit;
 
@@ -90,16 +89,48 @@ class PresetController implements DBControllers {
         ];
     }
 
-    public function get($preset_id) {
+    public function makeSearchQuery($get) {
+        $searchAge = [];
+        if (isset($get['age']) && !empty($get['age'])) {
+            foreach ($get['age'] as $age) {
+                $searchAge[] = "nsfw = '" . $age . "'";
+            }
+        }
+        $searchWords = [];
+        if ($get['word'] !== '' && isset($get['item']) && !empty($get['item'])) {
+            foreach ($get['item'] as $item) {
+                $searchWords[] = $item . " LIKE '%" . h($get['word']) . "%'";
+            }
+        }
+    
+        $order = " ORDER BY "  . h($get['sort']) . " " . h($get['order']);
+        $searchQuery = '';
+        if (!empty($searchAge) || !empty($searchWords)) {
+            $searchQuery .= ' AND ';
+            if (!empty($searchAge) && !empty($searchWords)) {
+                $searchQuery .= '(' . implode(" OR ", $searchAge) . ')';
+                $searchQuery .= ' AND (' . implode(" OR ", $searchWords) . ')';
+            } else if (!empty($searchAge)) {
+                $searchQuery .= '(' . implode(" OR ", $searchAge) . ')';
+            } else if (!empty($searchWords)) {
+                $searchQuery .= '(' . implode(" OR ", $searchWords) . ')';
+            }
+        }
+        $searchQuery .= $order;
+
+        return $searchQuery;
+    }
+
+    public function get($searchQuery = '') {
         try {
             $pdo = dbConnect();
             $pdo->beginTransaction();
-
-            $st = $pdo->prepare('SELECT * FROM preset WHERE preset_id = :preset_id');
-            $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT);
+            
+            $st = $pdo->prepare('SELECT * FROM preset WHERE user_id = :user_id' . $searchQuery);
+            $st->bindValue(':user_id', $this->user_id, PDO::PARAM_STR);
             $st->execute();
 
-            $rows = $st->fetch(PDO::FETCH_ASSOC);
+            $rows = $st->fetchAll(PDO::FETCH_ASSOC);
             $pdo->commit();
             
             return $rows;

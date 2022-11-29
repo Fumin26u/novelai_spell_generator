@@ -200,7 +200,7 @@ export default {
        
         // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
         const getPresetData = async(postData: SearchData = searchData.value) => {
-            const url = registerPath +  'api/getPreset.php'
+            const url = registerPath +  'api/managePreset.php'
             // プリセットを初期化
             savedPromptList.value = []
             await axios.get(url, {
