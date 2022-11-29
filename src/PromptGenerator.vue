@@ -241,8 +241,7 @@ export default {
             }
 
             setPrompt.value.push(queue)
-            promptList.value[i].content[j].selected = true  
-            console.log(setPrompt.value) 
+            promptList.value[i].content[j].selected = true
         }
 
         // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入

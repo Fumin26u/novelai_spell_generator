@@ -59,13 +59,14 @@
                     </div>
                 </dd>
             </div>
+            <button @click="execSearch()" class="btn-common green">検索</button>
         </dl>
     </div>
 </template>
 <script lang="ts">
 import '../../assets/scss/savedPrompt.scss'
 import { SearchData } from '@/assets/ts/Interfaces/Index'
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 
 export default {
     emits: ['getPresetData',],
@@ -76,11 +77,24 @@ export default {
         // 検索ボックスの入力内容
         const searchData = ref<SearchData>(props.searchBoxData)
 
-        watchEffect(() => context.emit('getPresetData', searchData.value))
+        const execSearch = () => {
+            context.emit('getPresetData', searchData.value)
+        }
 
         return {
             searchData,
+            execSearch,
         }
     }
 }
 </script>
+<style lang="scss" scoped>
+.btn-common.green {
+    display: block;
+    width: 180px;
+    margin: 8px auto;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+</style>
