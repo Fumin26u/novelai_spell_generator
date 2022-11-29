@@ -33,7 +33,7 @@
                                 v-model="selectedColor" 
                                 @change="changePromptColor(selectedColor, index)"
                             >
-                                <option disabled :value="{}">(選択)</option>
+                                <option disabled :value="{prompt: '', jp: ''}">(選択)</option>
                                 <option v-for="color in element.color_list" :key="color.prompt" :value="color">{{ color.jp }}</option>
                             </select>
                         </div>
@@ -75,6 +75,7 @@
     </div>
 </template>
 <script lang="ts">
+import { SetPrompt, ColorVariation } from '@/assets/ts/Interfaces/Index'
 import { ref, computed, watchEffect } from 'vue'
 import draggable from 'vuedraggable'
 import '../../assets/scss/promptGenerator.scss'
@@ -94,7 +95,7 @@ export default {
         'openSaveModal'
     ],
     setup(props: any, context: any) {
-        const setPrompt = ref<{[key: string]: any}[]>([])
+        const setPrompt = ref<SetPrompt[]>([])
         watchEffect(() => setPrompt.value = props.setPromptList)
         // カーソルを合わせているプロンプトの英語名
         const hoverPrompt = computed(() => props.hoverPromptName)
@@ -118,8 +119,8 @@ export default {
         }
 
         // カラーバリエーションのあるプロンプトで色付きが選択された場合プロンプト名を変換
-        const selectedColor = ref<{[key: string]: string}>({})
-        const changePromptColor = (colorTag: {[key: string]: string}, index: number): void => {
+        const selectedColor = ref<ColorVariation>({prompt: '', jp: ''})
+        const changePromptColor = (colorTag: ColorVariation, index: number): void => {
             // 一度表示名とタグ名をリセット
             const braceIndex = setPrompt.value[index].jp.indexOf('(')
             setPrompt.value[index].output_prompt = setPrompt.value[index].tag
@@ -131,14 +132,14 @@ export default {
                 setPrompt.value[index].jp = setPrompt.value[index].jp + ' (' + colorTag.jp + ')'
                 setPrompt.value[index].output_prompt = colorTag.prompt + ' ' + setPrompt.value[index].tag
             }
-            selectedColor.value = {}
+            selectedColor.value = {prompt: '', jp: ''}
         }
 
         // 生成されたNovelAI形式のプロンプト
         const outputPrompt = ref('')
         const enhanceBraceText = ref<string>('( )に変換')
         // キューにセットされているタグをNovelAIで使える形に変換する
-        const convertToOutputPrompt = (setPrompt: {[key: string]: any}[]): void => {
+        const convertToOutputPrompt = (setPrompt: SetPrompt[]): void => {
             const text = ref('')
             
             setPrompt.map(prompt => {
@@ -176,7 +177,7 @@ export default {
         }
 
         // DB保存用のモーダルを開く
-        const openSaveModal = (promptList: {[key: string]: any}[], modalState: boolean): void => {
+        const openSaveModal = (promptList: SetPrompt[], modalState: boolean): void => {
             convertToOutputPrompt(promptList)
             context.emit('openSaveModal', modalState, outputPrompt.value)
         }

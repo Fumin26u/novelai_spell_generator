@@ -74,6 +74,7 @@
 <script lang="ts">
 import master_data from '@/assets/ts/master_data'
 import registerPath from '@/assets/ts/registerPath'
+import { Nsfw, Prompt, PromptList, SetPrompt } from '@/assets/ts/Interfaces/Index'
 import { colorMulti, colorMono } from './assets/ts/colorVariation'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -89,42 +90,7 @@ export default {
         ManagePresetComponent,
     },
     setup() {
-        // Type Annotation
-        type Nsfw = 'A' | 'B' | 'C' | 'D' | 'Z'
 
-        interface ColorVariation {
-            prompt: string,
-            jp: string,
-        }
-
-        interface Prompt {
-            id: number,
-            tag: string,
-            slag: string,
-            jp: string,
-            parentTag: string,
-            display: boolean,
-            selected: boolean,
-            nsfw: Nsfw,
-            variation: null | 'CC' | 'CM',
-            index: string,
-            detail: string | null
-        }         
-        interface PromptQueue extends Prompt {
-            output_prompt: string,
-            enhance: number,
-            color_list: ColorVariation[] | null
-        }
-        
-        interface PromptList {
-            slag: string,
-            jp: string,
-            caption: string | null,
-            nsfw: Nsfw,
-            display: boolean,
-            show_all: boolean,
-            content: Prompt[],
-        }
         // 表示するタグ一覧
         const promptList = ref<PromptList[]>([])
         // nsfwコンテンツの表示可否
@@ -232,7 +198,7 @@ export default {
             colorTag: string = '',
             colorTagJP: string = ''
         ): void => { 
-            const queue: PromptQueue = {
+            const queue: SetPrompt = {
                 ...promptList.value[i].content[j],
                 output_prompt: promptList.value[i].content[j].tag,
                 enhance: enhanceCount,
@@ -271,7 +237,8 @@ export default {
             }
 
             setPrompt.value.push(queue)
-            promptList.value[i].content[j].selected = true   
+            promptList.value[i].content[j].selected = true  
+            console.log(setPrompt.value) 
         }
 
         // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入
