@@ -58,7 +58,6 @@ export interface Preset {
     options: any,
     others: string,
 }
-
 export interface PresetDetail extends Preset {
     index: number,
     thumbnail: string,
@@ -73,3 +72,9 @@ export interface SearchData {
     order: string,
 }
 
+export interface AccountInfo {
+    method: string,
+    email: string,
+    user_id: string,
+    password: string,
+}

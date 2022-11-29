@@ -36,12 +36,13 @@
     <router-view></router-view>
 </template>
 <script lang="ts">
+import registerPath from '@/assets/ts/registerPath'
+import { AccountInfo } from '@/assets/ts/Interfaces/Index'
+import HeaderComponent from './HeaderComponent.vue'
+import '../assets/scss/manageAccount.scss'
+import axios from 'axios'
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-import registerPath from '@/assets/ts/registerPath'
-import '../assets/scss/manageAccount.scss'
-import HeaderComponent from './HeaderComponent.vue'
 
 export default {
     components: {
@@ -60,7 +61,7 @@ export default {
         })
 
         // 入力フォームのアカウント情報
-        const account = ref<{[key: string]: string}>({
+        const account = ref<AccountInfo>({
             method: '',
             email: '',
             user_id: '',

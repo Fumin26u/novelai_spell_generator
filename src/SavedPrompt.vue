@@ -211,7 +211,6 @@ export default {
                         revertDBData(savedPromptList.value)
                         setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
-                        console.log(savedPromptList.value)
                     }
                 })
                 .catch(error => {
@@ -229,10 +228,8 @@ export default {
         
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-        const getUserInfo = (userId: string) => {
-            user_id.value = userId
-            console.log(user_id.value)
-        };
+        const getUserInfo = (userId: string) => user_id.value = userId
+        
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
