@@ -89,10 +89,46 @@ export default {
         ManagePresetComponent,
     },
     setup() {
+        // Type Annotation
+        type Nsfw = 'A' | 'B' | 'C' | 'D' | 'Z'
+
+        interface ColorVariation {
+            prompt: string,
+            jp: string,
+        }
+
+        interface Prompt {
+            id: number,
+            tag: string,
+            slag: string,
+            jp: string,
+            parentTag: string,
+            display: boolean,
+            selected: boolean,
+            nsfw: Nsfw,
+            variation: null | 'CC' | 'CM',
+            index: string,
+            detail: string | null
+        }         
+        interface PromptQueue extends Prompt {
+            output_prompt: string,
+            enhance: number,
+            color_list: ColorVariation[] | null
+        }
+        
+        interface PromptList {
+            slag: string,
+            jp: string,
+            caption: string | null,
+            nsfw: Nsfw,
+            display: boolean,
+            show_all: boolean,
+            content: Prompt[],
+        }
         // 表示するタグ一覧
-        const promptList = ref<{[key: string]: any}[]>([])
+        const promptList = ref<PromptList[]>([])
         // nsfwコンテンツの表示可否
-        const displayNsfw = ref<string>('A')
+        const displayNsfw = ref<Nsfw>('A')
         // Hover中のタグ
         const hoverPromptName = ref<string>('')
         // アップロード用プロンプト
@@ -118,27 +154,26 @@ export default {
             }
         }
         const setDisplayNsfw = (limit: string): void => {
-            promptList.value.map ((genre: {[key: string]: any}, i: number) => {
+            promptList.value.map ((genre: PromptList, i: number) => {
                 promptList.value[i]['display'] = judgeIsDisplay(limit, promptList.value[i].nsfw)
-                genre.content.map((_: {[key: string]: any}, j: number) => {
+                genre.content.map((_: Prompt, j: number) => {
                     promptList.value[i].content[j]['display'] = judgeIsDisplay(limit, promptList.value[i].content[j].nsfw)
                 })
             })
         } 
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
-        const convertJsonToTagList = (json: {[key: string]: any}): {[key: string]: any}[] => {
-            const jsonObj = json
-            const commandListQueue: {[key: string]: any}[] = []
-            Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
+        const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
+            const commandListQueue: PromptList[] = []
+            Object.keys(jsonObj).map((index: string) => commandListQueue.push(jsonObj[parseInt(index)]))
 
             // 配列に表示に必要なデータを挿入
-            const commandList: {[key: string]: any}[] = []
-            commandListQueue.map((genre: {[key: string]: any}, i: number) => {
-                genre['show_all'] = false
+            const commandList: PromptList[] = []
+            commandListQueue.map((genre: PromptList, i: number) => {
+                genre.show_all = false
                 genre.caption = genre.caption === "" ? "-" : genre.caption
 
-                genre.content.map((prompt: {[key: string]: any}, j: number) => {  
+                genre.content.map((prompt: Prompt, j: number) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
                     prompt['selected'] = false
                     prompt['parentTag'] = genre.jp
@@ -152,15 +187,15 @@ export default {
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
         const selectPromptFromSearch = (word: string): void => {
-            promptList.value.map((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((prompt: {[key: string]: any}, j: number) => {           
+            promptList.value.map((genre: PromptList, i: number) => {
+                genre.content.map((prompt: Prompt, j: number) => {           
                     if (prompt.tag === word)  promptList.value[i].content[j].selected = true              
                 })
             })
         }
         
         // 年齢制限切り替えボタンを押した際の処理
-        const toggleDisplayNsfw = (limit: string): void => {
+        const toggleDisplayNsfw = (limit: Nsfw): void => {
             setPrompt.value.map(prompt => selectPromptFromSearch(prompt.tag))
             displayNsfw.value = limit
             setDisplayNsfw(displayNsfw.value)
@@ -197,10 +232,15 @@ export default {
             colorTag: string = '',
             colorTagJP: string = ''
         ): void => { 
-            const selected = promptList.value[i].content[j].selected
-            const queue = {...promptList.value[i].content[j]}
-
+            const queue: PromptQueue = {
+                ...promptList.value[i].content[j],
+                output_prompt: promptList.value[i].content[j].tag,
+                enhance: enhanceCount,
+                color_list: null,
+            }
+            
             // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
+            const selected = promptList.value[i].content[j].selected
             if (selected) {
                 for (let index = 0; index < setPrompt.value.length; index++) {
                     if (setPrompt.value[index].tag === queue.tag) {
@@ -211,9 +251,7 @@ export default {
                 }
             }
 
-            // プロンプト設定に必要なプロパティを挿入
-            queue['output_prompt'] = queue.tag
-            queue['enhance'] = enhanceCount
+            // カラーバリエーション設定が存在する場合それに上書き
             switch (promptList.value[i].content[j].variation) {
                 case 'CC':
                     queue['color_list'] = colorMulti
