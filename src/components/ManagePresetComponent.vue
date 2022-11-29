@@ -39,7 +39,7 @@
                         <button v-if="!isDisplayPreview" @click="isDisplayPreview = true" class="btn-common green">▼プレビューを開く</button>
                         <button v-if="isDisplayPreview" @click="isDisplayPreview = false" class="btn-common red">▲プレビューを閉じる</button>
                         <div v-if="preset.imagePath !== null && preset.imagePath !== ''" class="image-preview">
-                            <img v-if="isDisplayPreview" :src="preset.imagePath" :alt="preset.description">
+                            <img v-if="isDisplayPreview" :src="preset.imagePath" :alt="preset.description !== null ? preset.description : ''">
                         </div>
                     </dd>
                 </div>
@@ -132,6 +132,7 @@
 <script lang="ts">
 import registerPath from '@/assets/ts/registerPath'
 import algorithms from '@/assets/ts/algorithms'
+import { Preset } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 import '@/assets/scss/managePreset.scss'
@@ -158,7 +159,8 @@ export default {
         // Base64文字列に変換した画像
         const base64Image = ref<string | ArrayBuffer | null>('')
         // DB保存用のデータ
-        const preset = ref<{[key: string]: any}>({
+        const preset = ref<Preset>({
+            preset_id: null,
             image: '',
             imagePath: '',
             from: 'generator',
@@ -169,6 +171,7 @@ export default {
             seed: '',
             resolution_width: 512,
             resolution_height: 768,
+            resolution: '',
             model: 'NovelAI',
             sampling: 28,
             sampling_algo: 'Euler a',
@@ -182,6 +185,7 @@ export default {
                 preset.value.commands = props.prompts
             } else if (currentPath === 'saver') {
                 preset.value = props.selectedPreset
+                console.log(preset.value)
             }
         })
         
@@ -222,12 +226,12 @@ export default {
                 alert('プロンプトが入力されていません。')
                 return
             }
-            if (preset.value.seed !== '' && isNaN(parseInt(preset.value.seed))) {
+            if (preset.value.seed !== '' && !new RegExp('^[0-9]*$').test(preset.value.seed)) {
                 alert('Seed値が数値で入力されていません。')
                 return
             }
 
-            const sendData = {...preset.value}
+            const sendData: Preset = {...preset.value}
             // 解像度を結合して文字列に変更
             sendData.resolution = preset.value.resolution_width + 'x' + preset.value.resolution_height
             // 画像をアップロードしている場合、Base64文字列に変換したものを画像データに上書き
@@ -240,7 +244,7 @@ export default {
                 sendData.sampling_algo = null
                 sendData.scale = null
                 sendData.options = null
-            } else {
+            } else if (sendData.options !== null && Array.isArray(sendData.options)) {
                 // オプションが設定されている場合はカンマ区切りで文字列に変更
                 sendData.options = sendData.options.join(',')
             }

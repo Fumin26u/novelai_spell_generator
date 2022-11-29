@@ -1,5 +1,5 @@
 <template>
-    <HeaderComponent :user="user_id"></HeaderComponent>
+    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent>
     <main class="prompt-generator">
         <div class="prompt-list">
             <section class="user-setting-area">
@@ -74,6 +74,7 @@
 <script lang="ts">
 import master_data from '@/assets/ts/master_data'
 import registerPath from '@/assets/ts/registerPath'
+import { Nsfw, ColorVariation, Prompt, PromptList, SetPrompt } from '@/assets/ts/Interfaces/Index'
 import { colorMulti, colorMono } from './assets/ts/colorVariation'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -89,10 +90,11 @@ export default {
         ManagePresetComponent,
     },
     setup() {
+
         // 表示するタグ一覧
-        const promptList = ref<{[key: string]: any}[]>([])
+        const promptList = ref<PromptList[]>([])
         // nsfwコンテンツの表示可否
-        const displayNsfw = ref<string>('A')
+        const displayNsfw = ref<Nsfw>('A')
         // Hover中のタグ
         const hoverPromptName = ref<string>('')
         // アップロード用プロンプト
@@ -100,9 +102,9 @@ export default {
         // 手動入力内容
         const manualInput = ref<string>('')
         // セットされているタグ(プロンプト)のキュー
-        const setPrompt = ref<{[key: string]: any}[]>([])
+        const setPrompt = ref<SetPrompt[]>([])
         // カラー設定可能なプロンプトの選択されたカラーを格納する配列
-        const selectedColor = ref<{[key: string]: string}>({})
+        const selectedColor = ref<ColorVariation>({prompt: '', jp: ''})
 
         // 年齢制限表示に応じた個々のプロンプトの表示状態を設定する
         const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
@@ -118,27 +120,26 @@ export default {
             }
         }
         const setDisplayNsfw = (limit: string): void => {
-            promptList.value.map ((genre: {[key: string]: any}, i: number) => {
+            promptList.value.map ((genre: PromptList, i: number) => {
                 promptList.value[i]['display'] = judgeIsDisplay(limit, promptList.value[i].nsfw)
-                genre.content.map((_: {[key: string]: any}, j: number) => {
+                genre.content.map((_: Prompt, j: number) => {
                     promptList.value[i].content[j]['display'] = judgeIsDisplay(limit, promptList.value[i].content[j].nsfw)
                 })
             })
         } 
 
         // JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
-        const convertJsonToTagList = (json: {[key: string]: any}): {[key: string]: any}[] => {
-            const jsonObj = json
-            const commandListQueue: {[key: string]: any}[] = []
-            Object.keys(jsonObj).map(index => commandListQueue.push(jsonObj[index]))
+        const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
+            const commandListQueue: PromptList[] = []
+            Object.keys(jsonObj).map((index: string) => commandListQueue.push(jsonObj[parseInt(index)]))
 
             // 配列に表示に必要なデータを挿入
-            const commandList: {[key: string]: any}[] = []
-            commandListQueue.map((genre: {[key: string]: any}, i: number) => {
-                genre['show_all'] = false
+            const commandList: PromptList[] = []
+            commandListQueue.map((genre: PromptList, i: number) => {
+                genre.show_all = false
                 genre.caption = genre.caption === "" ? "-" : genre.caption
 
-                genre.content.map((prompt: {[key: string]: any}, j: number) => {  
+                genre.content.map((prompt: Prompt, j: number) => {  
                     prompt['slag'] = prompt.tag.replace(' ', '_')
                     prompt['selected'] = false
                     prompt['parentTag'] = genre.jp
@@ -152,15 +153,15 @@ export default {
 
         // 指定されたタグ名に該当するプロンプトを選択状態にする
         const selectPromptFromSearch = (word: string): void => {
-            promptList.value.map((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((prompt: {[key: string]: any}, j: number) => {           
+            promptList.value.map((genre: PromptList, i: number) => {
+                genre.content.map((prompt: Prompt, j: number) => {           
                     if (prompt.tag === word)  promptList.value[i].content[j].selected = true              
                 })
             })
         }
         
         // 年齢制限切り替えボタンを押した際の処理
-        const toggleDisplayNsfw = (limit: string): void => {
+        const toggleDisplayNsfw = (limit: Nsfw): void => {
             setPrompt.value.map(prompt => selectPromptFromSearch(prompt.tag))
             displayNsfw.value = limit
             setDisplayNsfw(displayNsfw.value)
@@ -170,21 +171,25 @@ export default {
         const addManualPrompt = (input: string, enhanceCount: number = 0): void => {
             let isAlreadySetPrompt = false
             // 既に追加されているプロンプト名の場合追加しない
-            setPrompt.value.map((prompt: {[key: string]: any}) => {
+            setPrompt.value.map((prompt: SetPrompt) => {
                 if (input.trim() === prompt.tag) isAlreadySetPrompt = true
             })
             if (!isAlreadySetPrompt && input.trim() !== '') {
                 setPrompt.value.push({
+                    id: -1,
                     tag: input,
-                    jp: input,
-                    output_prompt: input,
-                    parentTag: '手動',
-                    detail: '',
                     slag: input.replace(' ', '_'),
+                    jp: input,
+                    parentTag: '手動',
+                    display: false,
+                    selected: false,
+                    nsfw: 'A',
+                    variation: null,
+                    index: null,
+                    detail: '',
+                    output_prompt: input,
                     enhance: enhanceCount,
                     color_list: null,
-                    index: null,
-                    nsfw: 'A'
                 })
             }
         }
@@ -197,10 +202,15 @@ export default {
             colorTag: string = '',
             colorTagJP: string = ''
         ): void => { 
-            const selected = promptList.value[i].content[j].selected
-            const queue = {...promptList.value[i].content[j]}
-
+            const queue: SetPrompt = {
+                ...promptList.value[i].content[j],
+                output_prompt: promptList.value[i].content[j].tag,
+                enhance: enhanceCount,
+                color_list: null,
+            }
+            
             // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
+            const selected = promptList.value[i].content[j].selected
             if (selected) {
                 for (let index = 0; index < setPrompt.value.length; index++) {
                     if (setPrompt.value[index].tag === queue.tag) {
@@ -211,9 +221,7 @@ export default {
                 }
             }
 
-            // プロンプト設定に必要なプロパティを挿入
-            queue['output_prompt'] = queue.tag
-            queue['enhance'] = enhanceCount
+            // カラーバリエーション設定が存在する場合それに上書き
             switch (promptList.value[i].content[j].variation) {
                 case 'CC':
                     queue['color_list'] = colorMulti
@@ -233,7 +241,8 @@ export default {
             }
 
             setPrompt.value.push(queue)
-            promptList.value[i].content[j].selected = true   
+            promptList.value[i].content[j].selected = true  
+            console.log(setPrompt.value) 
         }
 
         // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入
@@ -279,8 +288,8 @@ export default {
             // 既存の設定プロンプトリストと手動入力欄をリセット
             setPrompt.value = []
             manualInput.value = ''
-            promptList.value.map((genre: {[key: string]: any}, i: number) => {
-                genre.content.map((_: any, j: number) => {
+            promptList.value.map((genre: PromptList, i: number) => {
+                genre.content.map((_: Prompt, j: number) => {
                     promptList.value[i].content[j].selected = false
                 })
             })
@@ -309,7 +318,7 @@ export default {
         }
 
         // 子コンポーネントから伝えられたプロンプト設定欄の内容を更新
-        const updateSetPrompt = (childSetPrompt: {[key: string]: any}[]) => setPrompt.value = childSetPrompt
+        const updateSetPrompt = (childSetPrompt: SetPrompt[]) => setPrompt.value = childSetPrompt
         
         // セットキューから指定したプロンプトを削除
         const unSelectedPrompt = (promptListIndex: string): void => {
@@ -349,28 +358,16 @@ export default {
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-            const getUserInfo = async() => {
-            const url = registerPath + 'api/manageAccount.php'
-            axios.post(url, {
-                method: 'getUserData'
-            })
-                .then(response => {
-                    console.log(response)
-                    user_id.value = response.data.user_id
-                })
-                .catch(error => console.log(error))
-        }
+        const getUserInfo = (userId: string) => user_id.value = userId; 
 
         // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
         onMounted(() => {
             document.title = 'NovelAI プロンプトジェネレーター'
-            getUserInfo()
             getMasterData()
         })
         
         return {
             promptList,
-            user_id,
             hoverPromptName,
             setPrompt,
             isOpenSaveModal,
@@ -387,6 +384,7 @@ export default {
             unSelectedPrompt,
             openSaveModal,
             updateModalState,
+            getUserInfo,
         }
     }
 }

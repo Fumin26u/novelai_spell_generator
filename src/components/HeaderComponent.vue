@@ -29,17 +29,14 @@
     </header>
 </template>
 <script lang="ts">
-import { computed, ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import registerPath from '@/assets/ts/registerPath'
 import '../assets/scss/header.scss'
 import axios from 'axios'
 
 export default {
-    props: {
-        user: String,
-    },
-    setup(props: any) {
-        const user_id = computed(() => props.user)
+    emits: ['getUserInfo'],
+    setup(props: any, context: any) {
         const isOpenHBGMenu = ref<boolean>(false)
 
         // ページ遷移用のURI
@@ -57,6 +54,22 @@ export default {
                 console.log(error)
             })
         }
+
+        // 画面読み込み時にログインユーザーIDを取得
+        const user_id = ref<string>('')
+        const getUserInfo = async() => {
+            const url = registerPath + 'api/manageAccount.php'
+            axios.post(url, {
+                method: 'getUserData'
+            })
+                .then(response => {
+                    user_id.value = response.data.user_id
+                    context.emit('getUserInfo', user_id.value)
+                })
+                .catch(error => console.log(error))
+        }
+        onMounted(() => getUserInfo())
+
 
         return {
             user_id,

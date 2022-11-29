@@ -1,5 +1,5 @@
 <template lang="">
-    <HeaderComponent :user="user_id"></HeaderComponent> 
+    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent> 
     <main class="account-manage">
         <div class="title-area">
             <h2>{{ currentPath === 'register' ? 'ユーザー新規登録' : 'ユーザーログイン' }}</h2>
@@ -36,12 +36,13 @@
     <router-view></router-view>
 </template>
 <script lang="ts">
-import { ref, computed, watchEffect, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import registerPath from '@/assets/ts/registerPath'
-import '../assets/scss/manageAccount.scss'
+import { AccountInfo } from '@/assets/ts/Interfaces/Index'
 import HeaderComponent from './HeaderComponent.vue'
+import '../assets/scss/manageAccount.scss'
+import axios from 'axios'
+import { ref, computed, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 export default {
     components: {
@@ -60,7 +61,7 @@ export default {
         })
 
         // 入力フォームのアカウント情報
-        const account = ref<{[key: string]: string}>({
+        const account = ref<AccountInfo>({
             method: '',
             email: '',
             user_id: '',
@@ -116,16 +117,7 @@ export default {
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-            const getUserInfo = async() => {
-            const url = registerPath + 'api/manageAccount.php'
-            axios.post(url, {
-                method: 'getUserData'
-            })
-                .then(response => user_id.value = response.data.user_id)
-                .catch(error => console.log(error))
-        }
-
-        onMounted(() => getUserInfo())
+        const getUserInfo = (userId: string) => user_id.value = userId;
 
         return {
             currentURL,
@@ -136,6 +128,7 @@ export default {
             regex,
 
             submitAccountData,
+            getUserInfo,
         }
     }
 }

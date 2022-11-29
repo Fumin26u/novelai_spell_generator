@@ -72,18 +72,18 @@
     </section>
 </template>
 <script lang="ts">
-import { ref, computed } from 'vue'
 import '../../assets/scss/savedPrompt.scss'
+import { PresetDetail } from '@/assets/ts/Interfaces/Index'
+import { ref, watchEffect } from 'vue'
 
 export default {
     props: {
-        selected: {
-            type: Object,
-        }
+        selected: Object,
     },
     emits: ['setAlertText', 'setRegisterMode', ],
     setup(props:any, context:any) {
-        const preset = computed(() => props.selected)
+        const preset = ref<PresetDetail>(props.selected)
+        watchEffect(() => preset.value = props.selected)
 
         // 強化値の{}と()を切り替える
         const enhanceBraceMessage = ref<string>('( )に変換')
