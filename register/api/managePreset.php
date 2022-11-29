@@ -36,7 +36,7 @@ if (isset($post['delete']) && $post['delete'] !== '') {
     
     // POSTされたデータのDB登録
     $presetController = new PresetController();
-    if (isset($post['preset_id']) && $post['preset_id'] !== '') {
+    if (isset($post['preset_id']) && !is_null($post['preset_id']) && $post['preset_id'] !== -1) {
         $presetController->update($post, $imageFileName, (int) h($post['preset_id']));
     } else {
         $presetController->create($post, $imageFileName);

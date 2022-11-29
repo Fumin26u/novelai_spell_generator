@@ -185,6 +185,7 @@ export default {
                 preset.value.commands = props.prompts
             } else if (currentPath === 'saver') {
                 preset.value = props.selectedPreset
+                console.log(preset.value)
             }
         })
         
