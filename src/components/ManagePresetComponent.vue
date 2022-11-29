@@ -250,8 +250,9 @@ export default {
             }
             const formData = JSON.stringify(sendData)
             
-            axios.post(formUrl, formData).then(() => {
+            axios.post(formUrl, formData).then((response) => {
                 alert('プロンプトをデータベースに登録しました。')
+                console.log(response.data)
                 if (currentPath === 'generator') {
                     updateModal(false)
                 } else if (currentPath === 'saver') {

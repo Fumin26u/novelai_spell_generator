@@ -154,13 +154,13 @@ class PresetController {
 
             // SQL文の構築
             $sql = 'INSERT INTO preset (';
-            $sql .= implode(',', array_column($this->columns, 'name'));
-            $sql .= ') VALUES (';
+            $sql .= implode(', ', array_column($this->columns, 'name'));
+            $sql .= ', created_at, updated_at) VALUES (';
             foreach ($this->columns as $column) {
                 $columnName = $column['name'];
                 $sql .= ":{$columnName}, ";
             }
-            $sql .= 'NOW(), NOW())';            
+            $sql .= 'NOW(), NOW())';   
 
             $this->bindToExecSQL($pdo, $sql, $post, $imageFileName);
 
@@ -184,7 +184,8 @@ class PresetController {
                 $sql .= "{$columnName} = :{$columnName}, \n";
             }
             $sql .= "updated_at = NOW() \n";
-            $sql .= "WHERE preset_id = :preset_id AND user_id = :user_id";            
+            $sql .= "WHERE preset_id = :preset_id AND user_id = :user_id";
+            v($sql);       
 
             $this->bindToExecSQL($pdo, $sql, $post, $imageFileName, $preset_id);
 
