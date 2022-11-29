@@ -1,8 +1,9 @@
 <?php
+require_once('./DBControllers.php');
 // 非ログイン時かつローカル環境でない場合強制終了
 if ($_SERVER['HTTP_HOST'] !== 'localhost' && !isset($_SESSION['user_id'])) exit;
 
-class PresetController {
+class PresetController implements DBControllers {
     private $user_id;
     private $columns;
 
@@ -38,7 +39,7 @@ class PresetController {
             ],
             [
                 'name' => 'image',
-                // 'init' => null,
+                'init' => null,
                 'type' => PDO::PARAM_STR,
             ],
             [
@@ -83,7 +84,7 @@ class PresetController {
             ],
             [
                 'name' => 'others',
-                'init' => '',
+                'init' => null,
                 'type' => PDO::PARAM_STR,
             ],
         ];
@@ -124,34 +125,29 @@ class PresetController {
         }
     }
 
-    private function bindToExecSQL($pdo, $sql, $post, $imageFileName, $preset_id = null) {
+    private function bindToExecSQL($pdo, $sql, $post, $preset_id = null) {
         $st = $pdo->prepare($sql);
         
         if (!is_null($preset_id)) $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT); 
 
         foreach ($this->columns as $column) {
-            // imageは変数が引数で用意されているので別で処理
-            if ($column['name'] === 'image') {
-                $st->bindValue(':image', $imageFileName !== '' ? $imageFileName : null, PDO::PARAM_STR);
-            } else {
-                // リテラル内で見づらくなりそうなので代入
-                $columnName = $column['name'];
-                $columnInit = $column['init'];
-                $columnType = $column['type'];
+            // 見づらくなりそうなので代入
+            $columnName = $column['name'];
+            $columnInit = $column['init'];
+            $columnType = $column['type'];
 
-                $st->bindValue(
-                    ":{$columnName}", 
-                    isset($post[$columnName]) ? h($post[$columnName]) : $columnInit,
-                    $columnType
-                );
-            }
+            $st->bindValue(
+                ":{$columnName}", 
+                isset($post[$columnName]) ? h($post[$columnName]) : $columnInit,
+                $columnType
+            );
         }
         
         $st->execute();
         $pdo->commit();
     }
 
-    public function create($post, $imageFileName) {
+    public function create($post) {
         $this->setPresetColumns();
 
         try {
@@ -168,7 +164,7 @@ class PresetController {
             }
             $sql .= 'NOW(), NOW())';   
 
-            $this->bindToExecSQL($pdo, $sql, $post, $imageFileName);
+            $this->bindToExecSQL($pdo, $sql, $post);
 
             return '登録しました。';
             
@@ -178,9 +174,9 @@ class PresetController {
         }
     }
 
-    public function update($post, $imageFileName, $preset_id) {
+    public function update($post, $preset_id) {
         $this->setPresetColumns();
-        
+
         try {
             $pdo = dbConnect();
             $pdo->beginTransaction();
@@ -192,10 +188,9 @@ class PresetController {
                 $sql .= "{$columnName} = :{$columnName}, \n";
             }
             $sql .= "updated_at = NOW() \n";
-            $sql .= "WHERE preset_id = :preset_id AND user_id = :user_id";
-            v($sql);       
+            $sql .= "WHERE preset_id = :preset_id AND user_id = :user_id";  
 
-            $this->bindToExecSQL($pdo, $sql, $post, $imageFileName, $preset_id);
+            $this->bindToExecSQL($pdo, $sql, $post, $preset_id);
 
             return '更新しました。';
             

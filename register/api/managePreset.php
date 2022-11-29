@@ -29,15 +29,14 @@ if (isset($post['delete']) && $post['delete'] !== '') {
         file_put_contents($imageDirPath . $imageFileName, $imageData);
         // 保存した画像からサムネイルを抽出
         $imageController->makeThumbnail($home);
-    } else if (!is_null($post['image']) && $post['image'] !== '') {
-        // 編集時画像更新が無い場合は画像ファイル名をそのまま使用
-        $imageFileName = $post['image'];
+        // postの画像の値を更新
+        $post['image'] = $imageFileName;
     }
     
     // POSTされたデータのDB登録
     $presetController = new PresetController();
     if (isset($post['preset_id']) && !is_null($post['preset_id']) && $post['preset_id'] !== -1) {
-        $presetController->update($post, $imageFileName, (int) h($post['preset_id']));
+        $presetController->update($post, (int) h($post['preset_id']));
     } else {
         $presetController->create($post, $imageFileName);
     }
