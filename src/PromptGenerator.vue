@@ -1,5 +1,5 @@
 <template>
-    <HeaderComponent :user="user_id"></HeaderComponent>
+    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent>
     <main class="prompt-generator">
         <div class="prompt-list">
             <section class="user-setting-area">
@@ -349,28 +349,16 @@ export default {
 
         // ログインユーザーIDを取得
         const user_id = ref<string>('')
-            const getUserInfo = async() => {
-            const url = registerPath + 'api/manageAccount.php'
-            axios.post(url, {
-                method: 'getUserData'
-            })
-                .then(response => {
-                    console.log(response)
-                    user_id.value = response.data.user_id
-                })
-                .catch(error => console.log(error))
-        }
+        const getUserInfo = (userId: string) => user_id.value = userId; 
 
         // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
         onMounted(() => {
             document.title = 'NovelAI プロンプトジェネレーター'
-            getUserInfo()
             getMasterData()
         })
         
         return {
             promptList,
-            user_id,
             hoverPromptName,
             setPrompt,
             isOpenSaveModal,
@@ -387,6 +375,7 @@ export default {
             unSelectedPrompt,
             openSaveModal,
             updateModalState,
+            getUserInfo,
         }
     }
 }

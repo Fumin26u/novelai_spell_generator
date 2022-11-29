@@ -1,5 +1,5 @@
 <template>
-    <HeaderComponent :user="user_id"></HeaderComponent> 
+    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent> 
     <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
@@ -209,30 +209,22 @@ export default {
                     console.log(error) 
                 })
         }
-
-        // ログインユーザーIDを取得
-        const user_id = ref<string>('')
-        const getUserInfo = async() => {
-            const url = registerPath + 'api/manageAccount.php'
-            axios.post(url, {
-                method: 'getUserData'
-            })
-                .then(response => user_id.value = response.data.user_id)
-                .catch(error => console.log(error))
-        }
-
+        
         // コピーした際のアラートを設定
         const alertText = ref<string>('')
         const setAlertText = (text: string) => alertText.value = text
-
+        
         // ページ遷移用のURI
         // テストサーバーも含める為パス名を取得して結合
         const originPath = new URL(location.href).origin + location.pathname
+        
+        // ログインユーザーIDを取得
+        const user_id = ref<string>('')
+        const getUserInfo = (userId: string) => user_id.value = userId;
 
         // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
         onMounted(() => {
             document.title = 'NovelAI プロンプトセーバー'
-            getUserInfo()
             getPresetData()
         })
 
@@ -244,13 +236,14 @@ export default {
             searchData: searchData,
             alertText,
             isRegisterMode,
-            user_id,
             originPath,
+            user_id,
 
             selectPreset,
             getPresetData,
             setAlertText,
             setRegisterMode,
+            getUserInfo,
         }
     }
 }
