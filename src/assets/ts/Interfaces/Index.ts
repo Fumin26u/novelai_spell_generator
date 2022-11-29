@@ -1,5 +1,6 @@
 // 汎用的なType/Interface
 export type Nsfw = 'A' | 'B' | 'C' | 'D' | 'Z'
+export type NsfwDisplay = '全年齢' | 'R-12' | 'R-15' | 'R-17' | 'R-18'
 
 export interface ColorVariation {
     prompt: string,
@@ -42,8 +43,8 @@ export interface Preset {
     image: string | ArrayBuffer | null,
     imagePath: string | null,
     from: string,
-    commands: string | null,
-    commands_ban: string | null,
+    commands: string,
+    commands_ban: string,
     description: string | null,
     nsfw: Nsfw,
     seed: string,
@@ -61,7 +62,7 @@ export interface Preset {
 export interface PresetDetail extends Preset {
     index: number,
     thumbnail: string,
-    nsfw_display: '全年齢' | 'R-15' | 'R-18',
+    nsfw_display: NsfwDisplay,
 }
 
 export interface SearchData {

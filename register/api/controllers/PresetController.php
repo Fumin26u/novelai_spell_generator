@@ -50,6 +50,7 @@ class PresetController {
         $st->bindValue(':user_id', $this->user_id, PDO::PARAM_STR);
         
         if (!is_null($preset_id)) $st->bindValue(':preset_id', $preset_id, PDO::PARAM_INT); 
+        
         $st->bindValue(':commands', h($post['commands']), PDO::PARAM_STR);
         $st->bindValue(':commands_ban', isset($post['commands_ban']) ? h($post['commands_ban']) : null, PDO::PARAM_STR);
         $st->bindValue(':description', isset($post['description']) ? h($post['description']) : null, PDO::PARAM_STR);

@@ -211,6 +211,7 @@ export default {
                         revertDBData(savedPromptList.value)
                         setImages(savedPromptList.value)
                         setIsNsfw(savedPromptList.value)
+                        console.log(savedPromptList.value)
                     }
                 })
                 .catch(error => {
