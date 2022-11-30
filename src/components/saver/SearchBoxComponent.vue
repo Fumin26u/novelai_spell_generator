@@ -1,3 +1,24 @@
+<script setup lang="ts">
+import '@/assets/scss/savedPrompt.scss'
+import { SearchData } from '@/assets/ts/Interfaces/Index'
+import { ref } from 'vue'
+
+interface Props { searchBoxData: SearchData }
+interface Emits {
+    (e: 'getPresetData', postData: SearchData): Promise<void>,
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+// 検索ボックスの入力内容
+const searchData = ref<SearchData>(props.searchBoxData)
+
+const execSearch = () => {
+    emit('getPresetData', searchData.value)
+}
+</script>
+
 <template lang="">
     <div class="search-box">
         <dl>
@@ -63,38 +84,3 @@
         </dl>
     </div>
 </template>
-<script lang="ts">
-import '../../assets/scss/savedPrompt.scss'
-import { SearchData } from '@/assets/ts/Interfaces/Index'
-import { ref } from 'vue'
-
-export default {
-    emits: ['getPresetData',],
-    props: {
-        searchBoxData: Object,
-    },
-    setup(props: any, context: any) {
-        // 検索ボックスの入力内容
-        const searchData = ref<SearchData>(props.searchBoxData)
-
-        const execSearch = () => {
-            context.emit('getPresetData', searchData.value)
-        }
-
-        return {
-            searchData,
-            execSearch,
-        }
-    }
-}
-</script>
-<style lang="scss" scoped>
-.btn-common.green {
-    display: block;
-    width: 180px;
-    margin: 8px auto;
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 8px;
-}
-</style>

@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import PromptGenerator from './PromptGenerator.vue'
-import SavedPrompt from './SavedPrompt.vue'
-import AccountManage from './components/AccountManageComponent.vue'
+import PromptGenerator from '@/PromptGenerator.vue'
+import SavedPrompt from '@/SavedPrompt.vue'
+import AccountManage from '@/AccountManager.vue'
 const routes = [
     {
         path: '/', 
