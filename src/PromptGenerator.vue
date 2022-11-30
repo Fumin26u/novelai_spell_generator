@@ -353,8 +353,7 @@ onMounted(() => {
     <ManagePresetComponent
         id="generator"
         :prompts="outputPrompt"
-        :displayModalState="isOpenSaveModal"
-        @updateModal="updateModalState"
+        @updateModalState="updateModalState"
         :style="[isOpenSaveModal ? 'display: block' : 'display: none']"
     />
     <router-view></router-view>
