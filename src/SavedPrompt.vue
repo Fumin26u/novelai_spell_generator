@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import registerPath from '@/assets/ts/registerPath'
-import HeaderComponent from './components/HeaderComponent.vue'
-import SearchBoxComponent from './components/saver/SearchBoxComponent.vue'
-import SelectedPresetComponent from './components/saver/SelectedPresetComponent.vue'
-import ManagePresetComponent from './components/ManagePresetComponent.vue'
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
+import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
+import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
 import { Preset, PresetDetail, SearchData } from '@/assets/ts/Interfaces/Index'
-import './assets/scss/savedPrompt.scss'
+import '@/assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 

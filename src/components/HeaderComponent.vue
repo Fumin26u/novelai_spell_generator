@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import registerPath from '@/assets/ts/registerPath'
-import '../assets/scss/header.scss'
+import '@/assets/scss/header.scss'
 import axios from 'axios'
 
 interface Emits { (e: 'getUserInfo', userId: string): string }

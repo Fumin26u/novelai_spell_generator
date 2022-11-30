@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import '../../assets/scss/savedPrompt.scss'
+import '@/assets/scss/savedPrompt.scss'
 import { PresetDetail } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
 

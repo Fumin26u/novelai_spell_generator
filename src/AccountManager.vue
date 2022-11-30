@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import registerPath from '@/assets/ts/registerPath'
 import { AccountInfo } from '@/assets/ts/Interfaces/Index'
-import HeaderComponent from './HeaderComponent.vue'
-import '../assets/scss/manageAccount.scss'
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import '@/assets/scss/manageAccount.scss'
 import axios from 'axios'
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

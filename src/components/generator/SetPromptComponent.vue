@@ -2,7 +2,7 @@
 import { SetPrompt, ColorVariation } from '@/assets/ts/Interfaces/Index'
 import { ref, computed, watchEffect } from 'vue'
 import draggable from 'vuedraggable'
-import '../../assets/scss/promptGenerator.scss'
+import '@/assets/scss/promptGenerator.scss'
 
 interface Props {
     setPromptList: SetPrompt[],

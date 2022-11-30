@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import '../../assets/scss/savedPrompt.scss'
+import '@/assets/scss/savedPrompt.scss'
 import { SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref } from 'vue'
 

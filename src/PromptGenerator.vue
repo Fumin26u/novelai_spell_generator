@@ -2,13 +2,13 @@
 import master_data from '@/assets/ts/master_data'
 import registerPath from '@/assets/ts/registerPath'
 import { Nsfw, Prompt, PromptList, SetPrompt } from '@/assets/ts/Interfaces/Index'
-import { colorMulti, colorMono } from './assets/ts/colorVariation'
+import { colorMulti, colorMono } from '@/assets/ts/colorVariation'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import './assets/scss/promptGenerator.scss'
-import HeaderComponent from './components/HeaderComponent.vue'
-import SetPromptComponent from './components/generator/SetPromptComponent.vue'
-import ManagePresetComponent from './components/ManagePresetComponent.vue'
+import '@/assets/scss/promptGenerator.scss'
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import SetPromptComponent from '@/components/generator/SetPromptComponent.vue'
+import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
 
 // 表示するタグ一覧
 const promptList = ref<PromptList[]>([])
