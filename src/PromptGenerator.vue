@@ -169,13 +169,15 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
     const colorTagJP = ref<string>('')
     
     // スペースが存在する場合スペース以前の単語がカラータグかどうか調べる
-    if (colorTag !== '') {
+    // 目と髪の色は個別で設定できるようにしたいので除外する
+    if (colorTag !== '' && uploadPromptName.match(/eyes$/) === null && uploadPromptName.match(/hair$/) === null) {
         colorMulti.map(color => {
             if (colorTag === color.prompt) colorTagJP.value = color.jp
         })
     } 
     // 検索するプロンプト名。カラータグが付いていた場合最初のスペース以後、それ以外の場合引数の値。
     const promptName = colorTagJP.value === '' ? uploadPromptName : uploadPromptName.substring(spaceIndex + 1)
+    console.log(colorTagJP.value, promptName)
     
     for (let i = 0; i < promptList.value.length; i++) {
         for (let j = 0; j < promptList.value[i].content.length; j++) {
