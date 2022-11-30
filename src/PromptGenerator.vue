@@ -237,7 +237,11 @@ const uploadPrompt = (inputPromptList: string): void => {
 const updateSetPrompt = (childSetPrompt: SetPrompt[]) => setPrompt.value = childSetPrompt
 
 // セットキューから指定したプロンプトを削除
-const unSelectedPrompt = (promptListIndex: string): void => {
+const unSelectedPrompt = (promptListIndex: string | null): void => {
+    // 送られてきた値がnullの場合プロンプト一覧には存在しないので何もせず終了
+    if (promptListIndex === null) return
+
+    // プロンプト一覧から指定されたインデックスのプロンプトの選択を解除
     const tagsIndexList = promptListIndex.split(',')
     const i = parseInt(tagsIndexList[0])
     const j = parseInt(tagsIndexList[1])
