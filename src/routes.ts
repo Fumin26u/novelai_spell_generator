@@ -4,22 +4,22 @@ import SavedPrompt from '@/SavedPrompt.vue'
 import AccountManage from '@/AccountManager.vue'
 const routes = [
     {
-        path: '/', 
-        name: 'generator', 
+        path: '/',
+        name: 'generator',
         component: PromptGenerator,
     },
     {
-        path: '/saves', 
+        path: '/saves',
         name: 'saves',
         component: SavedPrompt,
     },
     {
-        path: '/login', 
+        path: '/login',
         name: 'login',
         component: AccountManage,
     },
     {
-        path: '/register', 
+        path: '/register',
         name: 'register',
         component: AccountManage,
     },
@@ -30,6 +30,4 @@ const router = createRouter({
     routes,
 })
 
-export default router 
-
-
+export default router
