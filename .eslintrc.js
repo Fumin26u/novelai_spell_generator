@@ -4,6 +4,7 @@ module.exports = {
         "node": true,
         "vue/setup-compiler-macros": true
     },
+    "plugins": ["prettier"],
     "extends": [
         "plugin:vue/vue3-essential",
         "eslint:recommended",
@@ -16,6 +17,6 @@ module.exports = {
         "no-unused-vars": "off",
         "vue/no-unused-vars": "off",
         "vue/script-setup-uses-vars": "off",
-        "@typescript-eslint/no-unused-vars": [ "error" ]
+        "@typescript-eslint/no-unused-vars": ["error"],
     }
 }
