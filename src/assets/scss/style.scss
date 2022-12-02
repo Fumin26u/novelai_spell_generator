@@ -1,0 +1,253 @@
+/* 
+[記述ルール]
+入れ子構造は3段階まで。但し3段階目の関数やセレクタはこれに含めない。
+複数の関数・セレクタの入れ子はしない
+書く順序は直書き→セレクタ→関数→子要素
+レスポンシブは375px以上に対応
+*/
+
+/*--------------------
+
+    共通メディアクエリ・変数
+
+--------------------*/
+// メディアクエリの設定
+$mq-breakpoints: (
+    larger: 1560px,
+    large: 1280px,
+    medium: 1024px,
+    tablet: 768px,
+    small: 540px,
+    smaller: 375px,
+) !default;
+
+@mixin mediaQuery($breakpoint: md, $rule: min) {
+    $breakpoint: map_get($mq-breakpoints, $breakpoint);
+    @if $rule == max {
+        $breakpoint: $breakpoint - 0.0625;
+    }
+
+    @media screen and (#{$rule}-width: $breakpoint) {
+        @content;
+    }
+}
+
+// inline-blockでの横並び縦中央揃え設定
+@mixin horizontalAlign($vertical-align: middle) {
+    display: inline-block;
+    vertical-align: $vertical-align;
+}
+
+// flexboxでの横並び縦中央揃え設定
+@mixin horizontalAlignFlex($align-items: center) {
+    display: flex;
+    justify-content: space-between;
+    align-items: $align-items;
+}
+
+// カラー初期値
+$border-color: #888;
+$color-age-a: hsl(196, 100%, 40%);
+$color-age-c: hsl(120, 100%, 40%);
+$color-age-z: hsl(9, 100%, 40%);
+
+/*--------------------
+
+    共通パーツ
+
+--------------------*/
+#app {
+    padding: 0 0 1em;
+    margin: 0 12px;
+}
+header, main {
+    max-width: 1560px;
+    margin: 0 auto;
+}
+
+button, input, textarea, select, label {
+    font-family: 'Yu Gothic Medium', '游ゴシック Medium', sans-serif;
+    @include horizontalAlign;
+}
+
+a {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+h1, h2, h3 {
+    margin: 8px 0; font-size: 18px;
+}
+
+ul, p, dl {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+input[type="checkbox"], input[type='radio'] {
+    transform: scale(1.1);
+    margin: 0 4px;
+}
+
+button, input[type="submit"] {
+    cursor: pointer;
+}
+
+/*--------------------
+
+    共通ボタン
+
+--------------------*/
+.btn-common {
+    background-color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: all .1s;
+    cursor: pointer;
+    font-weight: bold;
+    @include horizontalAlign;
+}
+.btn-common.green {
+    border: 1.5px solid green;
+    color: green;
+    &:hover {
+        background-color: green;
+        color: white;
+    }
+}
+.btn-common.red {
+    border: 1.5px solid red;
+    color: red;
+    &:hover {
+        background-color: red;
+        color: white;
+    }
+}
+.btn-common.orange {
+    border: 1.5px solid hsl(30, 90%, 45%);
+    color: hsl(30, 90%, 45%);
+    &:hover {
+        background-color: hsl(30, 90%, 45%);
+        color: white;
+    }
+}
+.btn-common.blue {
+    border: 1.5px solid darkblue;
+    color: darkblue;
+    &:hover {
+        background-color: darkblue;
+        color: white;
+    }
+}
+.btn-common.pink {
+    border: 1.5px solid tomato;
+    color: tomato;
+    &:hover {
+        background: tomato;
+        color: white;
+    }
+}
+
+/*--------------------
+
+    共通ボタン(トグル)
+
+--------------------*/
+.btn-toggle {
+    display: block;
+    border: none;
+    outline: none;
+    width: 94%;
+    min-width: 144px;
+    font-size: 16px;
+    padding: 4px;
+    margin: 0 auto 12px;
+    background: hsl(196, 61%, 88%);
+    color: hsl(196, 100%, 10%);
+    box-shadow: 2px 2px  $color-age-a;
+    transition: all 0.03s;
+}
+.btn-toggle.nsfw_C {
+    background: hsl(120, 80%, 90%);
+    box-shadow: 2px 2px $color-age-c;
+}
+.btn-toggle.nsfw_Z {
+    background: hsl(20, 80%, 90%);
+    box-shadow: 2px 2px  $color-age-z;
+}
+.btn-toggle.selected {
+    padding: 4px 8px;
+    background: hsl(196, 100%, 15%);
+    color: white;
+    box-shadow: inset 3px 3px 3px hsl(196, 100%, 5%);
+    border: none;
+    transform: translate(2px, 2px);
+}
+.btn-toggle.nsfw_C.selected {
+    background: hsl(120, 100%, 15%);
+    box-shadow: inset 3px 3px 3px hsl(120, 100%, 5%);
+}
+.btn-toggle.nsfw_Z.selected {
+    background: hsl(9, 100%, 15%);
+    box-shadow: inset 3px 3px 3px hsl(9, 100%, 5%);
+}
+
+/*--------------------
+
+    共通ボタン(×ボタン)
+
+--------------------*/
+.btn-close {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: #dedede;
+    border-radius: 24px;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transition: all .1s;
+    &:hover {
+        background: #ccc;
+    }
+    &:before, &:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 3px;
+        height: 30px;
+        background: #666;
+    }
+    &:before {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &:after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+    }
+}
+
+/*--------------------
+
+    年齢別テキストカラー
+
+--------------------*/
+p, select {
+    &.nsfw_A {
+        color: $color-age-a;
+    }
+    &.nsfw_C {
+        color: $color-age-c;
+    }
+    &.nsfw_Z {
+        color: $color-age-z;
+    }
+}

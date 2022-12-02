@@ -1,0 +1,283 @@
+@import "./style.scss";
+
+main.prompt-generator {
+    position: relative;
+    margin: 1em auto;
+    
+    @include mediaQuery(medium) {
+        @include horizontalAlignFlex(flex-start);
+        flex-wrap: nowrap;
+        
+        > .prompt-list {
+            width: calc(100% - 500px);
+            border-right: 1px solid $border-color;
+        }
+        > .prompt-settings {
+            width: 100%;
+            max-width: 490px;
+        }
+    }
+}
+
+.user-setting-area {
+    @include horizontalAlignFlex;
+    margin-right: 8px;
+    > .upload-prompt {
+        width: 92%;
+        > * {
+            @include horizontalAlign;
+        }
+        > label {
+            display: block;
+            font-size: 13px;
+            @include mediaQuery(large) {
+                display: inline-block;
+                font-size: 16px;
+            }
+        }
+        > input {
+            width: 54%;
+            max-width: 500px;
+            margin: 0 4px;
+            font-size: 16px;
+        }
+    }
+    
+    > .toggle-nsfw {
+        position: inherit;
+        min-width: 64px;
+        > .btn-common {
+            letter-spacing: 1px;
+            font-size: 13px;
+        }
+    }
+
+    @include mediaQuery(medium, max) {
+        >.toggle-nsfw {
+            min-width: auto;
+            position: fixed;
+            right: 12px;
+            z-index: 90;
+            > .btn-common {
+                width: 52px;
+                height: 52px;
+                border-radius: 50%;
+                padding: 0;
+                color: white;
+            }
+            > .btn-common.blue {
+                background-color: darkblue;
+            }
+            > .btn-common.green {
+                background-color: green;
+            }
+            > .btn-common.pink {
+                background-color: tomato;
+            }
+        }
+    }
+}
+
+.prompt-list-area {
+    @include horizontalAlignFlex(flex-start);
+    flex-wrap: wrap;
+    @include mediaQuery(medium) {
+        margin-right: 0.5em;
+    }
+}
+
+.prompt-list-genre {
+    width: 45%;
+    padding: 0 6px 6px;
+    margin: 26px 0 1em;
+    border: 1px dashed $border-color;
+    box-shadow: 0 2px 2px #aaa;
+    @include mediaQuery(small) {
+        width: 30%;
+    }
+    @include mediaQuery(large) {
+        width: 22%;
+    }
+    @include mediaQuery(larger) {
+        width: 17%;
+    }
+    
+    > div {
+        margin: 8px auto 0;
+    }
+    > div.description {
+        display: flex;
+        justify-content: space-between;
+        > div {
+            display: block;
+            &:last-child {
+                min-width: 16px;
+            }
+        }
+        > div span {
+            cursor: pointer;
+            user-select: none;
+        }
+    }
+    .genre {
+        font-weight: bold;
+        font-size: 18px;
+    }
+    .caption {
+        font-size: 14px;
+    }
+    > div.prompt-list-prompt {
+        overflow-y: auto;
+    }
+}
+
+.prompt-settings {
+    width: 100%;
+    @include mediaQuery(medium) {
+        position: sticky;
+        top: 50px;
+        height: 96vh;
+    }
+
+    > .description > .title-area {
+        > * {
+            @include horizontalAlign;
+        }
+        h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        small {
+            margin-left: 1.5em;
+            font-size: 13px;
+        }
+    }       
+    > .description > .manual-input-area {
+        margin: 6px 0 10px;
+        > * {
+            @include horizontalAlign;
+        }
+        #manual-input {
+            margin: 0 8px; 
+            padding: 2px 4px; 
+            font-size: 15px;
+            width: 60%;
+            @include mediaQuery(small) {
+                width: 70%;
+            }
+        }  
+    }
+}
+
+.prompt-settings > .prompt {
+    max-height: 560px;
+    overflow-y: scroll;
+    border-bottom: 1px solid $border-color;
+
+    > .draggable {
+        @include horizontalAlignFlex;
+        margin: 4px auto;
+    }
+
+    > .draggable > .prompt-variation-select{
+        @include horizontalAlignFlex;
+        width: 65%;
+        > div p {
+            font-weight: bold;
+        }
+
+        > div.prompt-name {
+            @include horizontalAlignFlex;
+            margin: 0;
+            @include mediaQuery(medium) {
+                &:before {
+                    content: '';
+                    margin-right: 8px;
+                    width: 18px;
+                    height: 18px;
+                    cursor: pointer;
+                    background-image: url('../images/dnd.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
+            }
+        }
+
+        > div .caption {
+            font-size: 13px;
+            margin-left: 12px;
+            margin-bottom: -6px;
+            display: block;
+        }
+        > .prompt-name .caption {
+            margin-left: 0;
+        }
+        > div > select {
+            width: 86px;
+            margin-left: 8px;
+            outline: none;
+            border: none;
+            border-bottom: 1px solid $border-color;
+            font-size: 16px;
+            white-space: normal;
+        }
+    }
+
+    > .draggable > .enhance-area {
+        width: 20%;
+        min-width: 98px;
+        margin-left: 4px;
+        span {
+            display: inline-block;
+            width: 33%;    
+            text-align: center;
+        }
+    }
+
+    > .draggable > .delete-area {
+        width: 10%;
+        min-width: 48px;
+    }
+}
+
+.prompt-settings > .output-area {
+    width: 100%;
+    @include mediaQuery(medium) {
+        position: absolute;
+        bottom: 28px;
+    }
+    div p {
+        font-size: 13px;
+    }
+    > .text-area .output {
+        margin: 0 0 4px;
+        > span {
+            display: block;
+            max-height: 130px;
+            overflow-y: auto;
+            font-weight: normal;
+        }
+    }
+    > .text-area textarea {
+        width: 100%;
+        height: 110px;
+        font-size: 14px;
+    }
+    > .button-area {
+        margin: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        
+        button {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+    }
+
+    @include mediaQuery(medium, max) {
+        > .button-area > .save > .open-save-modal {
+            display: none;
+        }
+    }
+}
