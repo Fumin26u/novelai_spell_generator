@@ -26,7 +26,8 @@ const revertDBData = (presets: Preset[]) => {
         if (preset.resolution !== null && preset.resolution !== '') {
             const resolutionList = preset.resolution.split('x')
             savedPromptList.value[index]['resolution_width'] = resolutionList[0]
-            savedPromptList.value[index]['resolution_height'] = resolutionList[1]
+            savedPromptList.value[index]['resolution_height'] =
+                resolutionList[1]
         }
     })
 }
@@ -35,12 +36,14 @@ const revertDBData = (presets: Preset[]) => {
 const setImages = (presets: Preset[]) => {
     const imgPath = registerPath + 'images/preset/'
     presets.map((preset, index) => {
-        savedPromptList.value[index]['thumbnail'] = preset.image === null ?
-            imgPath + 'noimage.png' : 
-            imgPath + 'thumbnail/' + preset.image
-        savedPromptList.value[index]['imagePath'] = preset.image === null ?
-            imgPath + 'noimage.png' : 
-            imgPath + 'original/' + preset.image
+        savedPromptList.value[index]['thumbnail'] =
+            preset.image === null
+                ? imgPath + 'noimage.png'
+                : imgPath + 'thumbnail/' + preset.image
+        savedPromptList.value[index]['imagePath'] =
+            preset.image === null
+                ? imgPath + 'noimage.png'
+                : imgPath + 'original/' + preset.image
     })
 }
 
@@ -90,10 +93,10 @@ const selectedPreset = ref<PresetDetail>(presetInitialData)
 const selectedPresetIndex = ref<number>(-1)
 const selectPreset = (selectPresetIndex: number) => {
     if (selectPresetIndex === -1) {
-        selectedPreset.value = {...presetInitialData}
+        selectedPreset.value = { ...presetInitialData }
         selectedPreset.value.index = savedPromptList.value.length
     } else {
-        selectedPreset.value = {...savedPromptList.value[selectPresetIndex]}
+        selectedPreset.value = { ...savedPromptList.value[selectPresetIndex] }
         selectedPreset.value.index = selectPresetIndex
     }
     selectedPresetIndex.value = selectPresetIndex
@@ -101,7 +104,7 @@ const selectPreset = (selectPresetIndex: number) => {
 
 // データ登録・編集モードの状態
 const isRegisterMode = ref<boolean>(true)
-const setRegisterMode = (state: boolean, mode: string = '') => {
+const setRegisterMode = (state: boolean, mode = '') => {
     // 新規登録の場合は選択されているプリセット詳細データを初期化
     if (state && mode === 'register') selectPreset(-1)
     isRegisterMode.value = state
@@ -114,17 +117,19 @@ const searchData = ref<SearchData>({
     item: ['description', 'commands'],
     word: '',
     sort: 'created_at',
-    order: 'asc'
+    order: 'asc',
 })
 
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
-const getPresetData = async(postData: SearchData = searchData.value) => {
-    const url = registerPath +  'api/managePreset.php'
+const getPresetData = async (postData: SearchData = searchData.value) => {
+    const url = registerPath + 'api/managePreset.php'
     // プリセットを初期化
     savedPromptList.value = []
-    await axios.get(url, {
-        params: postData
-    }).then(response => {
+    await axios
+        .get(url, {
+            params: postData,
+        })
+        .then((response) => {
             if (response.data !== '') {
                 savedPromptList.value = response.data
                 revertDBData(savedPromptList.value)
@@ -132,14 +137,14 @@ const getPresetData = async(postData: SearchData = searchData.value) => {
                 setIsNsfw(savedPromptList.value)
             }
         })
-        .catch(error => {
-            console.log(error) 
+        .catch((error) => {
+            console.log(error)
         })
 }
 
 // コピーした際のアラートを設定
-const alertText = ref<string>('') 
-const setAlertText = (text: string) => alertText.value = text
+const alertText = ref<string>('')
+const setAlertText = (text: string) => (alertText.value = text)
 
 // ページ遷移用のURI
 // テストサーバーも含める為パス名を取得して結合
@@ -147,8 +152,7 @@ const originPath = new URL(location.href).origin + location.pathname
 
 // ログインユーザーIDを取得
 const user_id = ref<string>('')
-const getUserInfo = (userId: string) => user_id.value = userId
-
+const getUserInfo = (userId: string) => (user_id.value = userId)
 
 // 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
 onMounted(() => {
@@ -161,7 +165,9 @@ onMounted(() => {
     <HeaderComponent @getUserInfo="getUserInfo" />
     <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
-            <p>プロンプトセーバーを利用する場合はユーザーログインが必要です。</p>
+            <p>
+                プロンプトセーバーを利用する場合はユーザーログインが必要です。
+            </p>
             <a :href="originPath + '#/login'">ログイン</a>
             <a :href="originPath + '#/register'">ユーザー登録</a>
         </div>
@@ -170,18 +176,35 @@ onMounted(() => {
                 <div class="title">
                     <div class="display-form">
                         <h2>検索フォーム</h2>
-                        <button 
-                            class="btn-common green" 
-                            @click="isDisplaySearchBox = true" 
-                            :style="[!isDisplaySearchBox ? 'display: inline-block':'display: none']"
-                        >▽開く</button>
-                        <button 
-                            class="btn-common red" 
-                            @click="isDisplaySearchBox = false" 
-                            :style="[isDisplaySearchBox ? 'display: inline-block':'display: none']"
-                        >△閉じる</button>
+                        <button
+                            class="btn-common green"
+                            @click="isDisplaySearchBox = true"
+                            :style="[
+                                !isDisplaySearchBox
+                                    ? 'display: inline-block'
+                                    : 'display: none',
+                            ]"
+                        >
+                            ▽開く
+                        </button>
+                        <button
+                            class="btn-common red"
+                            @click="isDisplaySearchBox = false"
+                            :style="[
+                                isDisplaySearchBox
+                                    ? 'display: inline-block'
+                                    : 'display: none',
+                            ]"
+                        >
+                            △閉じる
+                        </button>
                     </div>
-                    <button @click="setRegisterMode(true, 'register')" class="btn-common green register-preset">＋新規追加</button>
+                    <button
+                        @click="setRegisterMode(true, 'register')"
+                        class="btn-common green register-preset"
+                    >
+                        ＋新規追加
+                    </button>
                 </div>
                 <searchBoxComponent
                     v-if="isDisplaySearchBox"
@@ -190,35 +213,54 @@ onMounted(() => {
                 />
             </section>
             <section class="preset-message">
-                <p class="data-count">{{ savedPromptList.length > 0 ? savedPromptList.length + '件のデータが存在します。':'該当のデータが存在しません。' }}</p>
+                <p class="data-count">
+                    {{
+                        savedPromptList.length > 0
+                            ? savedPromptList.length +
+                              '件のデータが存在します。'
+                            : '該当のデータが存在しません。'
+                    }}
+                </p>
                 <p class="copy-alert">{{ alertText }}</p>
             </section>
             <section class="preset-list">
                 <div class="preset-content">
-                    <div 
-                        v-for="(prompt, index) in savedPromptList" 
-                        :key="prompt.preset_id !== null ? prompt.preset_id : 0" 
-                        :class="[selectedPresetIndex === index ? 'selected':'']"
+                    <div
+                        v-for="(prompt, index) in savedPromptList"
+                        :key="prompt.preset_id !== null ? prompt.preset_id : 0"
+                        :class="[
+                            selectedPresetIndex === index ? 'selected' : '',
+                        ]"
                         @click="selectPreset(index), setRegisterMode(false)"
                     >
-                        <img :src="prompt.thumbnail" :alt="prompt.description !== null ? prompt.description : ''">
+                        <img
+                            :src="prompt.thumbnail"
+                            :alt="
+                                prompt.description !== null
+                                    ? prompt.description
+                                    : ''
+                            "
+                        />
                         <p>{{ prompt.description }}</p>
                     </div>
                     <div
-                        :class="['register', selectedPresetIndex === -1 ? 'selected':'']"
+                        :class="[
+                            'register',
+                            selectedPresetIndex === -1 ? 'selected' : '',
+                        ]"
                         @click="setRegisterMode(true, 'register')"
                     >
                         <span>新規追加</span>
                     </div>
                 </div>
             </section>
-            <SelectedPresetComponent 
+            <SelectedPresetComponent
                 v-if="!isRegisterMode"
                 :selected="selectedPreset"
                 @setAlertText="setAlertText"
                 @setRegisterMode="setRegisterMode"
             />
-            <ManagePresetComponent 
+            <ManagePresetComponent
                 id="saver"
                 v-else
                 :selectedPreset="selectedPreset"

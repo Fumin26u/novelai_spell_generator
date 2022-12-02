@@ -1,25 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import PromptGenerator from '@/PromptGenerator.vue'
-import SavedPrompt from '@/SavedPrompt.vue'
-import AccountManage from '@/AccountManager.vue'
+import PromptGenerator from '@/views/PromptGenerator.vue'
+import SavedPrompt from '@/views/SavedPrompt.vue'
+import AccountManage from '@/views/AccountManager.vue'
 const routes = [
     {
-        path: '/', 
-        name: 'generator', 
+        path: '/',
+        name: 'generator',
         component: PromptGenerator,
     },
     {
-        path: '/saves', 
+        path: '/saves',
         name: 'saves',
         component: SavedPrompt,
     },
     {
-        path: '/login', 
+        path: '/login',
         name: 'login',
         component: AccountManage,
     },
     {
-        path: '/register', 
+        path: '/register',
         name: 'register',
         component: AccountManage,
     },
@@ -30,6 +30,4 @@ const router = createRouter({
     routes,
 })
 
-export default router 
-
-
+export default router
