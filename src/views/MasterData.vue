@@ -99,7 +99,7 @@ onMounted(() => getMasterData())
             <table
                 class="master-data-list"
                 v-for="(genre, i) in promptList"
-                :key="genre.slag"
+                :key="genre.id"
             >
                 <thead>
                     <tr>
@@ -114,12 +114,26 @@ onMounted(() => getMasterData())
                 <tbody>
                     <tr class="genre">
                         <td id="id">{{ genre.id }}</td>
-                        <td id="jp"></td>
-                        <td id="slag"></td>
-                        <td id="nsfw"></td>
-                        <td id="variation"></td>
+                        <td id="jp">{{ genre.jp }}</td>
+                        <td id="slag">{{ genre.slag }}</td>
+                        <td id="nsfw">{{ genre.nsfw_display }}</td>
+                        <td id="variation">-</td>
                         <td id="edit">
-                            <a href="./register.php?genre_id=<?= $i ?>">編集</a>
+                            <a href="">編集</a>
+                        </td>
+                    </tr>
+                    <tr
+                        class="prompt"
+                        v-for="(prompt, j) in genre.content"
+                        :key="prompt.id"
+                    >
+                        <td id="id">{{ prompt.id }}</td>
+                        <td id="jp">{{ prompt.jp }}</td>
+                        <td id="tag">{{ prompt.tag }}</td>
+                        <td id="nsfw">{{ prompt.nsfw_display }}</td>
+                        <td id="variation">{{ prompt.variation_display }}</td>
+                        <td id="edit">
+                            <a href="">編集</a>
                         </td>
                     </tr>
                 </tbody>
