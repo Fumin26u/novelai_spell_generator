@@ -116,9 +116,13 @@ class PromptController {
         $sql = '';
 
         $sql = "UPDATE {$table} SET \n";
-        foreach ($columnList as $column) {
-            $columnName = $column;
-            $sql .= "{$columnName} = :{$columnName}, \n";
+        for ($i = 0; $i < count($columnList); $i++) {
+            $columnName = $columnList[$i];
+            if ($i === count($columnList) - 1) {
+                $sql .= "{$columnName} = :{$columnName} \n";
+            } else {
+                $sql .= "{$columnName} = :{$columnName}, \n";
+            }
         }
         $sql .= "WHERE {$table}_id = :{$table}_id";
 
@@ -143,10 +147,29 @@ class PromptController {
                 'command_id' => $post['id'],
                 'command_name' => $post['tag'],
                 'command_jp' => $post['jp'],
-                'caption' => $post['caption'],
+                'genre_id' => $post['genre_id'],
                 'nsfw' => $post['nsfw'],
+                'variation' => $post['variation'],
+                'detail' => $post['detail'],
             ];
         }
+        v($sql);
+
+        foreach ($this->columns as $column) {
+            // 見づらくなりそうなので代入
+            $columnName = $column['name'];
+            $columnInit = $column['init'];
+            $columnType = $column['type'];
+
+            $st->bindValue(
+                ":{$columnName}", 
+                isset($data[$columnName]) ? h($data[$columnName]) : $columnInit,
+                $columnType
+            );
+        }
+        
+        $st->execute();
+        $pdo->commit();
     }
 
     public function create($post) {
@@ -165,6 +188,8 @@ class PromptController {
                 $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'command');
 
             }
+
+            $this->bindToExecSQL($pdo, $sql, $post);
 
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
@@ -189,6 +214,8 @@ class PromptController {
                 $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'command');
 
             }
+
+            $this->bindToExecSQL($pdo, $sql, $post);
 
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';

@@ -13,22 +13,25 @@ require_once($home . 'api/controllers/PromptController.php');
 // user_idが自分でなければ強制終了
 if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SESSION['user_id'] !== 'Fumiya0719') {
     echo json_encode([
-        'error' => '不正なリクエストです。',
+        'error' => true,
+        'content' => '不正なリクエストです。'
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 $promptController = new PromptController();
+$response = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($post['method']) && $post['method'] === 'delete') {
-        $promptController->delete($post['id'], $post['table']);
-    }
-
-    if ($post['edit']) {
-        $promptController->update($post);
+        $response = $promptController->delete($post['id'], $post['table']); 
+    } else if ($post['edit']) {
+        $response = $promptController->update($post);
     } else {
-        $promptController->create($post);
+        $response = $promptController->create($post);
     }
 }
 
-echo json_encode($post, JSON_UNESCAPED_UNICODE);
+echo json_encode([
+    'error' => false,
+    'content' => $response
+], JSON_UNESCAPED_UNICODE);
