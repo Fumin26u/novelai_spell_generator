@@ -145,7 +145,6 @@ const selectPrompt = (
 ) => {
     selectedPrompt.value = content
     selectedPrompt.value.edit = isEdit
-    console.log(selectedPrompt.value)
 }
 
 // ログインユーザーIDを取得
