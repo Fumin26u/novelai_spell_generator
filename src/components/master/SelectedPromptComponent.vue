@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import '@/assets/scss/masterData.scss'
-// import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
+import registerPath from '@/assets/ts/registerPath'
+import axios from 'axios'
 import { ref, watchEffect } from 'vue'
 
 interface Props {
@@ -15,6 +16,57 @@ watchEffect(() => {
     prompt.value = props.selected
     console.log(prompt.value)
 })
+
+// フォーム入力内容のバリデーションを行う
+const errorMessage = ref<string[]>([])
+const isExistError = () => {
+    // エラー内容のリセット
+    errorMessage.value = []
+
+    if (prompt.value === undefined) return
+
+    if (typeof prompt.value.id !== 'number') {
+        errorMessage.value.push('IDの入力内容が不正です。')
+    }
+
+    if (prompt.value.jp === '') {
+        errorMessage.value.push('日本語名が入力されていません。')
+    }
+
+    if (prompt.value.identifier === 'genre' && prompt.value.slag !== '') {
+        errorMessage.value.push('スラッグが入力されていません。')
+    }
+
+    if (prompt.value.identifier === 'prompt' && prompt.value.tag !== '') {
+        errorMessage.value.push('プロンプト名が入力されていません。')
+    }
+
+    return errorMessage.value.length > 0 ? true:false
+}
+
+// 入力内容をAPIに送信してデータ登録
+const registerPrompt = (method: string = 'save') => {
+    // データが存在しない場合エラーを返して強制終了
+    if (prompt.value === undefined || prompt.value.id === 0) {
+        errorMessage.value.push('送信データが存在しません。')
+        return
+    }
+
+    const formUrl = registerPath + 'api/managePrompt.php'
+    if (method === 'delete') {
+        axios
+            .post(formUrl, {
+                table: prompt.value.identifier
+            })
+            .then((response) => console.log(response))
+            .catch((error) => console.log(error))
+    }
+
+    // 入力内容のバリデーションをし、エラーが無い場合はAPIにデータを送信
+    if (!isExistError()) {
+        
+    }
+}
 </script>
 
 <template>
@@ -22,8 +74,16 @@ watchEffect(() => {
         <div class="title-area">
             <h2>マスタデータ編集</h2>
             <div class="button-area">
-                <button class="btn-common blue">送信</button>
-                <button class="btn-common red" v-if="(prompt.id !== 0)">削除</button>
+                <button class="btn-common blue" @click="registerPrompt()">
+                    送信
+                </button>
+                <button
+                    class="btn-common red"
+                    v-if="prompt.id !== 0"
+                    @click="registerPrompt('delete')"
+                >
+                    削除
+                </button>
             </div>
         </div>
         <dl class="prompt-manage-form">
@@ -31,6 +91,7 @@ watchEffect(() => {
                 <dt>ID</dt>
                 <dd><input type="number" v-model="prompt.id" /></dd>
             </div>
+            <p class="response-message" v-for="(message, index) in errorMessage" :key="index">{{ message }}</p>
             <div>
                 <dt>日本語名</dt>
                 <dd><input type="text" v-model="prompt.jp" /></dd>
@@ -107,7 +168,9 @@ watchEffect(() => {
                     <dd><input type="text" v-model="prompt.caption" /></dd>
                 </div>
             </section>
-            <button class="btn-common blue">送信</button>
+            <button class="btn-common blue" @click="registerPrompt()">
+                送信
+            </button>
         </dl>
     </section>
 </template>
