@@ -22,6 +22,10 @@ const emit = defineEmits<Emits>()
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
+    
+    if (prompt.value !== undefined) {
+        console.log(typeof prompt.value.id, prompt.value.id)
+    }
 })
 
 // genreとpromptのID一覧
@@ -36,9 +40,9 @@ const isExistError = () => {
 
     if (prompt.value === undefined) return
 
-    if (typeof prompt.value.id !== 'number') {
-        errorMessage.value.push('IDの入力内容が不正です。')
-    }
+    // if (typeof prompt.value.id !== 'number') {
+    //     errorMessage.value.push('IDの入力内容が不正です。')
+    // }
 
     if (prompt.value.jp === '') {
         errorMessage.value.push('日本語名が入力されていません。')
