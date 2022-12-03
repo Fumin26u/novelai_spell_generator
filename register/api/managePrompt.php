@@ -15,10 +15,15 @@ if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SESSION['user_id'] !== 'Fumiya071
     echo json_encode([
         'error' => '不正なリクエストです。',
     ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 $promptController = new PromptController();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($post['method']) && $post['method'] === 'delete') {
+        $promptController->delete($post['id'], $post['table']);
+    }
+
     if ($post['edit']) {
         $promptController->update($post);
     } else {

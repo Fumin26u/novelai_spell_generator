@@ -113,6 +113,7 @@ const getMasterData = async (): Promise<void> => {
 // 選択されたプロンプトデータとジャンルデータ
 const promptInitialData: MasterPrompt = {
     detail: null,
+    genre_id: 0,
     id: 0,
     identifier: 'prompt',
     jp: '',
@@ -144,6 +145,7 @@ const selectPrompt = (
 ) => {
     selectedPrompt.value = content
     selectedPrompt.value.edit = isEdit
+    console.log(selectedPrompt.value)
 }
 
 // ログインユーザーIDを取得

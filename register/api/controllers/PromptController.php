@@ -125,6 +125,30 @@ class PromptController {
         return $sql;
     }
 
+    private function bindToExecSQL($pdo, $sql, $post) {
+        $st = $pdo->prepare($sql);
+
+        // プロパティ名とカラム名が異なるので新規で連想配列を作り再挿入
+        $data = [];
+        if ($post['identifier'] === 'genre') {
+            $data = [
+                'genre_id' => $post['id'],
+                'genre_slag' => $post['slag'],
+                'genre_jp' => $post['jp'],
+                'caption' => $post['caption'],
+                'nsfw' => $post['nsfw'],
+            ];
+        } else if ($post['identifier'] === 'prompt') {
+            $data = [
+                'command_id' => $post['id'],
+                'command_name' => $post['tag'],
+                'command_jp' => $post['jp'],
+                'caption' => $post['caption'],
+                'nsfw' => $post['nsfw'],
+            ];
+        }
+    }
+
     public function create($post) {
         try {
             $pdo = dbConnect();
@@ -141,7 +165,6 @@ class PromptController {
                 $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'command');
 
             }
-            v($sql);
 
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
@@ -166,7 +189,6 @@ class PromptController {
                 $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'command');
 
             }
-            v($sql);
 
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';

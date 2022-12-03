@@ -54,6 +54,10 @@ const isExistError = () => {
             errorMessage.value.push('プロンプト名が入力されていません。')
         }
 
+        if (prompt.value.genre_id === 0 || genreIdList.value.includes(prompt.value.genre_id)) {
+            errorMessage.value.push('存在しないジャンルIDです。')
+        }
+
         if (!prompt.value.edit && promptIdList.value.includes(prompt.value.id)) {
             errorMessage.value.push('既に使用されているIDです。')
         }
@@ -74,6 +78,7 @@ const registerPrompt = (method: string = 'save') => {
     if (method === 'delete' && confirm('本当に削除しますか?')) {
         axios
             .post(formUrl, {
+                method: 'delete',
                 table: prompt.value.identifier,
                 id: prompt.value.id,
             })
@@ -159,6 +164,10 @@ const registerPrompt = (method: string = 'save') => {
                 <div>
                     <dt>プロンプト名</dt>
                     <dd><input type="text" v-model="prompt.tag" /></dd>
+                </div>
+                <div>
+                    <dt>ジャンルID</dt>
+                    <dd><input type="text" v-model="prompt.genre_id" /></dd>
                 </div>
                 <div>
                     <dt>カラーバリエーション</dt>

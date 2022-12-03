@@ -46,6 +46,7 @@ function shapeMasterData($genres, $commands) {
             'tag' => $command['command_name'],
             'jp' => $command['command_jp'],
             'nsfw' => $command['nsfw'],
+            'genre_id' => $command['genre_id'],
             'variation' => $command['variation'],
             'detail' => $command['detail'],
         ];

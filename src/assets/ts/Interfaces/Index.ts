@@ -83,6 +83,7 @@ export interface AccountInfo {
 // マスタデータ関連
 export interface MasterPrompt {
     detail: string | null
+    genre_id: number,
     id: number
     identifier: 'prompt'
     jp: string
