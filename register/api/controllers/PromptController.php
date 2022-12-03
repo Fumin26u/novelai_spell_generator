@@ -1,82 +1,19 @@
 <?php
 
+require_once('./prompt/SetColumns.php');
+require_once('./prompt/GetMasterData.php');
+require_once('./prompt/MakeSqlQuery.php');
+
 class PromptController {
+    use SetPromptColumns;
+    use GetMasterData;
+    use MakeSqlQuery;
+
     private $user_id;
     private $columns;
 
     public function __construct() {
         $this->user_id = $_SERVER['HTTP_HOST'] === 'localhost' ? 'Fumiya0719':h($_SESSION['user_id']); 
-    }
-
-    // データ登録・編集の際必要なDBのカラム名・初期値・型を設定する
-    private function setPromptColumns() {
-        $this->columns = [
-            [
-                'name' => 'command_id',
-                'init' => -1,
-                'type' => PDO::PARAM_INT,
-            ],
-            [
-                'name' => 'command_name',
-                'init' => '',
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'command_jp',
-                'init' => '',
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'genre_id',
-                'init' => -1,
-                'type' => PDO::PARAM_INT,
-            ],
-            [
-                'name' => 'nsfw',
-                'init' => 'A',
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'variation',
-                'init' => null,
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'detail',
-                'init' => null,
-                'type' => PDO::PARAM_STR,
-            ],
-        ];
-    }
-
-    private function setGenreColumns() {
-        $this->columns = [
-            [
-                'name' => 'genre_id',
-                'init' => -1,
-                'type' => PDO::PARAM_INT,
-            ],
-            [
-                'name' => 'genre_slag',
-                'init' => '',
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'genre_jp',
-                'init' => '',
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'caption',
-                'init' => null,
-                'type' => PDO::PARAM_STR,
-            ],
-            [
-                'name' => 'nsfw',
-                'init' => 'A',
-                'type' => PDO::PARAM_STR,
-            ],
-        ];
     }
 
     public function delete($id, $table) {
@@ -99,34 +36,18 @@ class PromptController {
         }
     }
 
-    private function makeCreateSql($columnList, $table) {
-        $sql = '';
+    // 整形したマスタデータをJsonに変換
+    public function convertMasterDataToJson($masterData) {
+        $json = json_encode($masterData, JSON_UNESCAPED_UNICODE);
+        $json = "const master_data = `" . $json . "`\nexport default master_data";
+        return $json;
+    } 
 
-        $columnList = array_column($this->columns, 'name');
-        $sql .= "INSERT INTO {$table} (";
-        $sql .= implode(', ', $columnList);
-        $sql .= ') VALUES (:';
-        $sql .= implode(', :', $columnList);
-        $sql .= ')';
-
-        return $sql;
-    }
-
-    private function makeUpdateSql($columnList, $table) {
-        $sql = '';
-
-        $sql = "UPDATE {$table} SET \n";
-        for ($i = 0; $i < count($columnList); $i++) {
-            $columnName = $columnList[$i];
-            if ($i === count($columnList) - 1) {
-                $sql .= "{$columnName} = :{$columnName} \n";
-            } else {
-                $sql .= "{$columnName} = :{$columnName}, \n";
-            }
-        }
-        $sql .= "WHERE {$table}_id = :{$table}_id";
-
-        return $sql;
+    // マスタデータを取得
+    public function get() {
+        $masterData = $this->getMasterData();
+        $shapedMasterData = $this-> shapeMasterData($masterData[1], $masterData[0]);
+        return $shapedMasterData;
     }
 
     private function bindToExecSQL($pdo, $sql, $post) {
@@ -153,7 +74,6 @@ class PromptController {
                 'detail' => $post['detail'],
             ];
         }
-        v($sql);
 
         foreach ($this->columns as $column) {
             // 見づらくなりそうなので代入
