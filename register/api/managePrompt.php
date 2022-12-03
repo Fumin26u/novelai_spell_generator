@@ -17,4 +17,13 @@ if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SESSION['user_id'] !== 'Fumiya071
     ], JSON_UNESCAPED_UNICODE);
 }
 
+$promptController = new PromptController();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($post['edit']) {
+        $promptController->update($post);
+    } else {
+        $promptController->create($post);
+    }
+}
+
 echo json_encode($post, JSON_UNESCAPED_UNICODE);

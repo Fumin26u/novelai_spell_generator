@@ -98,4 +98,79 @@ class PromptController {
             if (DEBUG) echo $e;
         }
     }
+
+    private function makeCreateSql($columnList, $table) {
+        $sql = '';
+
+        $columnList = array_column($this->columns, 'name');
+        $sql .= "INSERT INTO {$table} (";
+        $sql .= implode(', ', $columnList);
+        $sql .= ') VALUES (:';
+        $sql .= implode(', :', $columnList);
+        $sql .= ')';
+
+        return $sql;
+    }
+
+    private function makeUpdateSql($columnList, $table) {
+        $sql = '';
+
+        $sql = "UPDATE {$table} SET \n";
+        foreach ($columnList as $column) {
+            $columnName = $column;
+            $sql .= "{$columnName} = :{$columnName}, \n";
+        }
+        $sql .= "WHERE {$table}_id = :{$table}_id";
+
+        return $sql;
+    }
+
+    public function create($post) {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+            
+            if ($post['identifier'] === 'genre') {
+
+                $this->setGenreColumns();                
+                $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'genre');
+
+            } else if ($post['identifier'] === 'prompt') {
+
+                $this->setPromptColumns();        
+                $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'command');
+
+            }
+            v($sql);
+
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
+    }
+
+    public function update($post) {
+        
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+            
+            if ($post['identifier'] === 'genre') {
+
+                $this->setGenreColumns();                
+                $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'genre');
+
+            } else if ($post['identifier'] === 'prompt') {
+
+                $this->setPromptColumns();     
+                $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'command');
+
+            }
+            v($sql);
+
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
+    }
 }
