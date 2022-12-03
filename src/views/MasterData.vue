@@ -53,11 +53,14 @@ const addDisplayProps = (promptList: MasterData[]) => {
     const promptListQueue: MasterData[] = []
 
     promptList.map((genre: MasterData) => {
+        genre['identifier'] = 'genre'
         genre['nsfw_display'] = judgeNsfwDisplay(genre.nsfw)
+        genre['show_prompt'] = false
         promptListQueue.push(genre)
 
         const promptList: MasterPrompt[] = []
         genre.content.map((prompt: MasterPrompt) => {
+            prompt['identifier'] = 'prompt'
             prompt['nsfw_display'] = judgeNsfwDisplay(prompt.nsfw)
             prompt['variation_display'] = judgeVariationDisplay(
                 prompt.variation
@@ -78,11 +81,18 @@ const getMasterData = async (): Promise<void> => {
         .get(url)
         .then((response) => {
             promptList.value = addDisplayProps(convertMasterData(response.data))
-            console.log(promptList.value)
         })
         .catch((error) => {
             console.log(error)
         })
+}
+
+// 選択されたプロンプトデータとジャンルデータ
+const selectedPrompt = ref<MasterData | MasterPrompt>()
+// マスタデータ一覧の編集ボタン押下時、選択したプロンプトのデータを挿入
+const selectPrompt = (content: MasterData | MasterPrompt) => {
+    selectedPrompt.value = content
+    console.log(selectedPrompt.value)
 }
 
 // ログインユーザーIDを取得
@@ -112,19 +122,32 @@ onMounted(() => getMasterData())
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="genre">
+                    <tr
+                        class="genre"
+                        @click="
+                            promptList[i].show_prompt = promptList[i]
+                                .show_prompt
+                                ? false
+                                : true
+                        "
+                    >
                         <td id="id">{{ genre.id }}</td>
                         <td id="jp">{{ genre.jp }}</td>
                         <td id="slag">{{ genre.slag }}</td>
                         <td id="nsfw">{{ genre.nsfw_display }}</td>
                         <td id="variation">-</td>
                         <td id="edit">
-                            <a href="">編集</a>
+                            <a
+                                href="#"
+                                @click.prevent.stop="selectPrompt(genre)"
+                                >編集</a
+                            >
                         </td>
                     </tr>
                     <tr
                         class="prompt"
                         v-for="(prompt, j) in genre.content"
+                        v-show="promptList[i].show_prompt"
                         :key="prompt.id"
                     >
                         <td id="id">{{ prompt.id }}</td>
@@ -133,7 +156,11 @@ onMounted(() => getMasterData())
                         <td id="nsfw">{{ prompt.nsfw_display }}</td>
                         <td id="variation">{{ prompt.variation_display }}</td>
                         <td id="edit">
-                            <a href="">編集</a>
+                            <a
+                                href="#"
+                                @click.prevent.stop="selectPrompt(prompt)"
+                                >編集</a
+                            >
                         </td>
                     </tr>
                 </tbody>

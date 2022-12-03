@@ -84,6 +84,7 @@ export interface AccountInfo {
 export interface MasterPrompt {
     detail: string | null
     id: number
+    identifier: 'prompt'
     jp: string
     nsfw: Nsfw
     nsfw_display: NsfwDisplay
@@ -96,8 +97,10 @@ export interface MasterData {
     caption: string | null
     content: MasterPrompt[]
     id: number,
+    identifier: 'genre'
     jp: string
     nsfw: Nsfw
     nsfw_display: NsfwDisplay
+    show_prompt: boolean
     slag: string
 }
