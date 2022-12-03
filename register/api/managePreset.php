@@ -6,10 +6,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post = json_decode(file_get_contents('php://input'), true);
 }
 
-require_once($home . 'database/commonlib.php');
-require_once($home . 'api/controllers/DBControllers.php');
-require_once($home . 'api/controllers/PresetController.php');
-require_once($home . 'api/controllers/ImageController.php');
+require_once('./commonlib.php');
+require_once('./controllers/DBControllers.php');
+require_once('./controllers/PresetController.php');
+require_once('./controllers/ImageController.php');
 
 $presetController = new PresetController();
 // GETの場合は検索フォームの入力内容に合わせてDBのデータをJSON化し返却

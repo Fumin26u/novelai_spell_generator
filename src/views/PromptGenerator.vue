@@ -304,7 +304,7 @@ const openSaveModal = (modalState: boolean, output: string): void => {
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
 const getMasterData = async (): Promise<void> => {
-    const url = registerPath + 'api/getMasterData.php?from=spell_generator'
+    const url = registerPath + 'api/managePrompt.php'
     await axios
         .get(url)
         .then((response) => {
