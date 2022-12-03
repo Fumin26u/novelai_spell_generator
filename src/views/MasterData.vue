@@ -90,7 +90,30 @@ const getMasterData = async (): Promise<void> => {
 }
 
 // 選択されたプロンプトデータとジャンルデータ
-const selectedPrompt = ref<MasterData | MasterPrompt>()
+const promptInitialData: MasterPrompt = {
+    detail: null,
+    id: 0,
+    identifier: 'prompt',
+    jp: '',
+    nsfw: 'A',
+    nsfw_display: '全年齢',
+    tag: '',
+    variation: null,
+    variation_display: 'なし',
+}
+const genreInitialData: MasterData = {
+    caption: '',
+    content: [],
+    id: 0,
+    identifier: 'genre',
+    jp: '',
+    nsfw: 'A',
+    nsfw_display: '全年齢',
+    show_prompt: false,
+    slag: '',
+}
+
+const selectedPrompt = ref<MasterData | MasterPrompt>(promptInitialData)
 // マスタデータ一覧の編集ボタン押下時、選択したプロンプトのデータを挿入
 const selectPrompt = (content: MasterData | MasterPrompt) => {
     selectedPrompt.value = content
@@ -106,6 +129,25 @@ onMounted(() => getMasterData())
 <template>
     <HeaderComponent @getUserInfo="getUserInfo" />
     <main class="master-data">
+        <section class="top-button-area">
+            <div class="generate-json-area">
+                <button class="btn-common green">jsonファイル生成</button>
+            </div>
+            <div class="register-prompt-area">
+                <button
+                    class="btn-common green"
+                    @click="selectPrompt(genreInitialData)"
+                >
+                    ジャンル新規登録
+                </button>
+                <button
+                    class="btn-common blue"
+                    @click="selectPrompt(promptInitialData)"
+                >
+                    プロンプト新規登録
+                </button>
+            </div>
+        </section>
         <section class="master-data-list-area">
             <h2>マスタデータ一覧</h2>
             <table

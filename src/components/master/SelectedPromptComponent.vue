@@ -18,9 +18,15 @@ watchEffect(() => {
 </script>
 
 <template>
-    <section class="prompt-manage">
-        <h2>マスタデータ編集</h2>
-        <dl class="prompt-manage-form" v-if="prompt !== undefined">
+    <section class="prompt-manage" v-if="prompt !== undefined">
+        <div class="title-area">
+            <h2>マスタデータ編集</h2>
+            <div class="button-area">
+                <button class="btn-common blue">送信</button>
+                <button class="btn-common red" v-if="(prompt.id !== 0)">削除</button>
+            </div>
+        </div>
+        <dl class="prompt-manage-form">
             <div>
                 <dt>ID</dt>
                 <dd><input type="number" v-model="prompt.id" /></dd>
@@ -103,6 +109,5 @@ watchEffect(() => {
             </section>
             <button class="btn-common blue">送信</button>
         </dl>
-        <p v-else>プロンプトまたはジャンルが選択されていません。</p>
     </section>
 </template>

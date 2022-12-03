@@ -2,6 +2,22 @@
 
 main.master-data {
     @include horizontalAlignFlex(flex-start);
+    flex-wrap: wrap;
+}
+
+.master-data > .top-button-area {
+    @include horizontalAlignFlex;
+    width: 100%;
+    margin: 8px auto;
+
+    > div.register-prompt-area > button {
+        margin-left: 1em; 
+    }
+
+    button {
+        font-size: 16px;
+        padding: 4px 16px;
+    }
 }
 
 .master-data > .master-data-list-area {
@@ -63,6 +79,14 @@ main.master-data {
 
 .master-data > .prompt-manage {
     width: 34%;
+
+    > .title-area {
+        @include horizontalAlignFlex;
+
+        > .button-area > button {
+            margin-left: 8px;
+        }
+    }
 
     dl, dt, dd {
         margin: 0;
