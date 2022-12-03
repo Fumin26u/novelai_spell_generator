@@ -78,4 +78,24 @@ class PromptController {
             ],
         ];
     }
+
+    public function delete($id, $table) {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+
+            $sql = $table === 'genre' ?
+                'DELETE FROM genre WHERE genre_id = :id':
+                'DELETE FROM command WHERE command_id = :id';
+
+            $st = $pdo->prepare($sql);
+            $st->bindValue(':id', h($id), PDO::PARAM_INT);
+            $st->execute();
+
+            $pdo->commit();
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
+    }
 }
