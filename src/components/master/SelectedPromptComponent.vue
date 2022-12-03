@@ -13,11 +13,13 @@ const props = defineProps<Props>()
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
+    console.log(prompt.value)
 })
 </script>
 
 <template>
     <section class="prompt-manage">
+        <h2>マスタデータ編集</h2>
         <dl class="prompt-manage-form" v-if="prompt !== undefined">
             <div>
                 <dt>ID</dt>
@@ -25,7 +27,7 @@ watchEffect(() => {
             </div>
             <div>
                 <dt>日本語名</dt>
-                <dd><input type="number" v-model="prompt.jp" /></dd>
+                <dd><input type="text" v-model="prompt.jp" /></dd>
             </div>
             <div>
                 <dt>年齢制限</dt>
@@ -56,7 +58,7 @@ watchEffect(() => {
             <div v-if="prompt.identifier === 'prompt'">
                 <div>
                     <dt>プロンプト名</dt>
-                    <dd><input type="number" v-model="prompt.tag" /></dd>
+                    <dd><input type="text" v-model="prompt.tag" /></dd>
                 </div>
                 <div>
                     <dt>カラーバリエーション</dt>
@@ -86,17 +88,17 @@ watchEffect(() => {
                 </div>
                 <div>
                     <dt>詳細</dt>
-                    <dd><input type="number" v-model="prompt.detail" /></dd>
+                    <dd><input type="text" v-model="prompt.detail" /></dd>
                 </div>
             </div>
             <div v-if="prompt.identifier === 'genre'">
                 <div>
                     <dt>スラッグ</dt>
-                    <dd><input type="number" v-model="prompt.slag" /></dd>
+                    <dd><input type="text" v-model="prompt.slag" /></dd>
                 </div>
                 <div>
                     <dt>キャプション</dt>
-                    <dd><input type="number" v-model="prompt.caption" /></dd>
+                    <dd><input type="text" v-model="prompt.caption" /></dd>
                 </div>
             </div>
         </dl>

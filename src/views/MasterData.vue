@@ -94,7 +94,6 @@ const selectedPrompt = ref<MasterData | MasterPrompt>()
 // マスタデータ一覧の編集ボタン押下時、選択したプロンプトのデータを挿入
 const selectPrompt = (content: MasterData | MasterPrompt) => {
     selectedPrompt.value = content
-    console.log(selectedPrompt.value)
 }
 
 // ログインユーザーIDを取得
@@ -108,6 +107,7 @@ onMounted(() => getMasterData())
     <HeaderComponent @getUserInfo="getUserInfo" />
     <main class="master-data">
         <section class="master-data-list-area">
+            <h2>マスタデータ一覧</h2>
             <table
                 class="master-data-list"
                 v-for="(genre, i) in promptList"
