@@ -55,7 +55,7 @@ watchEffect(() => {
                     <label for="nsfw_z">R-18</label>
                 </dd>
             </div>
-            <div v-if="prompt.identifier === 'prompt'">
+            <section v-if="prompt.identifier === 'prompt'">
                 <div>
                     <dt>プロンプト名</dt>
                     <dd><input type="text" v-model="prompt.tag" /></dd>
@@ -90,8 +90,8 @@ watchEffect(() => {
                     <dt>詳細</dt>
                     <dd><input type="text" v-model="prompt.detail" /></dd>
                 </div>
-            </div>
-            <div v-if="prompt.identifier === 'genre'">
+            </section>
+            <section v-if="prompt.identifier === 'genre'">
                 <div>
                     <dt>スラッグ</dt>
                     <dd><input type="text" v-model="prompt.slag" /></dd>
@@ -100,7 +100,9 @@ watchEffect(() => {
                     <dt>キャプション</dt>
                     <dd><input type="text" v-model="prompt.caption" /></dd>
                 </div>
-            </div>
+            </section>
+            <button class="btn-common blue">送信</button>
         </dl>
+        <p v-else>プロンプトまたはジャンルが選択されていません。</p>
     </section>
 </template>

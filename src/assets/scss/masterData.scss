@@ -62,5 +62,34 @@ main.master-data {
 }
 
 .master-data > .prompt-manage {
-    width: 32%;
+    width: 34%;
+
+    dl, dt, dd {
+        margin: 0;
+    }
+
+    dl div {
+        border-bottom: 1px solid $border-color;
+        padding: 8px 0;
+        margin: 8px 0;
+
+        input[type=number], input[type=text] {
+            width: 97%;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        dt {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    }
+
+    dl > button {
+        display: block;
+        width: 180px;
+        padding: 8px;
+        border-radius: 8px;
+        margin: 0 auto;
+    }
 }
