@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderComponent from '@/components/HeaderComponent.vue'
+import '@/assets/scss/masterData.scss'
 import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import registerPath from '@/assets/ts/registerPath'
