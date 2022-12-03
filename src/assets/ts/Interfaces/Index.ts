@@ -95,6 +95,7 @@ export interface MasterPrompt {
 export interface MasterData {
     caption: string | null
     content: MasterPrompt[]
+    id: number,
     jp: string
     nsfw: Nsfw
     nsfw_display: NsfwDisplay

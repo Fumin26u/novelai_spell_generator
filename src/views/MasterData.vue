@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import HeaderComponent from '@/components/HeaderComponent.vue'
-import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import axios from 'axios'
+import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import registerPath from '@/assets/ts/registerPath'
 import { ref, onMounted } from 'vue'
 
@@ -9,10 +9,12 @@ import { ref, onMounted } from 'vue'
 const promptList = ref<MasterData[]>([])
 
 // マスタデータのindexが1から始まるので新規で配列を作りマスタデータを再挿入
-const convertMasterData = (masterData: MasterData[]) => {
+const convertMasterData = (promptList: MasterData[]) => {
     const promptListQueue: MasterData[] = []
-    Object.keys(masterData).map((index: string) => {
-        promptListQueue.push(masterData[parseInt(index)])
+    Object.keys(promptList).map((index: string) => {
+        const i = parseInt(index)
+        promptList[i].id = i
+        promptListQueue.push(promptList[i])
     })
 
     return promptListQueue
@@ -53,11 +55,13 @@ const addDisplayProps = (promptList: MasterData[]) => {
     promptList.map((genre: MasterData) => {
         genre['nsfw_display'] = judgeNsfwDisplay(genre.nsfw)
         promptListQueue.push(genre)
-        
+
         const promptList: MasterPrompt[] = []
         genre.content.map((prompt: MasterPrompt) => {
             prompt['nsfw_display'] = judgeNsfwDisplay(prompt.nsfw)
-            prompt['variation_display'] = judgeVariationDisplay(prompt.variation)
+            prompt['variation_display'] = judgeVariationDisplay(
+                prompt.variation
+            )
             promptList.push(prompt)
         })
 
@@ -74,6 +78,7 @@ const getMasterData = async (): Promise<void> => {
         .get(url)
         .then((response) => {
             promptList.value = addDisplayProps(convertMasterData(response.data))
+            console.log(promptList.value)
         })
         .catch((error) => {
             console.log(error)
@@ -89,5 +94,36 @@ onMounted(() => getMasterData())
 
 <template>
     <HeaderComponent @getUserInfo="getUserInfo" />
-    <main class="master-data"></main>
+    <main class="master-data">
+        <section class="master-data-list-area">
+            <table
+                class="master-data-list"
+                v-for="(genre, i) in promptList"
+                :key="genre.slag"
+            >
+                <thead>
+                    <tr>
+                        <th id="id">ID</th>
+                        <th id="jp">日本語名</th>
+                        <th id="slag">プロンプト名</th>
+                        <th id="nsfw">年齢制限</th>
+                        <th id="variation">色設定</th>
+                        <th id="edit">編集</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="genre">
+                        <td id="id">{{ genre.id }}</td>
+                        <td id="jp"></td>
+                        <td id="slag"></td>
+                        <td id="nsfw"></td>
+                        <td id="variation"></td>
+                        <td id="edit">
+                            <a href="./register.php?genre_id=<?= $i ?>">編集</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
 </template>
