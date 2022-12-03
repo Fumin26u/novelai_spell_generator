@@ -1,5 +1,13 @@
 @import './style.scss';
 
 main.master-data {
-    @include horizontalAlignFlex
+    @include horizontalAlignFlex(flex-start)
+}
+
+.master-data > .master-data-list-area {
+    width: 64%;
+}
+
+.master-data > .prompt-manage {
+    width: 32%;
 }

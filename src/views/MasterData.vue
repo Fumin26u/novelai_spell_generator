@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderComponent from '@/components/HeaderComponent.vue'
+import SelectedPromptComponent from '@/components/master/SelectedPromptComponent.vue'
 import '@/assets/scss/masterData.scss'
 import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
@@ -167,5 +168,6 @@ onMounted(() => getMasterData())
                 </tbody>
             </table>
         </section>
+        <SelectedPromptComponent :selected="selectedPrompt" />
     </main>
 </template>

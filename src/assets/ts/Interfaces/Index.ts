@@ -102,5 +102,5 @@ export interface MasterData {
     nsfw: Nsfw
     nsfw_display: NsfwDisplay
     show_prompt: boolean
-    slag: string
+    slag: string | null
 }
