@@ -58,7 +58,7 @@ onMounted(() => getUserInfo())
                 >
                 <a href="./#/saves/" class="prompt-saver">プロンプトセーバー</a>
                 <a
-                    href="https://nai-pg.com/register/master/"
+                    href="./#/master/"
                     class="master-register"
                     v-if="user_id === 'Fumiya0719'"
                     >マスタデータ登録</a
