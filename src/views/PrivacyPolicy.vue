@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import '@/assets/scss/termsOfUse.scss'
+</script>
 
 <template>
-    <main>
+    <HeaderComponent />
+    <main class="privacy-policy">
         <h2>プライバシーポリシー</h2>
         <p>
             本ウェブサイトの管理人（以下、「管理人」といいます。）は、本ウェブサイトの管理人がこのウェブサイト上で提供するサービスであるプロンプトジェネレーター及びプロンプトセーバー（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。

@@ -1,6 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import '@/assets/scss/termsOfUse.scss'
+</script>
 
 <template>
+    <HeaderComponent />
     <main class="terms-of-use">
         <h2>利用規約</h2>
         <p>

@@ -1,17 +1,19 @@
 @import './style.scss';
-.tou_content {
-    margin: 0 4em;
-}
+.terms-of-use, .privacy-policy {
+    > div {
+        margin: 2em 0;
+    }
+    
+    li {
+        list-style: auto;
+        margin: 8px 0;
+    }
 
-.tou_content > div {
-    margin: 2em 0;
-}
+    p {
+        margin: 8px 0;
+    }
 
-.tou_content li, 
-.tou_content p {
-    margin: 8px 0;
-}
-
-.tou_content ol > ol {
-    padding-left: 32px;
+    ol > ol {
+        padding-left: 32px;
+    }
 }
