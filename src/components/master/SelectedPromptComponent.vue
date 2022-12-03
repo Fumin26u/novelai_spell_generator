@@ -22,10 +22,6 @@ const emit = defineEmits<Emits>()
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
-    
-    if (prompt.value !== undefined) {
-        console.log(typeof prompt.value.id, prompt.value.id)
-    }
 })
 
 // genreとpromptのID一覧

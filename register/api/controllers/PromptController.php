@@ -1,11 +1,7 @@
 <?php
 
-require_once('./prompt/SetColumns.php');
-require_once('./prompt/GetMasterData.php');
-require_once('./prompt/MakeSqlQuery.php');
-
 class PromptController {
-    use SetPromptColumns;
+    use SetColumns;
     use GetMasterData;
     use MakeSqlQuery;
 
@@ -87,6 +83,7 @@ class PromptController {
                 $columnType
             );
         }
+
         
         $st->execute();
         $pdo->commit();
@@ -99,12 +96,12 @@ class PromptController {
             
             if ($post['identifier'] === 'genre') {
 
-                $this->setGenreColumns();                
+                $this->columns = $this->setGenreColumns();                
                 $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'genre');
 
             } else if ($post['identifier'] === 'prompt') {
 
-                $this->setPromptColumns();        
+                $this->columns = $this->setPromptColumns();        
                 $sql = $this->makeCreateSql(array_column($this->columns, 'name'), 'command');
 
             }
@@ -125,12 +122,12 @@ class PromptController {
             
             if ($post['identifier'] === 'genre') {
 
-                $this->setGenreColumns();                
+                $this->columns = $this->setGenreColumns();                
                 $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'genre');
 
             } else if ($post['identifier'] === 'prompt') {
 
-                $this->setPromptColumns();     
+                $this->columns = $this->setPromptColumns();     
                 $sql = $this->makeUpdateSql(array_column($this->columns, 'name'), 'command');
 
             }
@@ -141,5 +138,171 @@ class PromptController {
             echo 'データベース接続に失敗しました。';
             if (DEBUG) echo $e;
         }
+    }
+}
+
+
+trait GetMasterData {
+    // データベースから全マスタデータを取得
+    private function getMasterData() {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+        
+            $sql = <<<SQL
+            SELECT command.* FROM command 
+            INNER JOIN genre ON command.genre_id = genre.genre_id
+            SQL;
+            $st = $pdo->query($sql);
+            $commands = $st->fetchAll(PDO::FETCH_ASSOC);
+
+            $st = $pdo->query('SELECT * FROM genre');
+            $genres = $st->fetchAll(PDO::FETCH_ASSOC);
+
+            $pdo->commit();
+            return [$commands, $genres];
+            
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    // マスタデータを1つの連想配列に成形
+    private function shapeMasterData($genres, $commands) {
+        $shapedMasterData = [];
+        
+        foreach ($genres as $genre) {
+            $shapedMasterData[$genre['genre_id']] = [
+                'jp' => $genre['genre_jp'],
+                'slag' => $genre['genre_slag'],
+                'caption' => $genre['caption'],
+                'nsfw' => $genre['nsfw'],
+                'content' => [],
+            ];
+        }
+    
+        foreach ($commands as $command) {
+            $shapedMasterData[$command['genre_id']]['content'][] = [
+                'id' => $command['command_id'],
+                'tag' => $command['command_name'],
+                'jp' => $command['command_jp'],
+                'nsfw' => $command['nsfw'],
+                'genre_id' => $command['genre_id'],
+                'variation' => $command['variation'],
+                'detail' => $command['detail'],
+            ];
+        }
+        
+        return $shapedMasterData;
+    }
+}
+
+trait SetColumns {
+    private $columns;
+
+    private function setPromptColumns() {
+        $this->columns = [
+            [
+                'name' => 'command_id',
+                'init' => -1,
+                'type' => PDO::PARAM_INT,
+            ],
+            [
+                'name' => 'command_name',
+                'init' => '',
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'command_jp',
+                'init' => '',
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'genre_id',
+                'init' => -1,
+                'type' => PDO::PARAM_INT,
+            ],
+            [
+                'name' => 'nsfw',
+                'init' => 'A',
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'variation',
+                'init' => null,
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'detail',
+                'init' => null,
+                'type' => PDO::PARAM_STR,
+            ],
+        ];
+
+        return $this->columns;
+    }
+
+    private function setGenreColumns() {
+        $this->columns = [
+            [
+                'name' => 'genre_id',
+                'init' => -1,
+                'type' => PDO::PARAM_INT,
+            ],
+            [
+                'name' => 'genre_slag',
+                'init' => '',
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'genre_jp',
+                'init' => '',
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'caption',
+                'init' => null,
+                'type' => PDO::PARAM_STR,
+            ],
+            [
+                'name' => 'nsfw',
+                'init' => 'A',
+                'type' => PDO::PARAM_STR,
+            ],
+        ];
+
+        return $this->columns;
+    }
+}
+
+trait MakeSqlQuery {
+    private function makeCreateSql($columnList, $table) {
+        $sql = '';
+
+        $columnList = array_column($this->columns, 'name');
+        $sql .= "INSERT INTO {$table} (";
+        $sql .= implode(', ', $columnList);
+        $sql .= ') VALUES (:';
+        $sql .= implode(', :', $columnList);
+        $sql .= ')';
+
+        return $sql;
+    }
+
+    private function makeUpdateSql($columnList, $table) {
+        $sql = '';
+
+        $sql = "UPDATE {$table} SET \n";
+        for ($i = 0; $i < count($columnList); $i++) {
+            $columnName = $columnList[$i];
+            if ($i === count($columnList) - 1) {
+                $sql .= "{$columnName} = :{$columnName} \n";
+            } else {
+                $sql .= "{$columnName} = :{$columnName}, \n";
+            }
+        }
+        $sql .= "WHERE {$table}_id = :{$table}_id";
+
+        return $sql;
     }
 }
