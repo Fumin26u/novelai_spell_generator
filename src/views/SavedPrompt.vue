@@ -122,7 +122,7 @@ const searchData = ref<SearchData>({
 
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
 const getPresetData = async (postData: SearchData = searchData.value) => {
-    const url = apiPath + 'api/managePreset.php'
+    const url = apiPath + 'managePreset.php'
     // プリセットを初期化
     savedPromptList.value = []
     await axios
