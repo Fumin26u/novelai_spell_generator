@@ -6,6 +6,7 @@ import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // DBから取得したマスタデータ一覧
 const promptList = ref<MasterData[]>([])
@@ -149,7 +150,12 @@ const selectPrompt = (
 
 // ログインユーザーIDを取得
 const user_id = ref<string>('')
-const getUserInfo = (userId: string) => (user_id.value = userId)
+const router = useRouter()
+const getUserInfo = (userId: string) => {
+    // 自分以外のユーザーがアクセスした場合強制リダイレクト
+    if (userId !== 'Fumiya0719') router.push('./')
+    user_id.value = userId
+}
 
 onMounted(() => getMasterData())
 </script>
