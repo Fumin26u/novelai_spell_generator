@@ -7,8 +7,27 @@ import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import registerPath from '@/assets/ts/registerPath'
 import { ref, onMounted } from 'vue'
 
-//  DBから取得したマスタデータ一覧
+// DBから取得したマスタデータ一覧
 const promptList = ref<MasterData[]>([])
+// ジャンルID一覧
+const genreIdList = ref<number[]>([])
+// プロンプトID一覧
+const promptIdList = ref<number[]>([])
+
+// マスタデータからIDのみの配列を抽出
+const getGenreIdList = (promptList: MasterData[]) => {
+    return promptList.map((genre: MasterData) => genre.id)
+}
+const getPromptIdList = (promptList: MasterData[]) => {
+    const promptIdListQueue: number[] = []
+    promptList.map((genre: MasterData) => {
+        genre.content.map((prompt: MasterPrompt) => {
+            promptIdListQueue.push(prompt.id)
+        })
+    })
+
+    return promptIdListQueue
+}
 
 // マスタデータのindexが1から始まるので新規で配列を作りマスタデータを再挿入
 const convertMasterData = (promptList: MasterData[]) => {
@@ -83,6 +102,8 @@ const getMasterData = async (): Promise<void> => {
         .get(url)
         .then((response) => {
             promptList.value = addDisplayProps(convertMasterData(response.data))
+            genreIdList.value = getGenreIdList(promptList.value)
+            promptIdList.value = getPromptIdList(promptList.value)
         })
         .catch((error) => {
             console.log(error)
@@ -100,6 +121,7 @@ const promptInitialData: MasterPrompt = {
     tag: '',
     variation: null,
     variation_display: 'なし',
+    edit: false,
 }
 const genreInitialData: MasterData = {
     caption: '',
@@ -111,12 +133,17 @@ const genreInitialData: MasterData = {
     nsfw_display: '全年齢',
     show_prompt: false,
     slag: '',
+    edit: false,
 }
 
 const selectedPrompt = ref<MasterData | MasterPrompt>(promptInitialData)
 // マスタデータ一覧の編集ボタン押下時、選択したプロンプトのデータを挿入
-const selectPrompt = (content: MasterData | MasterPrompt) => {
+const selectPrompt = (
+    content: MasterData | MasterPrompt,
+    isEdit: boolean = false
+) => {
     selectedPrompt.value = content
+    selectedPrompt.value.edit = isEdit
 }
 
 // ログインユーザーIDを取得
@@ -183,7 +210,7 @@ onMounted(() => getMasterData())
                         <td id="edit">
                             <a
                                 href="#"
-                                @click.prevent.stop="selectPrompt(genre)"
+                                @click.prevent.stop="selectPrompt(genre, true)"
                                 >編集</a
                             >
                         </td>
@@ -202,7 +229,7 @@ onMounted(() => getMasterData())
                         <td id="edit">
                             <a
                                 href="#"
-                                @click.prevent.stop="selectPrompt(prompt)"
+                                @click.prevent.stop="selectPrompt(prompt, true)"
                                 >編集</a
                             >
                         </td>
@@ -210,6 +237,10 @@ onMounted(() => getMasterData())
                 </tbody>
             </table>
         </section>
-        <SelectedPromptComponent :selected="selectedPrompt" />
+        <SelectedPromptComponent
+            :selected="selectedPrompt"
+            :genreIdList="genreIdList"
+            :promptIdList="promptIdList"
+        />
     </main>
 </template>

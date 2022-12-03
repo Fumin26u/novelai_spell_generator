@@ -91,6 +91,7 @@ export interface MasterPrompt {
     tag: string
     variation: string | null
     variation_display: 'なし' | 'マルチカラー' | 'モノクロ'
+    edit: boolean
 }
 
 export interface MasterData {
@@ -103,4 +104,5 @@ export interface MasterData {
     nsfw_display: NsfwDisplay
     show_prompt: boolean
     slag: string | null
+    edit: boolean
 }

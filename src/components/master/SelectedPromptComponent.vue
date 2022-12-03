@@ -7,14 +7,21 @@ import { ref, watchEffect } from 'vue'
 
 interface Props {
     selected: MasterData | MasterPrompt | undefined
+    genreIdList: number[]
+    promptIdList: number[]
 }
 
 const props = defineProps<Props>()
 
+// 選択されたプロンプト
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
 })
+
+// genreとpromptのID一覧
+const genreIdList = ref<number[]>(props.genreIdList)
+const promptIdList = ref<number[]>(props.promptIdList)
 
 // フォーム入力内容のバリデーションを行う
 const errorMessage = ref<string[]>([])
@@ -32,12 +39,24 @@ const isExistError = () => {
         errorMessage.value.push('日本語名が入力されていません。')
     }
 
-    if (prompt.value.identifier === 'genre' && prompt.value.slag === '') {
-        errorMessage.value.push('スラッグが入力されていません。')
+    if (prompt.value.identifier === 'genre') {
+        if (prompt.value.slag === '') {
+            errorMessage.value.push('スラッグが入力されていません。')
+        }
+
+        if (genreIdList.value.includes(prompt.value.id)) {
+            errorMessage.value.push('既に使用されているIDです。')
+        }
     }
 
-    if (prompt.value.identifier === 'prompt' && prompt.value.tag === '') {
-        errorMessage.value.push('プロンプト名が入力されていません。')
+    if (prompt.value.identifier === 'prompt') {
+        if (prompt.value.tag === '') {
+            errorMessage.value.push('プロンプト名が入力されていません。')
+        }
+
+        if (promptIdList.value.includes(prompt.value.id)) {
+            errorMessage.value.push('既に使用されているIDです。')
+        }
     }
 
     return errorMessage.value.length > 0 ? true : false
@@ -104,7 +123,7 @@ const registerPrompt = (method: string = 'save') => {
         <dl class="prompt-manage-form">
             <div>
                 <dt>ID</dt>
-                <dd><input type="number" v-model="prompt.id" /></dd>
+                <dd><input type="number" v-model="prompt.id" :readonly="prompt.edit" /></dd>
             </div>
             <div>
                 <dt>日本語名</dt>
