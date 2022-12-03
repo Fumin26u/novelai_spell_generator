@@ -44,7 +44,7 @@ const isExistError = () => {
             errorMessage.value.push('スラッグが入力されていません。')
         }
 
-        if (genreIdList.value.includes(prompt.value.id)) {
+        if (!prompt.value.edit && genreIdList.value.includes(prompt.value.id)) {
             errorMessage.value.push('既に使用されているIDです。')
         }
     }
@@ -54,7 +54,7 @@ const isExistError = () => {
             errorMessage.value.push('プロンプト名が入力されていません。')
         }
 
-        if (promptIdList.value.includes(prompt.value.id)) {
+        if (!prompt.value.edit && promptIdList.value.includes(prompt.value.id)) {
             errorMessage.value.push('既に使用されているIDです。')
         }
     }
