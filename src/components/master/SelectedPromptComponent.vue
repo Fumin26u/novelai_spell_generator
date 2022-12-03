@@ -10,8 +10,13 @@ interface Props {
     genreIdList: number[]
     promptIdList: number[]
 }
+interface Emits {
+    (e: 'getMasterData'): Promise<void>
+    (e: 'selectPrompt', content: MasterData | MasterPrompt, isEdit: boolean): void
+}
 
 const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 
 // 選択されたプロンプト
 const prompt = ref<MasterData | MasterPrompt | undefined>()
@@ -82,8 +87,17 @@ const registerPrompt = (method: string = 'save') => {
                 table: prompt.value.identifier,
                 id: prompt.value.id,
             })
-            .then((response) => console.log(response))
+            .then((response) => {
+                if (response.data.error) {
+                    errorMessage.value.push('データベース接続に失敗しました。')
+                } else {
+                    alert('データを削除しました。')
+                    emit('getMasterData')
+                }
+            })
             .catch((error) => console.log(error))
+        
+        return
     }
 
     // 入力内容のバリデーションをし、エラーが無い場合はAPIにデータを送信
@@ -95,7 +109,17 @@ const registerPrompt = (method: string = 'save') => {
         const formData = JSON.stringify(sendData)
         axios
             .post(formUrl, formData)
-            .then((response) => console.log(response.data))
+            .then((response) => {
+                if (response.data.error) {
+                    errorMessage.value.push('データベース接続に失敗しました。')
+                } else {
+                    alert('データ送信が完了しました。')
+                    emit('getMasterData')
+                    if (prompt.value !== undefined) {
+                        emit('selectPrompt', prompt.value, true)
+                    }
+                }
+            })
             .catch((error) => console.log(error))
     }
 }

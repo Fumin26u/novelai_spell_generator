@@ -243,6 +243,8 @@ onMounted(() => getMasterData())
             :selected="selectedPrompt"
             :genreIdList="genreIdList"
             :promptIdList="promptIdList"
+            @getMasterData="getMasterData"
+            @selectPrompt="selectPrompt"
         />
     </main>
 </template>

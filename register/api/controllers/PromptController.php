@@ -69,7 +69,7 @@ class PromptController {
             [
                 'name' => 'caption',
                 'init' => null,
-                'type' => PDO::PARAM_INT,
+                'type' => PDO::PARAM_STR,
             ],
             [
                 'name' => 'nsfw',
