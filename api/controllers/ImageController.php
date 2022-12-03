@@ -33,15 +33,13 @@ class ImageController {
         // サムネイル用にオリジナル画像を16:10の比率で切り取る
         $cropWidth = $width;
         $cropHeight = $height;
-        for ($i = 0; $i < 50; $i++) {
-            $h = ($cropWidth / 16) * 10;
-            if ($h < $cropHeight) {
-                $cropHeight = $h;
-                break;
-            } else {
-                $cropWidth -= 10;
-            }
+
+        if ($width * 10 >= $height * 16) {
+            $cropWidth = floor($height * (16 / 10));
+        } else {
+            $cropHeight = floor($width * (10 / 16));
         }
+        
         // 画像の切り取る位置の0ベクトル地点
         $cropX = ($width / 2) - ($cropWidth / 2);
         $cropY = 0;

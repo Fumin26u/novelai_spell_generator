@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import master_data from '@/assets/ts/master_data'
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import {
     Nsfw,
     Prompt,
@@ -304,7 +304,7 @@ const openSaveModal = (modalState: boolean, output: string): void => {
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
 const getMasterData = async (): Promise<void> => {
-    const url = registerPath + 'api/getMasterData.php?from=spell_generator'
+    const url = apiPath + 'managePrompt.php'
     await axios
         .get(url)
         .then((response) => {

@@ -5,7 +5,7 @@ header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 // ClickJacking対策
 header('X-FRAME-OPTIONS: SAMEORIGIN');
 
-require_once("system-conf.php");
+require_once("./database/system-conf.php");
 
 // タイムゾーン設定
 date_default_timezone_set('Asia/Tokyo');

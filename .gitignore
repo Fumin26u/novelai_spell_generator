@@ -22,9 +22,8 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-register/old/*
-register/images/preset/original/*
-register/images/preset/thumbnail/*
+images/
+api/images/preset/*/*
 */fetchData.ts
 *.txt
 

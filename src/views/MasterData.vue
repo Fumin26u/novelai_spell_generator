@@ -4,8 +4,9 @@ import SelectedPromptComponent from '@/components/master/SelectedPromptComponent
 import '@/assets/scss/masterData.scss'
 import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // DBから取得したマスタデータ一覧
 const promptList = ref<MasterData[]>([])
@@ -97,7 +98,7 @@ const addDisplayProps = (promptList: MasterData[]) => {
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
 const getMasterData = async (): Promise<void> => {
-    const url = registerPath + 'api/getMasterData.php?from=spell_generator'
+    const url = apiPath + 'managePrompt.php'
     await axios
         .get(url)
         .then((response) => {
@@ -145,12 +146,16 @@ const selectPrompt = (
 ) => {
     selectedPrompt.value = content
     selectedPrompt.value.edit = isEdit
-    console.log(selectedPrompt.value)
 }
 
 // ログインユーザーIDを取得
 const user_id = ref<string>('')
-const getUserInfo = (userId: string) => (user_id.value = userId)
+const router = useRouter()
+const getUserInfo = (userId: string) => {
+    // 自分以外のユーザーがアクセスした場合強制リダイレクト
+    if (userId !== 'Fumiya0719') router.push('./')
+    user_id.value = userId
+}
 
 onMounted(() => getMasterData())
 </script>

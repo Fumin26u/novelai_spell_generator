@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import { AccountInfo } from '@/assets/ts/Interfaces/Index'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import '@/assets/scss/manageAccount.scss'
@@ -28,7 +28,7 @@ const account = ref<AccountInfo>({
 
 // 登録ボタンが押された際、バリデーションを行いアカウント登録またはログイン
 const responseMessage = ref<string>('')
-const formUrl = registerPath + 'api/manageAccount.php'
+const formUrl = apiPath + 'manageAccount.php'
 const regex = {
     user_id: '^.{6,20}$',
     password: '^([a-zA-Z0-9]{8,20})$',

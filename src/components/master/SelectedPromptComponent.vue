@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '@/assets/scss/masterData.scss'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import axios from 'axios'
 import { ref, watchEffect } from 'vue'
 
@@ -22,10 +22,6 @@ const emit = defineEmits<Emits>()
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
-    
-    if (prompt.value !== undefined) {
-        console.log(typeof prompt.value.id, prompt.value.id)
-    }
 })
 
 // genreとpromptのID一覧
@@ -83,7 +79,7 @@ const registerPrompt = (method: string = 'save') => {
         return
     }
 
-    const formUrl = registerPath + 'api/managePrompt.php'
+    const formUrl = apiPath + 'managePrompt.php'
     if (method === 'delete' && confirm('本当に削除しますか?')) {
         axios
             .post(formUrl, {
@@ -100,7 +96,7 @@ const registerPrompt = (method: string = 'save') => {
                 }
             })
             .catch((error) => console.log(error))
-        
+
         return
     }
 
@@ -156,7 +152,13 @@ const registerPrompt = (method: string = 'save') => {
         <dl class="prompt-manage-form">
             <div>
                 <dt>ID</dt>
-                <dd><input type="number" v-model="prompt.id" :readonly="prompt.edit" /></dd>
+                <dd>
+                    <input
+                        type="number"
+                        v-model="prompt.id"
+                        :readonly="prompt.edit"
+                    />
+                </dd>
             </div>
             <div>
                 <dt>日本語名</dt>

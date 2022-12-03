@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import '@/assets/scss/header.scss'
 import axios from 'axios'
 
@@ -17,7 +17,7 @@ const isOpenHBGMenu = ref<boolean>(false)
 const originPath = new URL(location.href).origin + location.pathname
 
 // ログアウトリンクが押された場合APIに伝える
-const formUrl = registerPath + 'api/manageAccount.php'
+const formUrl = apiPath + 'manageAccount.php'
 const execLogout = async () => {
     const formData = JSON.stringify({
         method: 'logout',
@@ -31,7 +31,7 @@ const execLogout = async () => {
 // 画面読み込み時にログインユーザーIDを取得
 const user_id = ref<string>('')
 const getUserInfo = async () => {
-    const url = registerPath + 'api/manageAccount.php'
+    const url = apiPath + 'manageAccount.php'
     axios
         .post(url, {
             method: 'getUserData',
