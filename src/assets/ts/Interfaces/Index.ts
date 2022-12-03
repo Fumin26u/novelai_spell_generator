@@ -79,3 +79,24 @@ export interface AccountInfo {
     user_id: string
     password: string
 }
+
+// マスタデータ関連
+export interface MasterPrompt {
+map(arg0: (prompt: MasterPrompt) => void): unknown
+    detail: string | null
+    id: number
+    jp: string
+    nsfw: Nsfw
+    nsfw_display: NsfwDisplay
+    tag: string
+    variation: string | null
+}
+
+export interface MasterData {
+    caption: string | null
+    content: MasterPrompt[]
+    jp: string
+    nsfw: Nsfw
+    nsfw_display: NsfwDisplay
+    slag: string
+}
