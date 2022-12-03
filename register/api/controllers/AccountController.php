@@ -1,5 +1,4 @@
 <?php
-$home = '../';
 
 class AccountController {
     private $response;

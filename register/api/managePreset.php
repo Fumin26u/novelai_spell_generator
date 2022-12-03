@@ -1,5 +1,5 @@
 <?php
-$home = '../';
+$home = './';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8', true, 200);
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (strpos($post['image'], ',') !== false) {
             // 画像を新規登録または更新する場合Base64形式で送られてくるのでデコードして固有ファイル名に変換し保存
-            $imageDirPath = '../images/preset/original/';
+            $imageDirPath = './images/preset/original/';
             $imageBase64String = substr($post['image'], strpos($post['image'], ',')+1);
             $imageData = base64_decode($imageBase64String);
             
