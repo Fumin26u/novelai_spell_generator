@@ -8,20 +8,6 @@ import { ref, onMounted } from 'vue'
 //  DBから取得したマスタデータ一覧
 const promptList = ref<MasterData[]>([])
 
-// nsfwプロパティの値に応じてviewに表示する値を判定
-const judgeNsfwDisplay = (limit: string) => {
-    switch (limit) {
-        case 'A':
-            return '全年齢'
-        case 'C':
-            return 'R-15'
-        case 'Z':
-            return 'R-18'
-        default: 
-            return '全年齢'
-    }
-}
-
 // マスタデータのindexが1から始まるので新規で配列を作りマスタデータを再挿入
 const convertMasterData = (masterData: MasterData[]) => {
     const promptListQueue: MasterData[] = []
@@ -32,8 +18,36 @@ const convertMasterData = (masterData: MasterData[]) => {
     return promptListQueue
 }
 
-// 各プリセットがnsfwかどうか判定
-const setNsfwDisplay = (promptList: MasterData[]) => {
+// nsfwプロパティの値に応じてviewに表示する値を判定
+const judgeNsfwDisplay = (limit: string) => {
+    switch (limit) {
+        case 'A':
+            return '全年齢'
+        case 'C':
+            return 'R-15'
+        case 'Z':
+            return 'R-18'
+        default:
+            return '全年齢'
+    }
+}
+
+// variationプロパティの値に応じてviewに表示する値を判定
+const judgeVariationDisplay = (variation: string | null) => {
+    switch (variation) {
+        case 'CC':
+            return 'マルチカラー'
+        case 'CM':
+            return 'モノクロ'
+        case null:
+            return 'なし'
+        default:
+            return 'なし'
+    }
+}
+
+// 各プロンプト・ジャンルに表示用の情報を追加
+const addDisplayProps = (promptList: MasterData[]) => {
     const promptListQueue: MasterData[] = []
 
     promptList.map((genre: MasterData) => {
@@ -42,10 +56,10 @@ const setNsfwDisplay = (promptList: MasterData[]) => {
         
         const promptList: MasterPrompt[] = []
         genre.content.map((prompt: MasterPrompt) => {
-
             prompt['nsfw_display'] = judgeNsfwDisplay(prompt.nsfw)
+            prompt['variation_display'] = judgeVariationDisplay(prompt.variation)
             promptList.push(prompt)
-        }) 
+        })
 
         genre.content = promptList
     })
@@ -59,7 +73,7 @@ const getMasterData = async (): Promise<void> => {
     await axios
         .get(url)
         .then((response) => {
-            promptList.value = setNsfwDisplay(convertMasterData(response.data))
+            promptList.value = addDisplayProps(convertMasterData(response.data))
         })
         .catch((error) => {
             console.log(error)

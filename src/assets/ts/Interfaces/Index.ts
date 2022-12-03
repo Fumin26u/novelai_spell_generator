@@ -82,7 +82,6 @@ export interface AccountInfo {
 
 // マスタデータ関連
 export interface MasterPrompt {
-map(arg0: (prompt: MasterPrompt) => void): unknown
     detail: string | null
     id: number
     jp: string
@@ -90,6 +89,7 @@ map(arg0: (prompt: MasterPrompt) => void): unknown
     nsfw_display: NsfwDisplay
     tag: string
     variation: string | null
+    variation_display: 'なし' | 'マルチカラー' | 'モノクロ'
 }
 
 export interface MasterData {
