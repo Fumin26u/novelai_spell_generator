@@ -37,11 +37,11 @@ const setImages = (presets: Preset[]) => {
     const imgPath = apiPath + 'images/preset/'
     presets.map((preset, index) => {
         savedPromptList.value[index]['thumbnail'] =
-            preset.image === null
+            preset.image === null || preset.image === ''
                 ? imgPath + 'noimage.png'
                 : imgPath + 'thumbnail/' + preset.image
         savedPromptList.value[index]['imagePath'] =
-            preset.image === null
+            preset.image === null || preset.image === ''
                 ? imgPath + 'noimage.png'
                 : imgPath + 'original/' + preset.image
     })
