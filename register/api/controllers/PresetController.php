@@ -150,6 +150,8 @@ class PresetController implements DBControllers {
             $st->execute();
 
             $pdo->commit();
+
+            return 'データを削除しました。';
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
             if (DEBUG) echo $e;
@@ -198,7 +200,7 @@ class PresetController implements DBControllers {
             // SQL文にデータバインドを行い登録
             $this->bindToExecSQL($pdo, $sql, $post);
 
-            return '登録しました。';
+            return 'データを登録しました。';
             
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';
@@ -226,7 +228,7 @@ class PresetController implements DBControllers {
             // SQL文にデータバインドを行い更新
             $this->bindToExecSQL($pdo, $sql, $post, $preset_id);
 
-            return '更新しました。';
+            return 'データを更新しました。';
             
         } catch (PDOException $e) {
             echo 'データベース接続に失敗しました。';

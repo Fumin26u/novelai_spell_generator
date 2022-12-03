@@ -79,3 +79,31 @@ export interface AccountInfo {
     user_id: string
     password: string
 }
+
+// マスタデータ関連
+export interface MasterPrompt {
+    detail: string | null
+    genre_id: number,
+    id: number
+    identifier: 'prompt'
+    jp: string
+    nsfw: Nsfw
+    nsfw_display: NsfwDisplay
+    tag: string
+    variation: string | null
+    variation_display: 'なし' | 'マルチカラー' | 'モノクロ'
+    edit: boolean
+}
+
+export interface MasterData {
+    caption: string | null
+    content: MasterPrompt[]
+    id: number,
+    identifier: 'genre'
+    jp: string
+    nsfw: Nsfw
+    nsfw_display: NsfwDisplay
+    show_prompt: boolean
+    slag: string | null
+    edit: boolean
+}

@@ -2,6 +2,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import PromptGenerator from '@/views/PromptGenerator.vue'
 import SavedPrompt from '@/views/SavedPrompt.vue'
 import AccountManage from '@/views/AccountManager.vue'
+import TermsOfUse from '@/views/TermsOfUse.vue'
+import PrivacyPolicy from '@/views/PrivacyPolicy.vue'
+import MasterData from '@/views/MasterData.vue'
 const routes = [
     {
         path: '/',
@@ -22,6 +25,21 @@ const routes = [
         path: '/register',
         name: 'register',
         component: AccountManage,
+    },
+    {
+        path: '/master',
+        name: 'master',
+        component: MasterData,
+    },
+    {
+        path: '/terms_of_use',
+        name: 'terms_of_use',
+        component: TermsOfUse,
+    },
+    {
+        path: '/privacy_policy',
+        name: 'privacy_policy',
+        component: PrivacyPolicy,
     },
 ]
 

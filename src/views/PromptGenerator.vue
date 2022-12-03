@@ -56,7 +56,7 @@ const setDisplayNsfw = (limit: string): void => {
     })
 }
 
-// JSON文字列にしたマスタデータをJSオブジェクトの配列に変換
+// マスタデータをJSオブジェクトの配列に変換
 const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
     const commandListQueue: PromptList[] = []
     Object.keys(jsonObj).map((index: string) =>

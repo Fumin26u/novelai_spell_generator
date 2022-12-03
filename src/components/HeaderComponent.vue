@@ -58,23 +58,15 @@ onMounted(() => getUserInfo())
                 >
                 <a href="./#/saves/" class="prompt-saver">プロンプトセーバー</a>
                 <a
-                    href="https://nai-pg.com/register/master/"
+                    href="./#/master/"
                     class="master-register"
                     v-if="user_id === 'Fumiya0719'"
                     >マスタデータ登録</a
                 >
             </div>
             <div class="sub-link">
-                <a
-                    href="https://nai-pg.com/register/t/terms_of_use.php"
-                    target="_blank"
-                    >利用規約</a
-                >
-                <a
-                    href="https://nai-pg.com/register/t/privacy_policy.php"
-                    target="_blank"
-                    >プライバシーポリシー</a
-                >
+                <a href="./#/terms_of_use">利用規約</a>
+                <a href="./#/privacy_policy">プライバシーポリシー</a>
             </div>
             <div class="account-link">
                 <a :href="originPath + '#/login'" v-if="user_id === ''"
