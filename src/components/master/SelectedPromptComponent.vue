@@ -14,7 +14,6 @@ const props = defineProps<Props>()
 const prompt = ref<MasterData | MasterPrompt | undefined>()
 watchEffect(() => {
     prompt.value = props.selected
-    console.log(prompt.value)
 })
 
 // フォーム入力内容のバリデーションを行う
@@ -33,15 +32,15 @@ const isExistError = () => {
         errorMessage.value.push('日本語名が入力されていません。')
     }
 
-    if (prompt.value.identifier === 'genre' && prompt.value.slag !== '') {
+    if (prompt.value.identifier === 'genre' && prompt.value.slag === '') {
         errorMessage.value.push('スラッグが入力されていません。')
     }
 
-    if (prompt.value.identifier === 'prompt' && prompt.value.tag !== '') {
+    if (prompt.value.identifier === 'prompt' && prompt.value.tag === '') {
         errorMessage.value.push('プロンプト名が入力されていません。')
     }
 
-    return errorMessage.value.length > 0 ? true:false
+    return errorMessage.value.length > 0 ? true : false
 }
 
 // 入力内容をAPIに送信してデータ登録
@@ -53,10 +52,11 @@ const registerPrompt = (method: string = 'save') => {
     }
 
     const formUrl = registerPath + 'api/managePrompt.php'
-    if (method === 'delete') {
+    if (method === 'delete' && confirm('本当に削除しますか?')) {
         axios
             .post(formUrl, {
-                table: prompt.value.identifier
+                table: prompt.value.identifier,
+                id: prompt.value.id,
             })
             .then((response) => console.log(response))
             .catch((error) => console.log(error))
@@ -64,7 +64,15 @@ const registerPrompt = (method: string = 'save') => {
 
     // 入力内容のバリデーションをし、エラーが無い場合はAPIにデータを送信
     if (!isExistError()) {
-        
+        const sendData = { ...prompt.value }
+        // ジャンル編集の場合プロンプト一覧はデータ量が多いかつ不要なので空にする
+        if (sendData.identifier === 'genre') sendData.content = []
+
+        const formData = JSON.stringify(sendData)
+        axios
+            .post(formUrl, formData)
+            .then((response) => console.log(response.data))
+            .catch((error) => console.log(error))
     }
 }
 </script>
@@ -86,12 +94,18 @@ const registerPrompt = (method: string = 'save') => {
                 </button>
             </div>
         </div>
+        <p
+            class="response-message"
+            v-for="(message, index) in errorMessage"
+            :key="index"
+        >
+            {{ message }}
+        </p>
         <dl class="prompt-manage-form">
             <div>
                 <dt>ID</dt>
                 <dd><input type="number" v-model="prompt.id" /></dd>
             </div>
-            <p class="response-message" v-for="(message, index) in errorMessage" :key="index">{{ message }}</p>
             <div>
                 <dt>日本語名</dt>
                 <dd><input type="text" v-model="prompt.jp" /></dd>
