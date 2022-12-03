@@ -1,12 +1,12 @@
 <?php
 $home = './';
+require_once('./commonlib.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8', true, 200);
     $post = json_decode(file_get_contents('php://input'), true);
 }
 
-require_once('./commonlib.php');
 require_once('./controllers/DBControllers.php');
 require_once('./controllers/PresetController.php');
 require_once('./controllers/ImageController.php');
@@ -41,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imageData = base64_decode($imageBase64String);
             
             $imageController = new ImageController($imageDirPath);
-            
             $imageFileName = $imageController->getUniqueID();
+            
             file_put_contents($imageDirPath . $imageFileName, $imageData);
             // 保存した画像からサムネイルを抽出
             $imageController->makeThumbnail($home);

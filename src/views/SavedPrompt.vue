@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
@@ -34,7 +34,7 @@ const revertDBData = (presets: Preset[]) => {
 
 // 各プリセットに対応する画像とサムネイルのURLを取得
 const setImages = (presets: Preset[]) => {
-    const imgPath = registerPath + 'images/preset/'
+    const imgPath = apiPath + 'images/preset/'
     presets.map((preset, index) => {
         savedPromptList.value[index]['thumbnail'] =
             preset.image === null
@@ -122,7 +122,7 @@ const searchData = ref<SearchData>({
 
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
 const getPresetData = async (postData: SearchData = searchData.value) => {
-    const url = registerPath + 'api/managePreset.php'
+    const url = apiPath + 'api/managePreset.php'
     // プリセットを初期化
     savedPromptList.value = []
     await axios

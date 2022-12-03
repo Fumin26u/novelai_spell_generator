@@ -1,10 +1,10 @@
 <?php
 $home = './';
+require_once('./commonlib.php');
 
 header('Content-Type: application/json; charset=utf-8', true, 200);
 $post = json_decode(file_get_contents('php://input'), true);
 
-require_once('./commonlib.php');
 require_once('./controllers/AccountController.php');
 $accountController = new AccountController();
 

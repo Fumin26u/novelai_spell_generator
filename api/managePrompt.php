@@ -1,12 +1,12 @@
 <?php
 $home = './';
+require_once('./commonlib.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8', true, 200);
     $post = json_decode(file_get_contents('php://input'), true);
 }
 
-require_once('./commonlib.php');
 require_once('./controllers/DBControllers.php');
 require_once('./controllers/PromptController.php');
 

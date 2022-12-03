@@ -4,7 +4,7 @@ import SelectedPromptComponent from '@/components/master/SelectedPromptComponent
 import '@/assets/scss/masterData.scss'
 import axios from 'axios'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
 
 // DBから取得したマスタデータ一覧
@@ -97,7 +97,7 @@ const addDisplayProps = (promptList: MasterData[]) => {
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
 const getMasterData = async (): Promise<void> => {
-    const url = registerPath + 'api/managePrompt.php'
+    const url = apiPath + 'managePrompt.php'
     await axios
         .get(url)
         .then((response) => {

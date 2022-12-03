@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import registerPath from '@/assets/ts/registerPath'
+import apiPath from '@/assets/ts/apiPath'
 import algorithms from '@/assets/ts/algorithms'
 import { Preset, SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
@@ -66,7 +66,7 @@ const updateModalState = (isDisplay: boolean) => {
 }
 
 // プリセットをDBに保存する
-const formUrl = registerPath + 'api/managePreset.php'
+const formUrl = apiPath + 'managePreset.php'
 const registerPreset = (method = 'save') => {
     // 削除ボタンが押された場合、確認アラート表示後データ消去命令をAPIに送る
     if (currentPath === 'saver' && method === 'delete') {

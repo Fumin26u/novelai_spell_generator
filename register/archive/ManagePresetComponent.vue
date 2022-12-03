@@ -112,7 +112,7 @@
     </section>
 </template>
 <script lang="ts">
-import registerPath from '@/assets/ts/registerPath'
+import registerPath from '@/assets/ts/apiPath'
 import algorithms from '@/assets/ts/algorithms'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'

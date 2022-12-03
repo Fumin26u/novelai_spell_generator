@@ -22,7 +22,7 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-register/api/images/preset/*/*
+api/images/preset/*/*
 */fetchData.ts
 *.txt
 
