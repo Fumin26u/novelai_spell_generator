@@ -16,7 +16,7 @@ import SetPromptComponent from '@/components/generator/SetPromptComponent.vue'
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
 
 // 表示するタグ一覧
-const promptList = ref<PromptList[]>([])
+const masterData = ref<PromptList[]>([])
 // nsfwコンテンツの表示可否
 const displayNsfw = ref<Nsfw>('A')
 // Hover中のタグ
@@ -41,19 +41,19 @@ const judgeIsDisplay = (limit: string, promptNsfw: string): boolean => {
             return promptNsfw === 'A' ? true : false
     }
 }
-const setDisplayNsfw = (limit: string): void => {
-    promptList.value.map((genre: PromptList, i: number) => {
-        promptList.value[i]['display'] = judgeIsDisplay(
-            limit,
-            promptList.value[i].nsfw
-        )
+// nsfwの設定に応じた各プロンプトの表示状態を設定
+const setIsNsfw = (nsfw: Nsfw, promptList: PromptList[]): PromptList[] => {
+    promptList.map((genre: PromptList, i: number) => {
+        promptList[i]['display'] = judgeIsDisplay(nsfw, promptList[i].nsfw)
         genre.content.map((_: Prompt, j: number) => {
-            promptList.value[i].content[j]['display'] = judgeIsDisplay(
-                limit,
-                promptList.value[i].content[j].nsfw
+            promptList[i].content[j]['display'] = judgeIsDisplay(
+                nsfw,
+                promptList[i].content[j].nsfw
             )
         })
     })
+
+    return promptList
 }
 
 // マスタデータをJSオブジェクトの配列に変換
@@ -82,20 +82,26 @@ const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
 }
 
 // 指定されたタグ名に該当するプロンプトを選択状態にする
-const selectPromptFromSearch = (word: string): void => {
-    promptList.value.map((genre: PromptList, i: number) => {
+const selectPromptFromSearch = (
+    word: string,
+    promptList: PromptList[]
+): void => {
+    promptList.map((genre: PromptList, i: number) => {
         genre.content.map((prompt: Prompt, j: number) => {
-            if (prompt.tag === word)
-                promptList.value[i].content[j].selected = true
+            if (prompt.tag === word) promptList[i].content[j].selected = true
         })
     })
 }
 
 // 年齢制限切り替えボタンを押した際の処理
 const toggleDisplayNsfw = (limit: Nsfw): void => {
-    setPrompt.value.map((prompt) => selectPromptFromSearch(prompt.tag))
+    setPrompt.value.map((prompt) =>
+        selectPromptFromSearch(prompt.tag, masterData.value)
+    )
+
     displayNsfw.value = limit
-    setDisplayNsfw(displayNsfw.value)
+
+    masterData.value = setIsNsfw(displayNsfw.value, masterData.value)
 }
 
 // 手動入力でのプロンプトの追加
@@ -134,26 +140,26 @@ const toggleSetPromptList = (
     colorTagJP = ''
 ): void => {
     const queue: SetPrompt = {
-        ...promptList.value[i].content[j],
-        output_prompt: promptList.value[i].content[j].tag,
+        ...masterData.value[i].content[j],
+        output_prompt: masterData.value[i].content[j].tag,
         enhance: enhanceCount,
         color_list: null,
     }
 
     // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
-    const selected = promptList.value[i].content[j].selected
+    const selected = masterData.value[i].content[j].selected
     if (selected) {
         for (let index = 0; index < setPrompt.value.length; index++) {
             if (setPrompt.value[index].tag === queue.tag) {
                 setPrompt.value.splice(index, 1)
-                promptList.value[i].content[j].selected = false
+                masterData.value[i].content[j].selected = false
                 return
             }
         }
     }
 
     // カラーバリエーション設定が存在する場合それに上書き
-    switch (promptList.value[i].content[j].variation) {
+    switch (masterData.value[i].content[j].variation) {
         case 'CC':
             queue['color_list'] = colorMulti
             break
@@ -172,7 +178,7 @@ const toggleSetPromptList = (
     }
 
     setPrompt.value.push(queue)
-    promptList.value[i].content[j].selected = true
+    masterData.value[i].content[j].selected = true
 }
 
 // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入
@@ -198,11 +204,10 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
         colorTagJP.value === ''
             ? uploadPromptName
             : uploadPromptName.substring(spaceIndex + 1)
-    console.log(colorTagJP.value, promptName)
 
-    for (let i = 0; i < promptList.value.length; i++) {
-        for (let j = 0; j < promptList.value[i].content.length; j++) {
-            const prompt = promptList.value[i].content[j]
+    for (let i = 0; i < masterData.value.length; i++) {
+        for (let j = 0; j < masterData.value[i].content.length; j++) {
+            const prompt = masterData.value[i].content[j]
             // アップロードされたプロンプト名とリスト内のプロンプトが一致した場合、プロンプト設定のリストにそのプロンプトのデータを挿入
             if (prompt.tag === promptName) {
                 toggleSetPromptList(
@@ -219,7 +224,8 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
                 ) {
                     displayNsfw.value = prompt.nsfw
                 }
-                setDisplayNsfw(displayNsfw.value)
+
+                masterData.value = setIsNsfw(displayNsfw.value, masterData.value)
                 return
             }
         }
@@ -235,9 +241,9 @@ const uploadPrompt = (inputPromptList: string): void => {
     // 既存の設定プロンプトリストと手動入力欄をリセット
     setPrompt.value = []
     manualInput.value = ''
-    promptList.value.map((genre: PromptList, i: number) => {
+    masterData.value.map((genre: PromptList, i: number) => {
         genre.content.map((_: Prompt, j: number) => {
-            promptList.value[i].content[j].selected = false
+            masterData.value[i].content[j].selected = false
         })
     })
 
@@ -286,7 +292,7 @@ const unSelectedPrompt = (promptListIndex: string | null): void => {
     const i = parseInt(tagsIndexList[0])
     const j = parseInt(tagsIndexList[1])
 
-    promptList.value[i].content[j].selected = false
+    masterData.value[i].content[j].selected = false
 }
 
 // DB保存モーダルの表示可否
@@ -303,18 +309,18 @@ const openSaveModal = (modalState: boolean, output: string): void => {
 }
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
-const getMasterData = async (): Promise<void> => {
+const getMasterData = async (): Promise<PromptList[]> => {
     const url = apiPath + 'managePrompt.php'
-    await axios
+    return await axios
         .get(url)
         .then((response) => {
-            promptList.value = convertJsonToTagList(response.data)
-            setDisplayNsfw(displayNsfw.value)
+            // promptList.value = convertJsonToTagList(response.data)
+            // setDisplayNsfw(displayNsfw.value)
+            return response.data
         })
         .catch((error) => {
-            promptList.value = convertJsonToTagList(JSON.parse(master_data))
-            setDisplayNsfw(displayNsfw.value)
             console.log(error)
+            return JSON.parse(master_data)
         })
 }
 
@@ -322,10 +328,20 @@ const getMasterData = async (): Promise<void> => {
 const user_id = ref<string>('')
 const getUserInfo = (userId: string) => (user_id.value = userId)
 
+// 初期画面表示に必要なデータを作成
+const setInitialViewData = async (): Promise<void> => {
+    // 取得したマスタデータを表示用の配列に変換し必要情報を追加
+    masterData.value = convertJsonToTagList(await getMasterData())
+    console.log(masterData.value)
+
+    // nsfwの設定に応じた各プロンプトの表示状態を設定
+    setIsNsfw(displayNsfw.value, masterData.value)
+}
+
 // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
 onMounted(() => {
     document.title = 'NovelAI プロンプトジェネレーター'
-    getMasterData()
+    setInitialViewData()
 })
 </script>
 
@@ -378,7 +394,7 @@ onMounted(() => {
             <section class="prompt-list-area">
                 <div
                     class="prompt-list-genre"
-                    v-for="(genre, i) in promptList"
+                    v-for="(genre, i) in masterData"
                     :key="genre.slag"
                     :style="[genre.display ? 'display:block' : 'display:none']"
                 >
@@ -389,20 +405,20 @@ onMounted(() => {
                         </div>
                         <div>
                             <span
-                                @click="promptList[i]['show_all'] = true"
-                                v-if="!promptList[i]['show_all']"
+                                @click="masterData[i]['show_all'] = true"
+                                v-if="!masterData[i]['show_all']"
                                 >▼</span
                             >
                             <span
-                                @click="promptList[i]['show_all'] = false"
-                                v-if="promptList[i]['show_all']"
+                                @click="masterData[i]['show_all'] = false"
+                                v-if="masterData[i]['show_all']"
                                 >▲</span
                             >
                         </div>
                     </div>
                     <div
                         :style="[
-                            promptList[i]['show_all']
+                            masterData[i]['show_all']
                                 ? 'max-height:none;'
                                 : 'max-height:240px;',
                         ]"
