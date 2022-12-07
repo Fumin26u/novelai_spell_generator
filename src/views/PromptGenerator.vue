@@ -58,14 +58,14 @@ const setDisplayNsfw = (limit: string): void => {
 
 // マスタデータをJSオブジェクトの配列に変換
 const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
-    const commandListQueue: PromptList[] = []
+    const promptListQueue: PromptList[] = []
     Object.keys(jsonObj).map((index: string) =>
-        commandListQueue.push(jsonObj[parseInt(index)])
+        promptListQueue.push(jsonObj[parseInt(index)])
     )
 
     // 配列に表示に必要なデータを挿入
-    const commandList: PromptList[] = []
-    commandListQueue.map((genre: PromptList, i: number) => {
+    const promptList: PromptList[] = []
+    promptListQueue.map((genre: PromptList, i: number) => {
         genre.show_all = false
         genre.caption = genre.caption === '' ? '-' : genre.caption
 
@@ -75,10 +75,10 @@ const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
             prompt['parentTag'] = genre.jp
             prompt['index'] = i + ',' + j
         })
-        commandList.push(genre)
+        promptList.push(genre)
     })
 
-    return commandList
+    return promptList
 }
 
 // 指定されたタグ名に該当するプロンプトを選択状態にする
