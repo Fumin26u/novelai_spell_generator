@@ -81,26 +81,9 @@ const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
     return promptList
 }
 
-// 指定されたタグ名に該当するプロンプトを選択状態にする
-const selectPromptFromSearch = (
-    word: string,
-    promptList: PromptList[]
-): void => {
-    promptList.map((genre: PromptList, i: number) => {
-        genre.content.map((prompt: Prompt, j: number) => {
-            if (prompt.tag === word) promptList[i].content[j].selected = true
-        })
-    })
-}
-
 // 年齢制限切り替えボタンを押した際の処理
 const toggleDisplayNsfw = (limit: Nsfw): void => {
-    setPrompt.value.map((prompt) =>
-        selectPromptFromSearch(prompt.tag, masterData.value)
-    )
-
     displayNsfw.value = limit
-
     masterData.value = setIsNsfw(displayNsfw.value, masterData.value)
 }
 
@@ -324,16 +307,10 @@ const getMasterData = async (): Promise<PromptList[]> => {
         })
 }
 
-// ログインユーザーIDを取得
-const user_id = ref<string>('')
-const getUserInfo = (userId: string) => (user_id.value = userId)
-
 // 初期画面表示に必要なデータを作成
 const setInitialViewData = async (): Promise<void> => {
     // 取得したマスタデータを表示用の配列に変換し必要情報を追加
     masterData.value = convertJsonToTagList(await getMasterData())
-    console.log(masterData.value)
-
     // nsfwの設定に応じた各プロンプトの表示状態を設定
     setIsNsfw(displayNsfw.value, masterData.value)
 }
@@ -346,7 +323,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent>
+    <HeaderComponent></HeaderComponent>
     <main class="prompt-generator">
         <div class="prompt-list">
             <section class="user-setting-area">
