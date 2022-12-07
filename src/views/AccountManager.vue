@@ -76,10 +76,6 @@ const submitAccountData = async () => {
             console.log(error)
         })
 }
-
-// ログインユーザーIDを取得
-const user_id = ref<string>('')
-const getUserInfo = (userId: string) => (user_id.value = userId)
 </script>
 
 <template lang="">
