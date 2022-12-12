@@ -30,7 +30,6 @@ const preset = ref<Preset>({
     preset_id: null,
     image: '',
     imagePath: '',
-    from: 'generator',
     commands: '',
     commands_ban: '',
     description: '',

@@ -41,22 +41,26 @@ export interface PromptList {
 export interface Preset {
     preset_id: number | null
     image: string | ArrayBuffer | null
-    imagePath: string | null
-    from: string
     commands: string
     commands_ban: string
     description: string | null
     nsfw: Nsfw
     seed: string
-    resolution_width: string | number | null
-    resolution_height: string | number | null
-    resolution: string | null
+    resolution: string
     model: string | null
     sampling: number | null
     sampling_algo: string | null
     scale: number | null
     options: any
     others: string
+    
+    imagePath: string | null
+    resolution_width: string | number
+    resolution_height: string | number
+    
+    user_id?: string
+    created_at?: string
+    updated_at?: string
 }
 export interface PresetDetail extends Preset {
     index: number

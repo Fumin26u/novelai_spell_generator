@@ -4,66 +4,52 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
-import { Preset, PresetDetail, SearchData } from '@/assets/ts/Interfaces/Index'
+import {
+    Preset,
+    PresetDetail,
+    SearchData,
+    NsfwDisplay,
+} from '@/assets/ts/Interfaces/Index'
 import '@/assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-// ログインユーザーの登録プリセット一覧
-const savedPresetList = ref<PresetDetail[]>([])
-// 検索ボックスの表示有無
-const isDisplaySearchBox = ref<boolean>(false)
-
 // DBで文字列で保管されているオプションと解像度を表示できるように変更
-const revertDBData = (presets: Preset[]) => {
-    presets.map((preset, index) => {
-        if (preset.options !== null && preset.options !== '') {
-            savedPresetList.value[index].options = preset.options.split(',')
-        } else {
-            savedPresetList.value[index].options = []
-        }
-
-        if (preset.resolution !== null && preset.resolution !== '') {
-            const resolutionList = preset.resolution.split('x')
-            savedPresetList.value[index]['resolution_width'] = resolutionList[0]
-            savedPresetList.value[index]['resolution_height'] =
-                resolutionList[1]
-        }
-    })
+const revertOptionsToArray = (preset: Preset): string[] => {
+    return preset.options !== null && preset.options !== ''
+        ? (preset.options = preset.options.split(','))
+        : []
 }
 
 // 各プリセットに対応する画像とサムネイルのURLを取得
-const setImages = (presets: Preset[]) => {
-    const imgPath = apiPath + 'images/preset/'
-    presets.map((preset, index) => {
-        savedPresetList.value[index]['thumbnail'] =
-            preset.image === null || preset.image === ''
-                ? imgPath + 'noimage.png'
-                : imgPath + 'thumbnail/' + preset.image
-        savedPresetList.value[index]['imagePath'] =
-            preset.image === null || preset.image === ''
-                ? imgPath + 'noimage.png'
-                : imgPath + 'original/' + preset.image
-    })
+const imgPath = apiPath + 'images/preset/'
+const getThumbnailPath = (preset: Preset): string => {
+    return preset.image === null || preset.image === ''
+        ? imgPath + 'noimage.png'
+        : imgPath + 'thumbnail/' + preset.image
+}
+const getImagePath = (preset: Preset): string => {
+    return preset.image === null || preset.image === ''
+        ? imgPath + 'noimage.png'
+        : imgPath + 'original/' + preset.image
 }
 
 // 各プリセットがnsfwかどうか判定
-const setIsNsfw = (presets: Preset[]) => {
-    presets.map((_, index) => {
-        switch (savedPresetList.value[index].nsfw) {
-            case 'A':
-                savedPresetList.value[index]['nsfw_display'] = '全年齢'
-                break
-            case 'C':
-                savedPresetList.value[index]['nsfw_display'] = 'R-15'
-                break
-            case 'Z':
-                savedPresetList.value[index]['nsfw_display'] = 'R-18'
-                break
-        }
-    })
+const getNsfwDisplay = (preset: Preset): NsfwDisplay => {
+    switch (preset.nsfw) {
+        case 'A':
+            return '全年齢'
+        case 'C':
+            return 'R-15'
+        case 'Z':
+            return 'R-18'
+        default:
+            return '全年齢'
+    }
 }
 
+// ログインユーザーの登録プリセット一覧
+const savedPresetList = ref<PresetDetail[]>([])
 // プリセット一覧から選択されたプリセットを読み込む
 const presetInitialData: PresetDetail = {
     index: 0,
@@ -72,7 +58,6 @@ const presetInitialData: PresetDetail = {
     preset_id: -1,
     image: '',
     imagePath: '',
-    from: 'generator',
     commands: '',
     commands_ban: '',
     description: '',
@@ -102,14 +87,6 @@ const selectPreset = (selectPresetIndex: number) => {
     selectedPresetIndex.value = selectPresetIndex
 }
 
-// データ登録・編集モードの状態
-const isRegisterMode = ref<boolean>(true)
-const setRegisterMode = (state: boolean, mode = '') => {
-    // 新規登録の場合は選択されているプリセット詳細データを初期化
-    if (state && mode === 'register') selectPreset(-1)
-    isRegisterMode.value = state
-}
-
 // 検索ボックスの入力内容
 const searchData = ref<SearchData>({
     method: 'search',
@@ -125,22 +102,58 @@ const getPresetData = async (postData: SearchData = searchData.value) => {
     const url = apiPath + 'managePreset.php'
     // プリセットを初期化
     savedPresetList.value = []
-    await axios
+    return await axios
         .get(url, {
             params: postData,
         })
         .then((response) => {
             if (response.data !== '') {
-                savedPresetList.value = response.data
-                revertDBData(savedPresetList.value)
-                setImages(savedPresetList.value)
-                setIsNsfw(savedPresetList.value)
+                return response.data
             }
         })
         .catch((error) => {
             console.log(error)
         })
 }
+
+// APIで取得したプリセット一覧に表示用のデータを挿入する
+const createPresetData = (presets: Preset[]) => {
+    const PresetDetail = presets.map((preset, i) => {
+        const resolutionList =
+            preset.resolution !== null && preset.resolution !== ''
+                ? preset.resolution.split('x')
+                : ['', '']
+        preset.options = revertOptionsToArray(preset)
+        preset.imagePath = getImagePath(preset)
+        preset.resolution_width = resolutionList[0]
+        preset.resolution_height = resolutionList[1]
+
+        return {
+            ...preset,
+            index: i,
+            thumbnail: getThumbnailPath(preset),
+            nsfw_display: getNsfwDisplay(preset),
+        }
+    })
+    return PresetDetail
+}
+
+// 画面ロード時に表示用のプリセットデータを作成する
+onMounted(async () => {
+    document.title = 'NovelAI プロンプトセーバー'
+    savedPresetList.value = createPresetData(await getPresetData())
+})
+
+// データ登録・編集モードの状態
+const isRegisterMode = ref<boolean>(true)
+const setRegisterMode = (state: boolean, mode = '') => {
+    // 新規登録の場合は選択されているプリセット詳細データを初期化
+    if (state && mode === 'register') selectPreset(-1)
+    isRegisterMode.value = state
+}
+
+// 検索ボックスの表示有無
+const isDisplaySearchBox = ref<boolean>(false)
 
 // コピーした際のアラートを設定
 const alertText = ref<string>('')
@@ -153,12 +166,6 @@ const originPath = new URL(location.href).origin + location.pathname
 // ログインユーザーIDを取得
 const user_id = ref<string>('')
 const getUserInfo = (userId: string) => (user_id.value = userId)
-
-// 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-onMounted(() => {
-    document.title = 'NovelAI プロンプトセーバー'
-    getPresetData()
-})
 </script>
 
 <template>
