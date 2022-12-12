@@ -10,7 +10,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 // ログインユーザーの登録プリセット一覧
-const savedPromptList = ref<PresetDetail[]>([])
+const savedPresetList = ref<PresetDetail[]>([])
 // 検索ボックスの表示有無
 const isDisplaySearchBox = ref<boolean>(false)
 
@@ -18,15 +18,15 @@ const isDisplaySearchBox = ref<boolean>(false)
 const revertDBData = (presets: Preset[]) => {
     presets.map((preset, index) => {
         if (preset.options !== null && preset.options !== '') {
-            savedPromptList.value[index].options = preset.options.split(',')
+            savedPresetList.value[index].options = preset.options.split(',')
         } else {
-            savedPromptList.value[index].options = []
+            savedPresetList.value[index].options = []
         }
 
         if (preset.resolution !== null && preset.resolution !== '') {
             const resolutionList = preset.resolution.split('x')
-            savedPromptList.value[index]['resolution_width'] = resolutionList[0]
-            savedPromptList.value[index]['resolution_height'] =
+            savedPresetList.value[index]['resolution_width'] = resolutionList[0]
+            savedPresetList.value[index]['resolution_height'] =
                 resolutionList[1]
         }
     })
@@ -36,11 +36,11 @@ const revertDBData = (presets: Preset[]) => {
 const setImages = (presets: Preset[]) => {
     const imgPath = apiPath + 'images/preset/'
     presets.map((preset, index) => {
-        savedPromptList.value[index]['thumbnail'] =
+        savedPresetList.value[index]['thumbnail'] =
             preset.image === null || preset.image === ''
                 ? imgPath + 'noimage.png'
                 : imgPath + 'thumbnail/' + preset.image
-        savedPromptList.value[index]['imagePath'] =
+        savedPresetList.value[index]['imagePath'] =
             preset.image === null || preset.image === ''
                 ? imgPath + 'noimage.png'
                 : imgPath + 'original/' + preset.image
@@ -50,15 +50,15 @@ const setImages = (presets: Preset[]) => {
 // 各プリセットがnsfwかどうか判定
 const setIsNsfw = (presets: Preset[]) => {
     presets.map((_, index) => {
-        switch (savedPromptList.value[index].nsfw) {
+        switch (savedPresetList.value[index].nsfw) {
             case 'A':
-                savedPromptList.value[index]['nsfw_display'] = '全年齢'
+                savedPresetList.value[index]['nsfw_display'] = '全年齢'
                 break
             case 'C':
-                savedPromptList.value[index]['nsfw_display'] = 'R-15'
+                savedPresetList.value[index]['nsfw_display'] = 'R-15'
                 break
             case 'Z':
-                savedPromptList.value[index]['nsfw_display'] = 'R-18'
+                savedPresetList.value[index]['nsfw_display'] = 'R-18'
                 break
         }
     })
@@ -94,9 +94,9 @@ const selectedPresetIndex = ref<number>(-1)
 const selectPreset = (selectPresetIndex: number) => {
     if (selectPresetIndex === -1) {
         selectedPreset.value = { ...presetInitialData }
-        selectedPreset.value.index = savedPromptList.value.length
+        selectedPreset.value.index = savedPresetList.value.length
     } else {
-        selectedPreset.value = { ...savedPromptList.value[selectPresetIndex] }
+        selectedPreset.value = { ...savedPresetList.value[selectPresetIndex] }
         selectedPreset.value.index = selectPresetIndex
     }
     selectedPresetIndex.value = selectPresetIndex
@@ -124,17 +124,17 @@ const searchData = ref<SearchData>({
 const getPresetData = async (postData: SearchData = searchData.value) => {
     const url = apiPath + 'managePreset.php'
     // プリセットを初期化
-    savedPromptList.value = []
+    savedPresetList.value = []
     await axios
         .get(url, {
             params: postData,
         })
         .then((response) => {
             if (response.data !== '') {
-                savedPromptList.value = response.data
-                revertDBData(savedPromptList.value)
-                setImages(savedPromptList.value)
-                setIsNsfw(savedPromptList.value)
+                savedPresetList.value = response.data
+                revertDBData(savedPresetList.value)
+                setImages(savedPresetList.value)
+                setIsNsfw(savedPresetList.value)
             }
         })
         .catch((error) => {
@@ -215,8 +215,8 @@ onMounted(() => {
             <section class="preset-message">
                 <p class="data-count">
                     {{
-                        savedPromptList.length > 0
-                            ? savedPromptList.length +
+                        savedPresetList.length > 0
+                            ? savedPresetList.length +
                               '件のデータが存在します。'
                             : '該当のデータが存在しません。'
                     }}
@@ -226,7 +226,7 @@ onMounted(() => {
             <section class="preset-list">
                 <div class="preset-content">
                     <div
-                        v-for="(prompt, index) in savedPromptList"
+                        v-for="(prompt, index) in savedPresetList"
                         :key="prompt.preset_id !== null ? prompt.preset_id : 0"
                         :class="[
                             selectedPresetIndex === index ? 'selected' : '',
