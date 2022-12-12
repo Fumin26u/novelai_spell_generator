@@ -8,7 +8,7 @@ import {
     SetPrompt,
 } from '@/assets/ts/Interfaces/Index'
 import { colorMulti, colorMono } from '@/assets/ts/colorVariation'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import '@/assets/scss/promptGenerator.scss'
 import HeaderComponent from '@/components/HeaderComponent.vue'
@@ -84,7 +84,6 @@ const convertJsonToTagList = (jsonObj: PromptList[]): PromptList[] => {
 // 年齢制限切り替えボタンを押した際の処理
 const toggleDisplayNsfw = (limit: Nsfw): void => {
     displayNsfw.value = limit
-    masterData.value = setIsNsfw(displayNsfw.value, masterData.value)
 }
 
 // 手動入力でのプロンプトの追加
@@ -101,12 +100,8 @@ const addManualPrompt = (input: string, enhanceCount = 0): void => {
             slag: input.replace(' ', '_'),
             jp: input,
             parentTag: '手動',
-            display: false,
-            selected: false,
             nsfw: 'A',
             variation: null,
-            index: null,
-            detail: '',
             output_prompt: input,
             enhance: enhanceCount,
             color_list: null,
@@ -208,7 +203,6 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
                     displayNsfw.value = prompt.nsfw
                 }
 
-                masterData.value = setIsNsfw(displayNsfw.value, masterData.value)
                 return
             }
         }
@@ -261,14 +255,19 @@ const uploadPrompt = (inputPromptList: string): void => {
     })
 }
 
+// nsfw設定を監視し変更があった場合プロンプトの表示状態を設定する
+watch(displayNsfw, () => {
+    setIsNsfw(displayNsfw.value, masterData.value)
+})
+
 // 子コンポーネントから伝えられたプロンプト設定欄の内容を更新
 const updateSetPrompt = (childSetPrompt: SetPrompt[]) =>
     (setPrompt.value = childSetPrompt)
 
 // セットキューから指定したプロンプトを削除
-const unSelectedPrompt = (promptListIndex: string | null): void => {
+const unSelectedPrompt = (promptListIndex?: string): void => {
     // 送られてきた値がnullの場合プロンプト一覧には存在しないので何もせず終了
-    if (promptListIndex === null) return
+    if (promptListIndex === undefined) return
 
     // プロンプト一覧から指定されたインデックスのプロンプトの選択を解除
     const tagsIndexList = promptListIndex.split(',')
@@ -297,8 +296,6 @@ const getMasterData = async (): Promise<PromptList[]> => {
     return await axios
         .get(url)
         .then((response) => {
-            // promptList.value = convertJsonToTagList(response.data)
-            // setDisplayNsfw(displayNsfw.value)
             return response.data
         })
         .catch((error) => {
@@ -308,17 +305,18 @@ const getMasterData = async (): Promise<PromptList[]> => {
 }
 
 // 初期画面表示に必要なデータを作成
-const setInitialViewData = async (): Promise<void> => {
+const getInitialViewData = async (): Promise<PromptList[]> => {
     // 取得したマスタデータを表示用の配列に変換し必要情報を追加
-    masterData.value = convertJsonToTagList(await getMasterData())
-    // nsfwの設定に応じた各プロンプトの表示状態を設定
-    setIsNsfw(displayNsfw.value, masterData.value)
+    return setIsNsfw(
+        displayNsfw.value,
+        convertJsonToTagList(await getMasterData())
+    )
 }
 
 // 画面読み込み時、ログインユーザーIDを取得し、DBからマスタデータを取得。できない場合はローカルから取得。
-onMounted(() => {
+onMounted(async () => {
     document.title = 'NovelAI プロンプトジェネレーター'
-    setInitialViewData()
+    masterData.value = await getInitialViewData()
 })
 </script>
 

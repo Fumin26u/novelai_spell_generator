@@ -13,13 +13,13 @@ export interface Prompt {
     tag: string
     slag: string
     jp: string
-    parentTag: string
-    display: boolean
-    selected: boolean
     nsfw: Nsfw
     variation: null | 'CC' | 'CM'
-    index: string | null
-    detail: string | null
+    parentTag: string
+    display?: boolean
+    selected?: boolean
+    index?: string
+    detail?: string | null
 }
 export interface SetPrompt extends Prompt {
     output_prompt: string
@@ -57,7 +57,7 @@ export interface Preset {
     imagePath: string | null
     resolution_width: string | number
     resolution_height: string | number
-    
+
     user_id?: string
     created_at?: string
     updated_at?: string
