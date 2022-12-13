@@ -5,16 +5,14 @@ class ApiManager {
     async post(
         url: string,
         formData: any = {}
-    ): Promise<{ [key: string]: boolean }> {
+    ): Promise<{ [key: string]: any }> {
         return await axios
             .post(url, formData)
-            .then(() => {
-                return {
-                    error: false,
-                }
+            .then((response) => {
+                return response.data
             })
-            .catch((error) => {
-                console.log(error)
+            .catch((response) => {
+                console.log(response)
                 return {
                     error: true,
                 }

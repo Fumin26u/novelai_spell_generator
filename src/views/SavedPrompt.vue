@@ -102,7 +102,7 @@ const apiManager = new ApiManager()
 const getPresetData = async (postData: SearchData = searchData.value) => {
     // プリセットを初期化
     savedPresetList.value = []
-    
+
     const url = apiPath + 'managePreset.php'
     const response = await apiManager.get(url, postData)
     if (!response.error) return response.content

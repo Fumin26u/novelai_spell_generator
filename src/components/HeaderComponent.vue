@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import apiPath from '@/assets/ts/apiPath'
 import '@/assets/scss/header.scss'
-import axios from 'axios'
+import ApiManager from './api/apiManager'
 
 interface Emits {
     (e: 'getUserInfo', userId: string): string
@@ -17,32 +17,30 @@ const isOpenHBGMenu = ref<boolean>(false)
 const originPath = new URL(location.href).origin + location.pathname
 
 // ログアウトリンクが押された場合APIに伝える
-const formUrl = apiPath + 'manageAccount.php'
+const apiManager = new ApiManager()
 const execLogout = async () => {
+    const formUrl = apiPath + 'manageAccount.php'
     const formData = JSON.stringify({
         method: 'logout',
         user_id: user_id.value,
     })
-    await axios.post(formUrl, formData).catch((error) => {
-        console.log(error)
+    await apiManager.post(formUrl, formData)
+}
+
+const getUserInfo = async () => {
+    const url = apiPath + 'manageAccount.php'
+    const response = await apiManager.post(url, {
+        method: 'getUserData',
     })
+    if (!response.error) return response.user_id
 }
 
 // 画面読み込み時にログインユーザーIDを取得
 const user_id = ref<string>('')
-const getUserInfo = async () => {
-    const url = apiPath + 'manageAccount.php'
-    axios
-        .post(url, {
-            method: 'getUserData',
-        })
-        .then((response) => {
-            user_id.value = response.data.user_id
-            emit('getUserInfo', user_id.value)
-        })
-        .catch((error) => console.log(error))
-}
-onMounted(() => getUserInfo())
+onMounted(async () => {
+    user_id.value = await getUserInfo()
+    emit('getUserInfo', user_id.value)
+})
 </script>
 
 <template>

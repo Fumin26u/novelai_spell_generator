@@ -2,7 +2,7 @@
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import SelectedPromptComponent from '@/components/master/SelectedPromptComponent.vue'
 import '@/assets/scss/masterData.scss'
-import axios from 'axios'
+import ApiManager from '@/components/api/apiManager'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
@@ -97,18 +97,11 @@ const addDisplayProps = (promptList: MasterData[]) => {
 }
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
-const getMasterData = async (): Promise<void> => {
+const apiManager = new ApiManager()
+const getMasterData = async () => {
     const url = apiPath + 'managePrompt.php'
-    await axios
-        .get(url)
-        .then((response) => {
-            promptList.value = addDisplayProps(convertMasterData(response.data))
-            genreIdList.value = getGenreIdList(promptList.value)
-            promptIdList.value = getPromptIdList(promptList.value)
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+    const response = await apiManager.get(url)
+    if (!response.error) return response.content
 }
 
 // 選択されたプロンプトデータとジャンルデータ
@@ -157,7 +150,11 @@ const getUserInfo = (userId: string) => {
     user_id.value = userId
 }
 
-onMounted(() => getMasterData())
+onMounted(async () => {
+    promptList.value = addDisplayProps(convertMasterData(await getMasterData()))
+    genreIdList.value = getGenreIdList(promptList.value)
+    promptIdList.value = getPromptIdList(promptList.value)
+})
 </script>
 
 <template>
