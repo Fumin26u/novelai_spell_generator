@@ -227,7 +227,6 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
 
 // 既存のタグがアップロードされた場合、セットキューに対象値を追加
 const uploadPrompt = (inputPromptList: string): void => {
-    const st = performance.now()
     if (inputPromptList.trim() === '') return
     // 既存の設定プロンプトリストと手動入力欄をリセット
     setPrompt.value = []
@@ -239,11 +238,10 @@ const uploadPrompt = (inputPromptList: string): void => {
     })
 
     // タグごと配列の要素にする
-    const uploadedPromptList = inputPromptList
-        .split(',')
-        .map((tag) => tag.trim())
+    const uploadedPromptList = inputPromptList.split(',')
     uploadedPromptList.map((prompt: string, index: number) => {
-        if (prompt.trim() === '') {
+        prompt = prompt.trim()
+        if (prompt === '') {
             uploadedPromptList.splice(index, 1)
         } else {
             // 文字の前後に{}または[]がある場合、その数分強化値を追加する
@@ -267,8 +265,6 @@ const uploadPrompt = (inputPromptList: string): void => {
             searchPrompt(promptName, enhanceCount.value)
         }
     })
-    const ed = performance.now()
-    console.log(ed - st)
 }
 
 // nsfw設定を監視し変更があった場合プロンプトの表示状態を設定する
@@ -282,7 +278,7 @@ const updateSetPrompt = (childSetPrompt: SetPrompt[]) =>
 
 // セットキューから指定したプロンプトを削除
 const unSelectedPrompt = (promptListIndex?: string): void => {
-    // 送られてきた値がnullの場合プロンプト一覧には存在しないので何もせず終了
+    // 送られてきた値がundefinedの場合プロンプト一覧には存在しないので何もせず終了
     if (promptListIndex === undefined) return
 
     // プロンプト一覧から指定されたインデックスのプロンプトの選択を解除
