@@ -10,7 +10,7 @@ import {
 } from '@/assets/ts/Interfaces/Index'
 import { colorMulti, colorMono } from '@/assets/ts/colorVariation'
 import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
+import ApiManager from '@/components/api/apiManager'
 import '@/assets/scss/promptGenerator.scss'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import SetPromptComponent from '@/components/generator/SetPromptComponent.vue'
@@ -303,17 +303,11 @@ const openSaveModal = (modalState: boolean, output: string): void => {
 }
 
 // DBからマスタデータ一覧を取得、できなかった場合ローカルのjsファイルから取得
+const apiManager = new ApiManager()
 const getMasterData = async (): Promise<PromptList[]> => {
     const url = apiPath + 'managePrompt.php'
-    return await axios
-        .get(url)
-        .then((response) => {
-            return response.data
-        })
-        .catch((error) => {
-            console.log(error)
-            return JSON.parse(master_data)
-        })
+    const response = await apiManager.get(url)
+    return response.error ? JSON.parse(master_data) : response.content
 }
 
 // 初期画面表示に必要なデータを作成

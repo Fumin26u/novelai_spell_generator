@@ -4,6 +4,7 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
+import ApiManager from '@/components/api/apiManager'
 import {
     Preset,
     PresetDetail,
@@ -12,7 +13,6 @@ import {
 } from '@/assets/ts/Interfaces/Index'
 import '@/assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 
 // DBで文字列で保管されているオプションと解像度を表示できるように変更
 const revertOptionsToArray = (preset: Preset): string[] => {
@@ -98,22 +98,14 @@ const searchData = ref<SearchData>({
 })
 
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
+const apiManager = new ApiManager()
 const getPresetData = async (postData: SearchData = searchData.value) => {
-    const url = apiPath + 'managePreset.php'
     // プリセットを初期化
     savedPresetList.value = []
-    return await axios
-        .get(url, {
-            params: postData,
-        })
-        .then((response) => {
-            if (response.data !== '') {
-                return response.data
-            }
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+    
+    const url = apiPath + 'managePreset.php'
+    const response = await apiManager.get(url, postData)
+    if (!response.error) return response.content
 }
 
 // APIで取得したプリセット一覧に表示用のデータを挿入する

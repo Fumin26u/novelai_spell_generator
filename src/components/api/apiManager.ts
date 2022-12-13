@@ -22,7 +22,7 @@ class ApiManager {
     }
 
     // GET
-    async get(url: string, query: any = {}): Promise<any> {
+    async get(url: string, query: any = {}) {
         return await axios
             .get(url, {
                 params: query,
@@ -49,3 +49,5 @@ class ApiManager {
             })
     }
 }
+
+export default ApiManager
