@@ -39,7 +39,7 @@ export interface PromptList {
 
 // Preset関連のInterface
 export interface Preset {
-    preset_id: number | null
+    preset_id: number
     image: string | ArrayBuffer | null
     commands: string
     commands_ban: string

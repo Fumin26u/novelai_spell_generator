@@ -87,6 +87,14 @@ const selectPreset = (selectPresetIndex: number) => {
     selectedPresetIndex.value = selectPresetIndex
 }
 
+// データ登録・編集モードの状態
+const isRegisterMode = ref<boolean>(true)
+const setRegisterMode = (state: boolean, mode = '') => {
+    // 新規登録の場合は選択されているプリセット詳細データを初期化
+    if (state && mode === 'register') selectPreset(-1)
+    isRegisterMode.value = state
+}
+
 // 検索ボックスの入力内容
 const searchData = ref<SearchData>({
     method: 'search',
@@ -96,7 +104,6 @@ const searchData = ref<SearchData>({
     sort: 'created_at',
     order: 'asc',
 })
-
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
 const apiManager = new ApiManager()
 const getPresetData = async (postData: SearchData = searchData.value) => {
@@ -131,18 +138,15 @@ const createPresetData = (presets: Preset[]) => {
 }
 
 // 画面ロード時に表示用のプリセットデータを作成する
+const loadPresetData = async (
+    searchParams: SearchData = searchData.value
+): Promise<void> => {
+    savedPresetList.value = createPresetData(await getPresetData(searchParams))
+}
 onMounted(async () => {
     document.title = 'NovelAI プロンプトセーバー'
-    savedPresetList.value = createPresetData(await getPresetData())
+    loadPresetData()
 })
-
-// データ登録・編集モードの状態
-const isRegisterMode = ref<boolean>(true)
-const setRegisterMode = (state: boolean, mode = '') => {
-    // 新規登録の場合は選択されているプリセット詳細データを初期化
-    if (state && mode === 'register') selectPreset(-1)
-    isRegisterMode.value = state
-}
 
 // 検索ボックスの表示有無
 const isDisplaySearchBox = ref<boolean>(false)
@@ -208,7 +212,7 @@ const getUserInfo = (userId: string) => (user_id.value = userId)
                 <searchBoxComponent
                     v-if="isDisplaySearchBox"
                     :searchBoxData="searchData"
-                    @getPresetData="getPresetData"
+                    @loadPresetData="loadPresetData"
                 />
             </section>
             <section class="preset-message">
@@ -265,7 +269,7 @@ const getUserInfo = (userId: string) => (user_id.value = userId)
                 :selectedPreset="selectedPreset"
                 @selectPreset="selectPreset"
                 @setAlertText="setAlertText"
-                @getPresetData="getPresetData"
+                @loadPresetData="loadPresetData"
                 @setRegisterMode="setRegisterMode"
             />
         </div>

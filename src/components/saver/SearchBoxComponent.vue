@@ -7,7 +7,7 @@ interface Props {
     searchBoxData: SearchData
 }
 interface Emits {
-    (e: 'getPresetData', postData: SearchData): Promise<void>
+    (e: 'loadPresetData', postData: SearchData): Promise<void>
 }
 
 const props = defineProps<Props>()
@@ -17,7 +17,7 @@ const emit = defineEmits<Emits>()
 const searchData = ref<SearchData>(props.searchBoxData)
 
 const execSearch = () => {
-    emit('getPresetData', searchData.value)
+    emit('loadPresetData', searchData.value)
 }
 </script>
 

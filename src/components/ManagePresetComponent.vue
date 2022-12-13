@@ -4,6 +4,7 @@ import algorithms from '@/assets/ts/algorithms'
 import { Preset, SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
 import axios from 'axios'
+import ApiManager from '@/components/api/apiManager'
 import '@/assets/scss/managePreset.scss'
 
 interface Props {
@@ -14,7 +15,7 @@ interface Emits {
     (e: 'updateModalState', isDisplay: boolean): boolean
     (e: 'selectPreset', selectPresetIndex: number): void
     (e: 'setAlertText', text: string): string
-    (e: 'getPresetData', postData?: SearchData): Promise<void>
+    (e: 'loadPresetData', postData?: SearchData): Promise<void>
     (e: 'setRegisterMode', state: boolean, mode?: string): void
 }
 
@@ -26,8 +27,8 @@ const currentPath = location.href.slice(-2) === '#/' ? 'generator' : 'saver'
 // Base64文字列に変換した画像
 const base64Image = ref<string | ArrayBuffer | null>('')
 // DB保存用のデータ
-const preset = ref<Preset>({
-    preset_id: null,
+const presetInitialData: Preset = {
+    preset_id: -1,
     image: '',
     imagePath: '',
     commands: '',
@@ -44,7 +45,8 @@ const preset = ref<Preset>({
     scale: 11,
     options: ['Highres. Fix'],
     others: '',
-})
+}
+const preset = ref<Preset>(presetInitialData)
 // プリセットの内容が更新されたかどうかを監視する
 watchEffect(() => {
     if (props.prompts !== undefined) {
@@ -66,28 +68,27 @@ const updateModalState = (isDisplay: boolean) => {
 
 // プリセットをDBに保存する
 const formUrl = apiPath + 'managePreset.php'
-const registerPreset = (method = 'save') => {
+const apiManager = new ApiManager()
+const registerPreset = async (method = 'save') => {
     // 削除ボタンが押された場合、確認アラート表示後データ消去命令をAPIに送る
     if (currentPath === 'saver' && method === 'delete') {
         if (confirm('本当に削除しますか？')) {
-            axios
-                .post(formUrl, {
-                    delete: preset.value.preset_id,
-                })
-                .then(() => {
-                    alert('プロンプトをデータベースから削除しました。')
-                    // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
-                    emit('getPresetData')
-                    emit('setRegisterMode', false)
-                })
-                .catch((error) => {
-                    alert('データベース接続に失敗しました。')
-                    console.log(error)
-                })
-            return
-        } else {
-            return
+            const response = await apiManager.post(formUrl, {
+                delete: preset.value.preset_id,
+            })
+
+            if (response.error) {
+                alert('データベース接続に失敗しました。')
+                return
+            }
+
+            alert('プロンプトをデータベースから削除しました。')
+            // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
+            preset.value = presetInitialData
+            emit('loadPresetData')
+            emit('setRegisterMode', true, 'register')
         }
+        return
     }
 
     if (preset.value.commands === '') {
@@ -116,27 +117,28 @@ const registerPreset = (method = 'save') => {
         sendData.sampling_algo = null
         sendData.scale = null
         sendData.options = null
-    } else if (sendData.options !== null && Array.isArray(sendData.options)) {
+    }
+    if (Array.isArray(sendData.options)) {
         // オプションが設定されている場合はカンマ区切りで文字列に変更
         sendData.options = sendData.options.join(',')
     }
     const formData = JSON.stringify(sendData)
 
-    axios
-        .post(formUrl, formData)
-        .then(() => {
-            alert('プロンプトをデータベースに登録しました。')
-            if (currentPath === 'generator') {
-                updateModalState(false)
-            } else if (currentPath === 'saver') {
-                emit('getPresetData')
-                emit('setRegisterMode', false)
-            }
-        })
-        .catch((error) => {
-            alert('データベース接続に失敗しました。')
-            console.log(error)
-        })
+    const response = await apiManager.post(formUrl, formData)
+    if (response.error) {
+        alert('データベース接続に失敗しました。')
+        return
+    }
+
+    alert('プロンプトをデータベースに登録しました。')
+    if (currentPath === 'generator') {
+        updateModalState(false)
+    } 
+    if (currentPath === 'saver') {
+        preset.value = presetInitialData
+        emit('loadPresetData')
+        emit('setRegisterMode', false)
+    }
 }
 
 // 画像がドラッグ&ドロップされたらファイルをインポートする
@@ -192,7 +194,7 @@ const isDisplayPreview = ref<boolean>(false)
                 </div>
             </div>
             <div class="saver-title-area">
-                <p>{{ 'preset_id' in preset ? 'データ編集' : '新規追加' }}</p>
+                <p>{{ preset.preset_id !== -1 ? 'データ編集' : '新規追加' }}</p>
                 <div>
                     <input
                         type="checkbox"
