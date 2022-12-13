@@ -2,6 +2,7 @@
 import master_data from '@/assets/ts/master_data'
 import apiPath from '@/assets/ts/apiPath'
 import {
+    MasterData,
     Nsfw,
     Prompt,
     PromptList,
@@ -109,54 +110,59 @@ const addManualPrompt = (input: string, enhanceCount = 0): void => {
     }
 }
 
-// タグのセットキューに挿入
-const toggleSetPromptList = (
-    i: number,
-    j: number,
-    enhanceCount = 0,
-    colorTag = '',
-    colorTagJP = ''
-): void => {
-    const queue: SetPrompt = {
-        ...masterData.value[i].content[j],
-        output_prompt: masterData.value[i].content[j].tag,
+// プロンプト設定一覧に追加するデータを作成
+const createSetPrompt = (
+    prompt: Prompt,
+    enhanceCount: number = 0,
+    colorTag: string = '',
+    colorTagJP: string = ''
+) => {
+    // プロンプトを選択した場合データ追加
+    const insertPromptData: SetPrompt = {
+        ...prompt,
+        output_prompt: prompt.tag,
         enhance: enhanceCount,
         color_list: null,
     }
 
-    // プロンプト設定リストに存在するタグの場合、そのデータを消去し終了
-    const selected = masterData.value[i].content[j].selected
-    if (selected) {
-        for (let index = 0; index < setPrompt.value.length; index++) {
-            if (setPrompt.value[index].tag === queue.tag) {
-                setPrompt.value.splice(index, 1)
-                masterData.value[i].content[j].selected = false
-                return
-            }
-        }
-    }
-
     // カラーバリエーション設定が存在する場合それに上書き
-    switch (masterData.value[i].content[j].variation) {
+    switch (prompt.variation) {
         case 'CC':
-            queue['color_list'] = colorMulti
+            insertPromptData['color_list'] = colorMulti
             break
         case 'CM':
-            queue['color_list'] = colorMono
+            insertPromptData['color_list'] = colorMono
             break
         default:
-            queue['color_list'] = null
+            insertPromptData['color_list'] = null
             break
     }
 
     // カラータグが存在する場合はタグ名と表示名を上書き
     if (colorTag !== '' && colorTagJP !== '') {
-        queue.output_prompt = colorTag + ' ' + queue.tag
-        queue.jp = queue.jp + ' (' + colorTagJP + ')'
+        insertPromptData.output_prompt = colorTag + ' ' + insertPromptData.tag
+        insertPromptData.jp = insertPromptData.jp + ' (' + colorTagJP + ')'
     }
 
-    setPrompt.value.push(queue)
-    masterData.value[i].content[j].selected = true
+    return insertPromptData
+}
+
+// プロンプト設定一覧のデータ変更処理
+const toggleSetPromptList = (i: number, j: number) => {
+    const prompt = masterData.value[i].content[j]
+
+    // プロンプトの選択を解除した場合一覧からデータ削除
+    if (prompt.selected) {
+        const removeIndex = setPrompt.value.findIndex(
+            (p) => p.tag === prompt.tag
+        )
+        setPrompt.value.splice(removeIndex, 1)
+        prompt.selected = false
+        return
+    }
+
+    setPrompt.value.push(createSetPrompt(prompt))
+    prompt.selected = true
 }
 
 // プロンプト一覧から指定されたプロンプト名を検索し、存在する場合プロンプト設定欄にデータを挿入
@@ -183,37 +189,45 @@ const searchPrompt = (uploadPromptName: string, enhanceCount: number): void => {
             ? uploadPromptName
             : uploadPromptName.substring(spaceIndex + 1)
 
+    let promptIndex = -1
+    let genreIndex = -1
     for (let i = 0; i < masterData.value.length; i++) {
-        for (let j = 0; j < masterData.value[i].content.length; j++) {
-            const prompt = masterData.value[i].content[j]
-            // アップロードされたプロンプト名とリスト内のプロンプトが一致した場合、プロンプト設定のリストにそのプロンプトのデータを挿入
-            if (prompt.tag === promptName) {
-                toggleSetPromptList(
-                    i,
-                    j,
-                    enhanceCount,
-                    colorTag,
-                    colorTagJP.value
-                )
-                // nsfw設定をプロンプトのnsfw設定に上書き
-                if (
-                    displayNsfw.value === 'A' ||
-                    (displayNsfw.value === 'C' && prompt.nsfw === 'Z')
-                ) {
-                    displayNsfw.value = prompt.nsfw
-                }
+        promptIndex = masterData.value[i].content.findIndex(
+            (prompt) => prompt.tag === promptName
+        )
 
-                return
-            }
+        if (promptIndex !== -1) {
+            genreIndex = i
+            break
         }
     }
+
     // リスト内のプロンプトと1つも合致しなかった場合、手動入力として扱う
-    addManualPrompt(uploadPromptName, enhanceCount)
+    if (promptIndex === -1) {
+        addManualPrompt(uploadPromptName, enhanceCount)
+        return
+    }
+
+    // 合致した場合、プロンプト設定一覧に該当プロンプトを挿入
+    const prompt = masterData.value[genreIndex].content[promptIndex]
+    setPrompt.value.push(
+        createSetPrompt(prompt, enhanceCount, colorTag, colorTagJP.value)
+    )
+
+    prompt.selected = true
+    // nsfw設定をプロンプトのnsfw設定に上書き
+    if (
+        displayNsfw.value === 'A' ||
+        (displayNsfw.value === 'C' && prompt.nsfw === 'Z')
+    ) {
+        displayNsfw.value = prompt.nsfw
+    }
     return
 }
 
 // 既存のタグがアップロードされた場合、セットキューに対象値を追加
 const uploadPrompt = (inputPromptList: string): void => {
+    const st = performance.now()
     if (inputPromptList.trim() === '') return
     // 既存の設定プロンプトリストと手動入力欄をリセット
     setPrompt.value = []
@@ -253,6 +267,8 @@ const uploadPrompt = (inputPromptList: string): void => {
             searchPrompt(promptName, enhanceCount.value)
         }
     })
+    const ed = performance.now()
+    console.log(ed - st)
 }
 
 // nsfw設定を監視し変更があった場合プロンプトの表示状態を設定する
