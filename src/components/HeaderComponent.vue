@@ -32,7 +32,7 @@ const getUserInfo = async () => {
     const response = await apiManager.post(url, {
         method: 'getUserData',
     })
-    if (!response.error) return response.user_id
+    return response.user_id
 }
 
 // 画面読み込み時にログインユーザーIDを取得
