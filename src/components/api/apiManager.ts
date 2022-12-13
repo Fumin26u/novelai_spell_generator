@@ -1,0 +1,51 @@
+import axios from 'axios'
+
+class ApiManager {
+    // POST
+    async post(
+        url: string,
+        formData: any = {}
+    ): Promise<{ [key: string]: boolean }> {
+        return await axios
+            .post(url, formData)
+            .then(() => {
+                return {
+                    error: false,
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+                return {
+                    error: true,
+                }
+            })
+    }
+
+    // GET
+    async get(url: string, query: any = {}): Promise<any> {
+        return await axios
+            .get(url, {
+                params: query,
+            })
+            .then((response) => {
+                if (response.data === '') {
+                    return {
+                        error: true,
+                        content: 'データの取得に失敗しました。',
+                    }
+                }
+
+                return {
+                    error: false,
+                    content: response.data,
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+                return {
+                    error: true,
+                    content: null,
+                }
+            })
+    }
+}
