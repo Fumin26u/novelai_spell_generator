@@ -14,7 +14,7 @@ class ApiManager {
             .catch((response) => {
                 console.log(response)
                 return {
-                    error: true,
+                    error: true
                 }
             })
     }

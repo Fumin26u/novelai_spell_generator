@@ -3,7 +3,7 @@ import apiPath from '@/assets/ts/apiPath'
 import { AccountInfo } from '@/assets/ts/Interfaces/Index'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import '@/assets/scss/manageAccount.scss'
-import axios from 'axios'
+import ApiManager from '@/components/api/apiManager'
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -34,52 +34,51 @@ const regex = {
     password: '^([a-zA-Z0-9]{8,20})$',
 }
 
-const submitAccountData = async () => {
-    // 入力内容がパターンにマッチしない場合エラーメッセージを出力
+const inputValidation = () => {
+    let errorMessage = ''
     if (!new RegExp(regex.user_id).test(account.value.user_id)) {
-        responseMessage.value = 'ユーザーIDの入力内容が空または不正です。'
-        return
+        errorMessage = 'ユーザーIDの入力内容が空または不正です。'
     }
 
     if (!new RegExp(regex.password).test(account.value.password)) {
-        responseMessage.value = 'パスワードの入力内容が空または不正です。'
-        return
+        errorMessage = 'パスワードの入力内容が空または不正です。'
     }
+    return errorMessage
+}
+
+const submitAccountData = async () => {
+    // 入力内容がパターンにマッチしない場合エラーメッセージを出力
+    responseMessage.value = inputValidation()
+    if (responseMessage.value !== '') return
 
     // バリデーションを通過したらAPIを叩いてユーザーデータを登録
     const sendData = { ...account.value }
     sendData.method = currentPath.value
 
     const formData = JSON.stringify(sendData)
-    axios
-        .post(formUrl, formData)
-        .then((response) => {
-            // 返答でエラーが無い場合は指定ページにリダイレクト
-            if (!response.data.error) {
-                if (currentPath.value === 'register') {
-                    // ログインページ遷移時メッセージと入力内容を初期化
-                    responseMessage.value = ''
-                    account.value.user_id = ''
-                    account.value.password = ''
-                    router.push('./login')
-                } else if (currentPath.value === 'login') {
-                    router.push('./')
-                }
-            } else {
-                // エラーが返された場合は内容を画面に表示
-                responseMessage.value = response.data.content
-            }
-        })
-        .catch((error) => {
-            responseMessage.value =
-                'データベース接続に失敗しました。お手数ですが、時間を置いて再度お試しください。'
-            console.log(error)
-        })
+    const apiManager = new ApiManager()
+    const response = await apiManager.post(formUrl, formData)
+    // 入力内容が不正の場合
+    if (response.error) {
+        responseMessage.value = response.content
+        return
+    }
+
+    // 返答でエラーが無い場合は指定ページにリダイレクト
+    if (currentPath.value === 'register') {
+        // ログインページ遷移時メッセージと入力内容を初期化
+        responseMessage.value = ''
+        account.value.user_id = ''
+        account.value.password = ''
+        router.push('./login')
+    } else if (currentPath.value === 'login') {
+        router.push('./')
+    }
 }
 </script>
 
 <template lang="">
-    <HeaderComponent @getUserInfo="getUserInfo"></HeaderComponent>
+    <HeaderComponent></HeaderComponent>
     <main class="account-manage">
         <div class="title-area">
             <h2>
