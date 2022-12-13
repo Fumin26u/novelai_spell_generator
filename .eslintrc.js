@@ -17,6 +17,6 @@ module.exports = {
         'no-unused-vars': 'off',
         'vue/no-unused-vars': 'off',
         'vue/script-setup-uses-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error'],
+        '@typescript-eslint/no-unused-vars': ['off'],
     },
 }

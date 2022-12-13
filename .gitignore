@@ -22,8 +22,8 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-images/
 api/images/preset/*/*
+api/commonlib.php
 */fetchData.ts
 *.txt
-
+*/apiPath.ts

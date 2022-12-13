@@ -13,13 +13,13 @@ export interface Prompt {
     tag: string
     slag: string
     jp: string
-    parentTag: string
-    display: boolean
-    selected: boolean
     nsfw: Nsfw
     variation: null | 'CC' | 'CM'
-    index: string | null
-    detail: string | null
+    parentTag: string
+    display?: boolean
+    selected?: boolean
+    index?: string
+    detail?: string | null
 }
 export interface SetPrompt extends Prompt {
     output_prompt: string
@@ -39,24 +39,28 @@ export interface PromptList {
 
 // Preset関連のInterface
 export interface Preset {
-    preset_id: number | null
+    preset_id: number
     image: string | ArrayBuffer | null
-    imagePath: string | null
-    from: string
     commands: string
     commands_ban: string
     description: string | null
     nsfw: Nsfw
     seed: string
-    resolution_width: string | number | null
-    resolution_height: string | number | null
-    resolution: string | null
+    resolution: string
     model: string | null
     sampling: number | null
     sampling_algo: string | null
     scale: number | null
     options: any
     others: string
+    
+    imagePath: string | null
+    resolution_width: string | number
+    resolution_height: string | number
+
+    user_id?: string
+    created_at?: string
+    updated_at?: string
 }
 export interface PresetDetail extends Preset {
     index: number

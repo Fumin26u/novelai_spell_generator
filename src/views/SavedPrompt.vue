@@ -4,66 +4,52 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
-import { Preset, PresetDetail, SearchData } from '@/assets/ts/Interfaces/Index'
+import ApiManager from '@/components/api/apiManager'
+import {
+    Preset,
+    PresetDetail,
+    SearchData,
+    NsfwDisplay,
+} from '@/assets/ts/Interfaces/Index'
 import '@/assets/scss/savedPrompt.scss'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
-// ログインユーザーの登録プリセット一覧
-const savedPromptList = ref<PresetDetail[]>([])
-// 検索ボックスの表示有無
-const isDisplaySearchBox = ref<boolean>(false)
 
 // DBで文字列で保管されているオプションと解像度を表示できるように変更
-const revertDBData = (presets: Preset[]) => {
-    presets.map((preset, index) => {
-        if (preset.options !== null && preset.options !== '') {
-            savedPromptList.value[index].options = preset.options.split(',')
-        } else {
-            savedPromptList.value[index].options = []
-        }
-
-        if (preset.resolution !== null && preset.resolution !== '') {
-            const resolutionList = preset.resolution.split('x')
-            savedPromptList.value[index]['resolution_width'] = resolutionList[0]
-            savedPromptList.value[index]['resolution_height'] =
-                resolutionList[1]
-        }
-    })
+const revertOptionsToArray = (preset: Preset): string[] => {
+    return preset.options !== null && preset.options !== ''
+        ? (preset.options = preset.options.split(','))
+        : []
 }
 
 // 各プリセットに対応する画像とサムネイルのURLを取得
-const setImages = (presets: Preset[]) => {
-    const imgPath = apiPath + 'images/preset/'
-    presets.map((preset, index) => {
-        savedPromptList.value[index]['thumbnail'] =
-            preset.image === null || preset.image === ''
-                ? imgPath + 'noimage.png'
-                : imgPath + 'thumbnail/' + preset.image
-        savedPromptList.value[index]['imagePath'] =
-            preset.image === null || preset.image === ''
-                ? imgPath + 'noimage.png'
-                : imgPath + 'original/' + preset.image
-    })
+const imgPath = apiPath + 'images/preset/'
+const getThumbnailPath = (preset: Preset): string => {
+    return preset.image === null || preset.image === ''
+        ? imgPath + 'noimage.png'
+        : imgPath + 'thumbnail/' + preset.image
+}
+const getImagePath = (preset: Preset): string => {
+    return preset.image === null || preset.image === ''
+        ? imgPath + 'noimage.png'
+        : imgPath + 'original/' + preset.image
 }
 
 // 各プリセットがnsfwかどうか判定
-const setIsNsfw = (presets: Preset[]) => {
-    presets.map((_, index) => {
-        switch (savedPromptList.value[index].nsfw) {
-            case 'A':
-                savedPromptList.value[index]['nsfw_display'] = '全年齢'
-                break
-            case 'C':
-                savedPromptList.value[index]['nsfw_display'] = 'R-15'
-                break
-            case 'Z':
-                savedPromptList.value[index]['nsfw_display'] = 'R-18'
-                break
-        }
-    })
+const getNsfwDisplay = (preset: Preset): NsfwDisplay => {
+    switch (preset.nsfw) {
+        case 'A':
+            return '全年齢'
+        case 'C':
+            return 'R-15'
+        case 'Z':
+            return 'R-18'
+        default:
+            return '全年齢'
+    }
 }
 
+// ログインユーザーの登録プリセット一覧
+const savedPresetList = ref<PresetDetail[]>([])
 // プリセット一覧から選択されたプリセットを読み込む
 const presetInitialData: PresetDetail = {
     index: 0,
@@ -72,7 +58,6 @@ const presetInitialData: PresetDetail = {
     preset_id: -1,
     image: '',
     imagePath: '',
-    from: 'generator',
     commands: '',
     commands_ban: '',
     description: '',
@@ -94,9 +79,9 @@ const selectedPresetIndex = ref<number>(-1)
 const selectPreset = (selectPresetIndex: number) => {
     if (selectPresetIndex === -1) {
         selectedPreset.value = { ...presetInitialData }
-        selectedPreset.value.index = savedPromptList.value.length
+        selectedPreset.value.index = savedPresetList.value.length
     } else {
-        selectedPreset.value = { ...savedPromptList.value[selectPresetIndex] }
+        selectedPreset.value = { ...savedPresetList.value[selectPresetIndex] }
         selectedPreset.value.index = selectPresetIndex
     }
     selectedPresetIndex.value = selectPresetIndex
@@ -119,28 +104,52 @@ const searchData = ref<SearchData>({
     sort: 'created_at',
     order: 'asc',
 })
-
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
+const apiManager = new ApiManager()
 const getPresetData = async (postData: SearchData = searchData.value) => {
-    const url = apiPath + 'managePreset.php'
     // プリセットを初期化
-    savedPromptList.value = []
-    await axios
-        .get(url, {
-            params: postData,
-        })
-        .then((response) => {
-            if (response.data !== '') {
-                savedPromptList.value = response.data
-                revertDBData(savedPromptList.value)
-                setImages(savedPromptList.value)
-                setIsNsfw(savedPromptList.value)
-            }
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+    savedPresetList.value = []
+
+    const url = apiPath + 'managePreset.php'
+    const response = await apiManager.get(url, postData)
+    if (!response.error) return response.content
 }
+
+// APIで取得したプリセット一覧に表示用のデータを挿入する
+const createPresetData = (presets: Preset[]) => {
+    const PresetDetail = presets.map((preset, i) => {
+        const resolutionList =
+            preset.resolution !== null && preset.resolution !== ''
+                ? preset.resolution.split('x')
+                : ['', '']
+        preset.options = revertOptionsToArray(preset)
+        preset.imagePath = getImagePath(preset)
+        preset.resolution_width = resolutionList[0]
+        preset.resolution_height = resolutionList[1]
+
+        return {
+            ...preset,
+            index: i,
+            thumbnail: getThumbnailPath(preset),
+            nsfw_display: getNsfwDisplay(preset),
+        }
+    })
+    return PresetDetail
+}
+
+// 画面ロード時に表示用のプリセットデータを作成する
+const loadPresetData = async (
+    searchParams: SearchData = searchData.value
+): Promise<void> => {
+    savedPresetList.value = createPresetData(await getPresetData(searchParams))
+}
+onMounted(async () => {
+    document.title = 'NovelAI プロンプトセーバー'
+    loadPresetData()
+})
+
+// 検索ボックスの表示有無
+const isDisplaySearchBox = ref<boolean>(false)
 
 // コピーした際のアラートを設定
 const alertText = ref<string>('')
@@ -153,12 +162,6 @@ const originPath = new URL(location.href).origin + location.pathname
 // ログインユーザーIDを取得
 const user_id = ref<string>('')
 const getUserInfo = (userId: string) => (user_id.value = userId)
-
-// 画面ロード時、APIからログインユーザーの登録プロンプト一覧を取得
-onMounted(() => {
-    document.title = 'NovelAI プロンプトセーバー'
-    getPresetData()
-})
 </script>
 
 <template>
@@ -209,14 +212,14 @@ onMounted(() => {
                 <searchBoxComponent
                     v-if="isDisplaySearchBox"
                     :searchBoxData="searchData"
-                    @getPresetData="getPresetData"
+                    @loadPresetData="loadPresetData"
                 />
             </section>
             <section class="preset-message">
                 <p class="data-count">
                     {{
-                        savedPromptList.length > 0
-                            ? savedPromptList.length +
+                        savedPresetList.length > 0
+                            ? savedPresetList.length +
                               '件のデータが存在します。'
                             : '該当のデータが存在しません。'
                     }}
@@ -226,7 +229,7 @@ onMounted(() => {
             <section class="preset-list">
                 <div class="preset-content">
                     <div
-                        v-for="(prompt, index) in savedPromptList"
+                        v-for="(prompt, index) in savedPresetList"
                         :key="prompt.preset_id !== null ? prompt.preset_id : 0"
                         :class="[
                             selectedPresetIndex === index ? 'selected' : '',
@@ -266,7 +269,7 @@ onMounted(() => {
                 :selectedPreset="selectedPreset"
                 @selectPreset="selectPreset"
                 @setAlertText="setAlertText"
-                @getPresetData="getPresetData"
+                @loadPresetData="loadPresetData"
                 @setRegisterMode="setRegisterMode"
             />
         </div>

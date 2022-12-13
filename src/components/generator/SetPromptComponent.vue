@@ -12,7 +12,7 @@ interface Props {
 interface Emits {
     (e: 'updateSetPrompt', childSetPrompt: SetPrompt[]): SetPrompt[]
     (e: 'addManualPrompt', uploadPromptName: string, enhanceCount: number): void
-    (e: 'unSelectedPrompt', promptListIndex: string | null): void
+    (e: 'unSelectedPrompt', promptListIndex?: string): void
     (e: 'openSaveModal', modalState: boolean, output: string): void
 }
 
