@@ -6,7 +6,7 @@ import ApiManager from '@/components/api/apiManager'
 import { ref, watchEffect } from 'vue'
 
 interface Props {
-    selected: MasterData | MasterPrompt | undefined
+    selected: MasterData | MasterPrompt
     genreIdList: number[]
     promptIdList: number[]
 }
@@ -23,7 +23,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 選択されたプロンプト
-const prompt = ref<MasterData | MasterPrompt | undefined>()
+const prompt = ref<MasterData | MasterPrompt>(props.selected)
 watchEffect(() => {
     prompt.value = props.selected
 })
@@ -37,12 +37,9 @@ const errorMessage = ref<string[]>([])
 const isExistError = () => {
     // エラー内容のリセット
     errorMessage.value = []
-
-    if (prompt.value === undefined) return
-
-    // if (typeof prompt.value.id !== 'number') {
-    //     errorMessage.value.push('IDの入力内容が不正です。')
-    // }
+    if (!new RegExp('^[0-9]*$').test(String(prompt.value.id))) {
+        errorMessage.value.push('IDの入力内容が不正です。')
+    }
 
     if (prompt.value.jp === '') {
         errorMessage.value.push('日本語名が入力されていません。')
@@ -85,7 +82,7 @@ const isExistError = () => {
 const apiManager = new ApiManager()
 const registerPrompt = async (method: string = 'save') => {
     // データが存在しない場合エラーを返して強制終了
-    if (prompt.value === undefined || prompt.value.id === 0) {
+    if (prompt.value.id === 0) {
         errorMessage.value.push('送信データが存在しません。')
         return
     }
@@ -125,9 +122,7 @@ const registerPrompt = async (method: string = 'save') => {
 
     alert('データ送信が完了しました。')
     emit('getMasterData')
-    if (prompt.value !== undefined) {
-        emit('selectPrompt', prompt.value, true)
-    }
+    emit('selectPrompt', prompt.value, true)
 }
 </script>
 
@@ -160,7 +155,7 @@ const registerPrompt = async (method: string = 'save') => {
                 <dt>ID</dt>
                 <dd>
                     <input
-                        type="number"
+                        type="text"
                         v-model="prompt.id"
                         :readonly="prompt.edit"
                     />
