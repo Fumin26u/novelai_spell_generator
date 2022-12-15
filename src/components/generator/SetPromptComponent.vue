@@ -2,6 +2,7 @@
 import { SetPrompt, ColorVariation } from '@/assets/ts/Interfaces/Index'
 import { ref, computed, watchEffect } from 'vue'
 import draggable from 'vuedraggable'
+import user_id from '@/components/api/getUserId'
 import '@/assets/scss/promptGenerator.scss'
 
 interface Props {
@@ -263,6 +264,7 @@ const isEditPrompt = ref<boolean>(false)
                         コピー
                     </button>
                     <button
+                        v-if="user_id !== ''"
                         @click="openSaveModal(setPrompt, true)"
                         class="btn-common blue open-save-modal"
                     >

@@ -3,11 +3,16 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import SelectedPromptComponent from '@/components/master/SelectedPromptComponent.vue'
 import '@/assets/scss/masterData.scss'
 import ApiManager from '@/components/api/apiManager'
+import user_id from '@/components/api/getUserId'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import { promptInitial, genreInitial } from '@/assets/ts/initialValues'
 import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+
+// 自分以外のユーザーがアクセスした場合強制リダイレクト
+const router = useRouter()
+if (user_id !== 'Fumiya0719') router.push('./')
 
 // DBから取得したマスタデータ一覧
 const promptList = ref<MasterData[]>([])
@@ -116,15 +121,6 @@ const selectPrompt = (
     selectedPrompt.value.edit = isEdit
 }
 
-// ログインユーザーIDを取得
-const user_id = ref<string>('')
-const router = useRouter()
-const getUserInfo = (userId: string) => {
-    // 自分以外のユーザーがアクセスした場合強制リダイレクト
-    if (userId !== 'Fumiya0719') router.push('./')
-    user_id.value = userId
-}
-
 // 画面表示に必要なデータを取得し挿入
 const loadMasterData = async () => {
     promptList.value = addDisplayProps(convertMasterData(await getMasterData()))
@@ -132,11 +128,11 @@ const loadMasterData = async () => {
     promptIdList.value = getPromptIdList(promptList.value)
 }
 
-onMounted(async () => loadMasterData())
+onMounted(() => loadMasterData())
 </script>
 
 <template>
-    <HeaderComponent @getUserInfo="getUserInfo" />
+    <HeaderComponent />
     <main class="master-data">
         <section class="top-button-area">
             <div class="generate-json-area">

@@ -5,6 +5,7 @@ import SearchBoxComponent from '@/components/saver/SearchBoxComponent.vue'
 import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.vue'
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
 import ApiManager from '@/components/api/apiManager'
+import user_id from '@/components/api/getUserId'
 import {
     presetDetailInitial,
     searchDataInitial,
@@ -133,14 +134,10 @@ const setAlertText = (text: string) => (alertText.value = text)
 // ページ遷移用のURI
 // テストサーバーも含める為パス名を取得して結合
 const originPath = new URL(location.href).origin + location.pathname
-
-// ログインユーザーIDを取得
-const user_id = ref<string>('')
-const getUserInfo = (userId: string) => (user_id.value = userId)
 </script>
 
 <template>
-    <HeaderComponent @getUserInfo="getUserInfo" />
+    <HeaderComponent />
     <main class="saved-prompt">
         <div class="preset-info not-login" v-if="user_id === ''">
             <p>
