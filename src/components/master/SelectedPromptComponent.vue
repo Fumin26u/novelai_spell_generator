@@ -2,24 +2,28 @@
 import '@/assets/scss/masterData.scss'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
 import apiPath from '@/assets/ts/apiPath'
-import axios from 'axios'
+import ApiManager from '@/components/api/apiManager'
 import { ref, watchEffect } from 'vue'
 
 interface Props {
-    selected: MasterData | MasterPrompt | undefined
+    selected: MasterData | MasterPrompt
     genreIdList: number[]
     promptIdList: number[]
 }
 interface Emits {
-    (e: 'getMasterData'): Promise<void>
-    (e: 'selectPrompt', content: MasterData | MasterPrompt, isEdit: boolean): void
+    (e: 'loadMasterData'): Promise<void>
+    (
+        e: 'selectPrompt',
+        content: MasterData | MasterPrompt,
+        isEdit: boolean
+    ): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 選択されたプロンプト
-const prompt = ref<MasterData | MasterPrompt | undefined>()
+const prompt = ref<MasterData | MasterPrompt>(props.selected)
 watchEffect(() => {
     prompt.value = props.selected
 })
@@ -33,12 +37,9 @@ const errorMessage = ref<string[]>([])
 const isExistError = () => {
     // エラー内容のリセット
     errorMessage.value = []
-
-    if (prompt.value === undefined) return
-
-    // if (typeof prompt.value.id !== 'number') {
-    //     errorMessage.value.push('IDの入力内容が不正です。')
-    // }
+    if (!new RegExp('^[0-9]*$').test(String(prompt.value.id))) {
+        errorMessage.value.push('IDの入力内容が不正です。')
+    }
 
     if (prompt.value.jp === '') {
         errorMessage.value.push('日本語名が入力されていません。')
@@ -59,11 +60,17 @@ const isExistError = () => {
             errorMessage.value.push('プロンプト名が入力されていません。')
         }
 
-        if (prompt.value.genre_id === 0 || genreIdList.value.includes(prompt.value.genre_id)) {
+        if (
+            prompt.value.genre_id === 0 ||
+            genreIdList.value.includes(prompt.value.genre_id)
+        ) {
             errorMessage.value.push('存在しないジャンルIDです。')
         }
 
-        if (!prompt.value.edit && promptIdList.value.includes(prompt.value.id)) {
+        if (
+            !prompt.value.edit &&
+            promptIdList.value.includes(prompt.value.id)
+        ) {
             errorMessage.value.push('既に使用されているIDです。')
         }
     }
@@ -72,56 +79,52 @@ const isExistError = () => {
 }
 
 // 入力内容をAPIに送信してデータ登録
-const registerPrompt = (method: string = 'save') => {
+const apiManager = new ApiManager()
+const registerPrompt = async (method: string = 'save') => {
     // データが存在しない場合エラーを返して強制終了
-    if (prompt.value === undefined || prompt.value.id === 0) {
+    if (prompt.value.id === 0) {
         errorMessage.value.push('送信データが存在しません。')
         return
     }
 
     const formUrl = apiPath + 'managePrompt.php'
-    if (method === 'delete' && confirm('本当に削除しますか?')) {
-        axios
-            .post(formUrl, {
+    if (method === 'delete') {
+        if (confirm('本当に削除しますか?')) {
+            const response = await apiManager.post(formUrl, {
                 method: 'delete',
                 table: prompt.value.identifier,
                 id: prompt.value.id,
             })
-            .then((response) => {
-                if (response.data.error) {
-                    errorMessage.value.push('データベース接続に失敗しました。')
-                } else {
-                    alert('データを削除しました。')
-                    emit('getMasterData')
-                }
-            })
-            .catch((error) => console.log(error))
 
+            if (response.error) {
+                errorMessage.value.push('データベース接続に失敗しました。')
+                return
+            }
+
+            // データ削除が完了した場合DBからデータを再取得する
+            alert('データを削除しました。')
+            emit('loadMasterData')
+        }
         return
     }
 
     // 入力内容のバリデーションをし、エラーが無い場合はAPIにデータを送信
-    if (!isExistError()) {
-        const sendData = { ...prompt.value }
-        // ジャンル編集の場合プロンプト一覧はデータ量が多いかつ不要なので空にする
-        if (sendData.identifier === 'genre') sendData.content = []
+    if (isExistError()) return
+    const sendData = { ...prompt.value }
+    // ジャンル編集の場合プロンプト一覧はデータ量が多いかつ不要なので空にする
+    if (sendData.identifier === 'genre') sendData.content = []
 
-        const formData = JSON.stringify(sendData)
-        axios
-            .post(formUrl, formData)
-            .then((response) => {
-                if (response.data.error) {
-                    errorMessage.value.push('データベース接続に失敗しました。')
-                } else {
-                    alert('データ送信が完了しました。')
-                    emit('getMasterData')
-                    if (prompt.value !== undefined) {
-                        emit('selectPrompt', prompt.value, true)
-                    }
-                }
-            })
-            .catch((error) => console.log(error))
+    const formData = JSON.stringify(sendData)
+    const response = await apiManager.post(formUrl, formData)
+    if (response.error) {
+        errorMessage.value.push('データベース接続に失敗しました。')
+        return
     }
+
+    // データ送信が完了した場合DBからデータを再取得する
+    alert('データ送信が完了しました。')
+    emit('loadMasterData')
+    emit('selectPrompt', prompt.value, true)
 }
 </script>
 
@@ -154,7 +157,7 @@ const registerPrompt = (method: string = 'save') => {
                 <dt>ID</dt>
                 <dd>
                     <input
-                        type="number"
+                        type="text"
                         v-model="prompt.id"
                         :readonly="prompt.edit"
                     />
