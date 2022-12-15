@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import apiPath from '@/assets/ts/apiPath'
 import algorithms from '@/assets/ts/algorithms'
+import { presetInitial } from '@/assets/ts/initialValues'
 import { Preset, SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
 import ApiManager from '@/components/api/apiManager'
@@ -26,26 +27,7 @@ const currentPath = location.href.slice(-2) === '#/' ? 'generator' : 'saver'
 // Base64文字列に変換した画像
 const base64Image = ref<string | ArrayBuffer | null>('')
 // DB保存用のデータ
-const presetInitialData: Preset = {
-    preset_id: -1,
-    image: '',
-    imagePath: '',
-    commands: '',
-    commands_ban: '',
-    description: '',
-    nsfw: 'A',
-    seed: '',
-    resolution_width: 512,
-    resolution_height: 768,
-    resolution: '',
-    model: 'NovelAI',
-    sampling: 28,
-    sampling_algo: 'Euler a',
-    scale: 11,
-    options: ['Highres. Fix'],
-    others: '',
-}
-const preset = ref<Preset>(presetInitialData)
+const preset = ref<Preset>(presetInitial)
 // プリセットの内容が更新されたかどうかを監視する
 watchEffect(() => {
     if (props.prompts !== undefined) {
@@ -83,7 +65,7 @@ const registerPreset = async (method = 'save') => {
 
             alert('プロンプトをデータベースから削除しました。')
             // 更新できた場合再度データベースからプリセット一覧を取得、編集画面を消去
-            preset.value = presetInitialData
+            preset.value = presetInitial
             emit('loadPresetData')
             emit('setRegisterMode', true, 'register')
         }
@@ -132,9 +114,9 @@ const registerPreset = async (method = 'save') => {
     alert('プロンプトをデータベースに登録しました。')
     if (currentPath === 'generator') {
         updateModalState(false)
-    } 
+    }
     if (currentPath === 'saver') {
-        preset.value = presetInitialData
+        preset.value = presetInitial
         emit('loadPresetData')
         emit('setRegisterMode', false)
     }

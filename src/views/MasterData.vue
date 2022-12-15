@@ -4,6 +4,7 @@ import SelectedPromptComponent from '@/components/master/SelectedPromptComponent
 import '@/assets/scss/masterData.scss'
 import ApiManager from '@/components/api/apiManager'
 import { MasterData, MasterPrompt } from '@/assets/ts/Interfaces/Index'
+import { promptInitial, genreInitial } from '@/assets/ts/initialValues'
 import apiPath from '@/assets/ts/apiPath'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -105,33 +106,7 @@ const getMasterData = async () => {
 }
 
 // 選択されたプロンプトデータとジャンルデータ
-const promptInitialData: MasterPrompt = {
-    detail: null,
-    genre_id: 0,
-    id: 0,
-    identifier: 'prompt',
-    jp: '',
-    nsfw: 'A',
-    nsfw_display: '全年齢',
-    tag: '',
-    variation: null,
-    variation_display: 'なし',
-    edit: false,
-}
-const genreInitialData: MasterData = {
-    caption: '',
-    content: [],
-    id: 0,
-    identifier: 'genre',
-    jp: '',
-    nsfw: 'A',
-    nsfw_display: '全年齢',
-    show_prompt: false,
-    slag: '',
-    edit: false,
-}
-
-const selectedPrompt = ref<MasterData | MasterPrompt>(promptInitialData)
+const selectedPrompt = ref<MasterData | MasterPrompt>(promptInitial)
 // マスタデータ一覧の編集ボタン押下時、選択したプロンプトのデータを挿入
 const selectPrompt = (
     content: MasterData | MasterPrompt,
@@ -167,13 +142,13 @@ onMounted(async () => {
             <div class="register-prompt-area">
                 <button
                     class="btn-common green"
-                    @click="selectPrompt(genreInitialData)"
+                    @click="selectPrompt(genreInitial)"
                 >
                     ジャンル新規登録
                 </button>
                 <button
                     class="btn-common blue"
-                    @click="selectPrompt(promptInitialData)"
+                    @click="selectPrompt(promptInitial)"
                 >
                     プロンプト新規登録
                 </button>

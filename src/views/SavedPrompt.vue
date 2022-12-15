@@ -6,6 +6,10 @@ import SelectedPresetComponent from '@/components/saver/SelectedPresetComponent.
 import ManagePresetComponent from '@/components/ManagePresetComponent.vue'
 import ApiManager from '@/components/api/apiManager'
 import {
+    presetDetailInitial,
+    searchDataInitial,
+} from '@/assets/ts/initialValues'
+import {
     Preset,
     PresetDetail,
     SearchData,
@@ -51,34 +55,12 @@ const getNsfwDisplay = (preset: Preset): NsfwDisplay => {
 // ログインユーザーの登録プリセット一覧
 const savedPresetList = ref<PresetDetail[]>([])
 // プリセット一覧から選択されたプリセットを読み込む
-const presetInitialData: PresetDetail = {
-    index: 0,
-    thumbnail: '',
-    nsfw_display: '全年齢',
-    preset_id: -1,
-    image: '',
-    imagePath: '',
-    commands: '',
-    commands_ban: '',
-    description: '',
-    nsfw: 'A',
-    seed: '',
-    resolution_width: 512,
-    resolution_height: 768,
-    resolution: '',
-    model: 'NovelAI',
-    sampling: 28,
-    sampling_algo: 'Euler a',
-    scale: 11,
-    options: ['Highres. Fix'],
-    others: '',
-}
 // 選択されたプリセットデータ
-const selectedPreset = ref<PresetDetail>(presetInitialData)
+const selectedPreset = ref<PresetDetail>(presetDetailInitial)
 const selectedPresetIndex = ref<number>(-1)
 const selectPreset = (selectPresetIndex: number) => {
     if (selectPresetIndex === -1) {
-        selectedPreset.value = { ...presetInitialData }
+        selectedPreset.value = { ...presetDetailInitial }
         selectedPreset.value.index = savedPresetList.value.length
     } else {
         selectedPreset.value = { ...savedPresetList.value[selectPresetIndex] }
@@ -96,14 +78,7 @@ const setRegisterMode = (state: boolean, mode = '') => {
 }
 
 // 検索ボックスの入力内容
-const searchData = ref<SearchData>({
-    method: 'search',
-    age: ['A'],
-    item: ['description', 'commands'],
-    word: '',
-    sort: 'created_at',
-    order: 'asc',
-})
+const searchData = ref<SearchData>(searchDataInitial)
 // プリセット検索APIを呼び出し、検索ボックスの内容に応じた値を取得
 const apiManager = new ApiManager()
 const getPresetData = async (postData: SearchData = searchData.value) => {

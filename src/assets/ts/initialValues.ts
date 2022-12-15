@@ -1,0 +1,85 @@
+// 各Interfaceの初期値
+import {
+    Preset,
+    PresetDetail,
+    MasterPrompt,
+    MasterData,
+    SearchData,
+} from './Interfaces/Index'
+
+export const presetInitial: Preset = {
+    preset_id: -1,
+    image: '',
+    imagePath: '',
+    commands: '',
+    commands_ban: '',
+    description: '',
+    nsfw: 'A',
+    seed: '',
+    resolution_width: 512,
+    resolution_height: 768,
+    resolution: '',
+    model: 'NovelAI',
+    sampling: 28,
+    sampling_algo: 'Euler a',
+    scale: 11,
+    options: ['Highres. Fix'],
+    others: '',
+}
+export const presetDetailInitial: PresetDetail = {
+    index: 0,
+    thumbnail: '',
+    nsfw_display: '全年齢',
+    preset_id: -1,
+    image: '',
+    imagePath: '',
+    commands: '',
+    commands_ban: '',
+    description: '',
+    nsfw: 'A',
+    seed: '',
+    resolution_width: 512,
+    resolution_height: 768,
+    resolution: '',
+    model: 'NovelAI',
+    sampling: 28,
+    sampling_algo: 'Euler a',
+    scale: 11,
+    options: ['Highres. Fix'],
+    others: '',
+}
+
+export const searchDataInitial: SearchData = {
+    method: 'search',
+    age: ['A'],
+    item: ['description', 'commands'],
+    word: '',
+    sort: 'created_at',
+    order: 'asc',
+}
+
+export const promptInitial: MasterPrompt = {
+    detail: null,
+    genre_id: 0,
+    id: 0,
+    identifier: 'prompt',
+    jp: '',
+    nsfw: 'A',
+    nsfw_display: '全年齢',
+    tag: '',
+    variation: null,
+    variation_display: 'なし',
+    edit: false,
+}
+export const genreInitial: MasterData = {
+    caption: '',
+    content: [],
+    id: 0,
+    identifier: 'genre',
+    jp: '',
+    nsfw: 'A',
+    nsfw_display: '全年齢',
+    show_prompt: false,
+    slag: '',
+    edit: false,
+}
