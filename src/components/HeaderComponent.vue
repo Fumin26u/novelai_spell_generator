@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import apiPath from '@/assets/ts/apiPath'
 import '@/assets/scss/header.scss'
 import ApiManager from './api/apiManager'
-import user_id from '@/components/api/getUserId'
+
+interface Emits {
+    (e: 'getUserInfo', userId: string): string
+}
+const emit = defineEmits<Emits>()
 
 // ハンバーガーメニューの表示状態
 const isOpenHBGMenu = ref<boolean>(false)
@@ -18,10 +22,25 @@ const execLogout = async () => {
     const formUrl = apiPath + 'manageAccount.php'
     const formData = JSON.stringify({
         method: 'logout',
-        user_id: user_id,
+        user_id: user_id.value,
     })
     await apiManager.post(formUrl, formData)
 }
+
+const getUserInfo = async () => {
+    const url = apiPath + 'manageAccount.php'
+    const response = await apiManager.post(url, {
+        method: 'getUserData',
+    })
+    return response.user_id
+}
+
+// 画面読み込み時にログインユーザーIDを取得
+const user_id = ref<string>('')
+onMounted(async () => {
+    user_id.value = await getUserInfo()
+    emit('getUserInfo', user_id.value)
+})
 </script>
 
 <template>
