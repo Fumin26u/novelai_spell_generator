@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { SetPrompt, ColorVariation } from '@/assets/ts/Interfaces/Index'
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect, onMounted } from 'vue'
+import apiPath from '@/assets/ts/apiPath'
+import ApiManager from '../api/apiManager'
 import draggable from 'vuedraggable'
 import '@/assets/scss/promptGenerator.scss'
 
@@ -132,6 +134,18 @@ const copyToClipboard = (text: string): void => {
 
 // 出力値の編集状態
 const isEditPrompt = ref<boolean>(false)
+
+// ユーザーIDを取得
+const apiManager = new ApiManager()
+const getUserInfo = async () => {
+    const url = apiPath + 'manageAccount.php'
+    const response = await apiManager.post(url, {
+        method: 'getUserData',
+    })
+    return response.user_id
+}
+const user_id = ref<string>('')
+onMounted(async () => (user_id.value = await getUserInfo()))
 </script>
 
 <template>
@@ -263,6 +277,7 @@ const isEditPrompt = ref<boolean>(false)
                         コピー
                     </button>
                     <button
+                        v-if="user_id !== ''"
                         @click="openSaveModal(setPrompt, true)"
                         class="btn-common blue open-save-modal"
                     >
