@@ -2,7 +2,6 @@
 import master_data from '@/assets/ts/master_data'
 import apiPath from '@/assets/ts/apiPath'
 import {
-    MasterData,
     Nsfw,
     Prompt,
     PromptList,

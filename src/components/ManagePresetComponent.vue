@@ -3,7 +3,6 @@ import apiPath from '@/assets/ts/apiPath'
 import algorithms from '@/assets/ts/algorithms'
 import { Preset, SearchData } from '@/assets/ts/Interfaces/Index'
 import { ref, watchEffect } from 'vue'
-import axios from 'axios'
 import ApiManager from '@/components/api/apiManager'
 import '@/assets/scss/managePreset.scss'
 
