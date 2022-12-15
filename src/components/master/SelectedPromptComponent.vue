@@ -11,7 +11,7 @@ interface Props {
     promptIdList: number[]
 }
 interface Emits {
-    (e: 'getMasterData'): Promise<void>
+    (e: 'loadMasterData'): Promise<void>
     (
         e: 'selectPrompt',
         content: MasterData | MasterPrompt,
@@ -101,8 +101,9 @@ const registerPrompt = async (method: string = 'save') => {
                 return
             }
 
+            // データ削除が完了した場合DBからデータを再取得する
             alert('データを削除しました。')
-            emit('getMasterData')
+            emit('loadMasterData')
         }
         return
     }
@@ -120,8 +121,9 @@ const registerPrompt = async (method: string = 'save') => {
         return
     }
 
+    // データ送信が完了した場合DBからデータを再取得する
     alert('データ送信が完了しました。')
-    emit('getMasterData')
+    emit('loadMasterData')
     emit('selectPrompt', prompt.value, true)
 }
 </script>

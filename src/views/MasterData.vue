@@ -125,11 +125,14 @@ const getUserInfo = (userId: string) => {
     user_id.value = userId
 }
 
-onMounted(async () => {
+// 画面表示に必要なデータを取得し挿入
+const loadMasterData = async () => {
     promptList.value = addDisplayProps(convertMasterData(await getMasterData()))
     genreIdList.value = getGenreIdList(promptList.value)
     promptIdList.value = getPromptIdList(promptList.value)
-})
+}
+
+onMounted(async () => loadMasterData())
 </script>
 
 <template>
@@ -220,7 +223,7 @@ onMounted(async () => {
             :selected="selectedPrompt"
             :genreIdList="genreIdList"
             :promptIdList="promptIdList"
-            @getMasterData="getMasterData"
+            @loadMasterData="loadMasterData"
             @selectPrompt="selectPrompt"
         />
     </main>
