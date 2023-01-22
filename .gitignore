@@ -27,3 +27,4 @@ api/commonlib.php
 */fetchData.ts
 *.txt
 */apiPath.ts
+*.sql
