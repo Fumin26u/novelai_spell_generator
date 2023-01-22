@@ -307,29 +307,6 @@ const isDisplayPreview = ref<boolean>(false)
                         <dt>モデル名</dt>
                         <dd>
                             <input type="text" v-model="preset.model">
-                            <!-- <input
-                                type="radio"
-                                v-model="preset.model"
-                                value="NovelAI"
-                                id="model_NovelAI"
-                            />
-                            <label for="model_NovelAI">NovelAI</label>
-                            <input
-                                type="radio"
-                                v-model="preset.model"
-                                value="Waifu Diffusion"
-                                id="model_Waifu_Diffusion"
-                            />
-                            <label for="model_Waifu_Diffusion"
-                                >Waifu Diffusion</label
-                            >
-                            <input
-                                type="radio"
-                                v-model="preset.model"
-                                value="Anything V3"
-                                id="model_Anything_V3"
-                            />
-                            <label for="model_Anything_V3">Anything V3</label> -->
                         </dd>
                     </div>
                     <div class="sampling">
