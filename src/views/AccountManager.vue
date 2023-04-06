@@ -91,10 +91,13 @@ const submitAccountData = async () => {
             <p>{{ responseMessage }}</p>
         </div>
         <div class="form-area">
-            <a href="./#/login" v-if="currentPath === 'register'"
-                >既にアカウント登録している場合はこちら</a
-            >
-            <a href="./#/register" v-else>アカウント未登録の場合はこちら</a>
+            <div v-if="currentPath === 'register'">
+                <a href="./#/login">既にアカウント登録している場合はこちら</a>
+            </div>
+            <div v-else>
+                <a href="./#/register">アカウント未登録の場合はこちら</a>
+                <a href="./#/forgotPassword">パスワードを忘れた場合はこちら</a>
+            </div>
             <form @submit.prevent="submitAccountData()">
                 <dl>
                     <div v-if="currentPath === 'register'">

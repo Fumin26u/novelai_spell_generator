@@ -1,8 +1,11 @@
-@import "./style.scss";
+@import './style.scss';
 
 main.account-manage {
     max-width: 900px;
     margin: 1em auto;
+    > .description {
+        margin: 8px 0;
+    }
 }
 
 h2 {
@@ -18,7 +21,11 @@ h2 {
     border: 2px solid $border-color;
     text-align: center;
     border-radius: 16px;
-    padding: 2em 8px;
+    padding: 1em 8px 2em;
+
+    > div > a {
+        display: block;
+    }
 
     dl > div {
         @include horizontalAlignFlex;
@@ -37,10 +44,14 @@ h2 {
         > dd > .caption {
             font-size: 13px;
         }
-        > dd > input {
+        > dd > input[type='text'],
+        > dd > input[type='email'],
+        > dd > input[type='password'] {
             width: 100%;
             font-size: 16px;
-            
+        }
+        > dd > label {
+            margin-right: 12px;
         }
     }
     button.submit {
