@@ -24,7 +24,7 @@ class AccountController {
             $pdo = dbConnect();
             $pdo->beginTransaction();
 
-            $st = $pdo->prepare('SELECT email, user_id FROM users WHERE user_id = :user_id OR email = :email');
+            $st = $pdo->prepare('SELECT email, user_id FROM users WHERE user_id = :user_id AND email = :email');
             $st->bindValue(':email', $email, PDO::PARAM_STR);
             $st->bindValue(':user_id', $user_id, PDO::PARAM_STR);
             $st->execute();
@@ -133,7 +133,7 @@ class AccountController {
 
         // ワンタイムトークンの生成
         $token = bin2hex(random_bytes(16));
-        $url = 'https://nai-pg.com/#/forgotPassword?token=' + $token;
+        $url = 'https://nai-pg.com/#/forgotPassword?token=' . $token;
 
         // トークンをDBに登録
         try {
