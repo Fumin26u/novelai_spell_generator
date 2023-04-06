@@ -8,7 +8,7 @@ $post = json_decode(file_get_contents('php://input'), true);
 require_once('./controllers/AccountController.php');
 $accountController = new AccountController();
 
-$postMethods = ['logout', 'login', 'register', 'getUserData', 'sendToken', 'updatePassword'];
+$postMethods = ['logout', 'login', 'register', 'getUserData', 'sendToken', 'verifyToken', 'updatePassword'];
 // 指定された方式以外が送られてきた場合はエラーを流し強制終了
 if (!isset($post['method']) || !in_array($post['method'], $postMethods)) {
     echo json_encode($accountController->sendErrorLog(), JSON_UNESCAPED_UNICODE);
@@ -33,8 +33,11 @@ switch ($post['method']) {
     case 'sendToken':
         $response = $accountController->sendToken($post);
         break;
+    case 'verifyToken':
+        $response = $accountController->verifyToken($post);
+        break;
     case 'updatePassword':
-        $response = $accountController->updatePassword();
+        $response = $accountController->updatePassword($post);
         break;
     default:
         $response = $accountController->sendErrorLog();

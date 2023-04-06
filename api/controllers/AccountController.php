@@ -198,10 +198,69 @@ class AccountController {
             $this->response['error'] = true;
             $this->response['content'] = 'メール送信に失敗しました。お手数ですが、時間を置いて再度お試しいただけますようよろしくお願いします。';
         }
+
+        return $this->response;
+    }
+
+    public function verifyToken($post) {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+
+            // 指定されたトークンが存在するか調べる
+            $st = $pdo->prepare('SELECT * FROM update_token WHERE token = :token');
+            $st->bindValue(':token', h($post['token']), PDO::PARAM_STR);
+            $st->execute();           
+            $rows = $st->fetch(PDO::FETCH_ASSOC);
+
+            $pdo->commit();
+
+            // 日付の比較
+            $created_at = $rows['created_at'];
+            $now = new DateTime();
+            $now = $now->modify('-10 minute')->format('Y-m-d H:i:s');
+
+            if (!empty($rows) && $rows['is_token_active'] && $now < $created_at) {
+                $this->response['content'] = 'トークン認証に成功しました。';
+                $this->response['user_id'] = $rows['user_id'];
+            } else {
+                $this->response['error'] = true;
+                $this->response['content'] = "このURLまたはトークンは失効しています。\nパスワードを更新する場合は再度下記フォームからメール送信をお願いします。";
+            }
+
+            return $this->response;
+
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
     }
 
     // パスワード更新
-    public function updatePassword() {
+    public function updatePassword($post) {
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
 
+            // パスワードの更新
+            $st = $pdo->prepare('UPDATE users SET password = :password WHERE user_id = :user_id');
+            $st->bindValue(':password', password_hash(h($post['password']), PASSWORD_DEFAULT), PDO::PARAM_STR);
+            $st->bindValue(':user_id', h($post['user_id']), PDO::PARAM_STR);
+            $st->execute();
+
+            // トークンを無効にする
+            $st = $pdo->prepare('UPDATE update_token SET is_token_active = 0 WHERE user_id = :user_id');
+            $st->bindValue(':user_id', h($post['user_id']), PDO::PARAM_STR);
+            $st->execute();
+
+            $pdo->commit();
+
+            return $this->response;
+
+        } catch (PDOException $e) {
+            $this->response['error'] = true;
+            if (DEBUG) $this->response['content'] = $e;
+            return $this->response;
+        }
     }
 }
