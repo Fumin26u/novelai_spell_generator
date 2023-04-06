@@ -1,33 +1,121 @@
+<script setup lang="ts">
+import '@/assets/scss/savedPrompt.scss'
+import { PresetDetail } from '@/assets/ts/Interfaces/Index'
+import { ref, watchEffect } from 'vue'
+
+interface Props {
+    selected: PresetDetail
+}
+interface Emits {
+    (e: 'setAlertText', text: string): string
+    (e: 'setRegisterMode', state: boolean, mode: string): void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+const preset = ref<PresetDetail>(props.selected)
+watchEffect(() => (preset.value = props.selected))
+
+// 強化値の{}と()を切り替える
+const enhanceBraceMessage = ref<string>('( )に変換')
+const toggleEnhanceBrace = () => {
+    if (enhanceBraceMessage.value === '( )に変換') {
+        enhanceBraceMessage.value = '{ }に変換'
+        preset.value.commands = preset.value.commands
+            .replaceAll(/\{/g, '(')
+            .replaceAll(/\}/g, ')')
+        preset.value.commands_ban = preset.value.commands_ban
+            .replaceAll(/\{/g, '(')
+            .replaceAll(/\}/g, ')')
+    } else {
+        enhanceBraceMessage.value = '( )に変換'
+        preset.value.commands = preset.value.commands
+            .replaceAll(/\(/g, '{')
+            .replaceAll(/\)/g, '}')
+        preset.value.commands_ban = preset.value.commands_ban
+            .replaceAll(/\(/g, '{')
+            .replaceAll(/\)/g, '}')
+    }
+}
+
+// クリックした文字列をコピーする
+const alertText = ref<string>('')
+const copyText = (text: string, name: string) => {
+    const href = location.href.substring(0, 5)
+    if (href === 'https') {
+        navigator.clipboard.writeText(text)
+    } else if (href === 'http:') {
+        const input = document.createElement('input')
+        document.body.appendChild(input)
+        input.value = text
+        input.select()
+        document.execCommand('copy')
+        document.body.removeChild(input)
+    }
+    alertText.value =
+        preset.value.description + 'の' + name + 'をコピーしました。'
+    emit('setAlertText', alertText.value)
+}
+
+// 編集ボタンが押された場合プリセット詳細画面を編集画面に切り替える
+const setRegisterMode = (state: boolean, mode: string) =>
+    emit('setRegisterMode', state, mode)
+</script>
+
 <template lang="">
     <section class="preset-detail">
         <div v-if="'preset_id' in preset">
             <div class="title-area">
                 <h2>{{ preset.description }}</h2>
-                <button class="btn-common blue" @click="setRegisterMode(true, 'edit')">編集</button>
+                <button
+                    class="btn-common blue"
+                    @click="setRegisterMode(true, 'edit')"
+                >
+                    編集
+                </button>
             </div>
             <ul class="data-list">
                 <li class="image">
-                    <img :src="preset.imagePath" alt="">
+                    <img :src="preset.imagePath" alt="" />
                 </li>
                 <li class="prompt copy">
                     <h3>プロンプト</h3>
-                    <button 
-                    :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']" 
-                    @click="toggleEnhanceBrace()"
-                    >{{ enhanceBraceMessage }}</button>
-                    <p @click="copyText(preset.commands, 'プロンプト')">{{ preset.commands }}</p>
+                    <button
+                        :class="[
+                            enhanceBraceMessage === '( )に変換'
+                                ? 'btn-common blue'
+                                : 'btn-common green',
+                        ]"
+                        @click="toggleEnhanceBrace()"
+                    >
+                        {{ enhanceBraceMessage }}
+                    </button>
+                    <p @click="copyText(preset.commands, 'プロンプト')">
+                        {{ preset.commands }}
+                    </p>
                 </li>
                 <li class="prompt-ban copy">
                     <h3>BANプロンプト</h3>
-                    <button 
-                    :class="[enhanceBraceMessage === '( )に変換' ? 'btn-common blue':'btn-common green']"  
-                    @click="toggleEnhanceBrace()"
-                    >{{ enhanceBraceMessage }}</button>
-                    <p @click="copyText(preset.commands_ban, 'BANプロンプト')">{{ preset.commands_ban }}</p>
+                    <button
+                        :class="[
+                            enhanceBraceMessage === '( )に変換'
+                                ? 'btn-common blue'
+                                : 'btn-common green',
+                        ]"
+                        @click="toggleEnhanceBrace()"
+                    >
+                        {{ enhanceBraceMessage }}
+                    </button>
+                    <p @click="copyText(preset.commands_ban, 'BANプロンプト')">
+                        {{ preset.commands_ban }}
+                    </p>
                 </li>
                 <li class="seed copy">
                     <h3>シード値</h3>
-                    <p @click="copyText(preset.seed, 'シード値')">{{ preset.seed }}</p>
+                    <p @click="copyText(preset.seed, 'シード値')">
+                        {{ preset.seed }}
+                    </p>
                 </li>
                 <li class="resolution">
                     <h3>解像度</h3>
@@ -71,64 +159,3 @@
         </div>
     </section>
 </template>
-<script lang="ts">
-import { ref, computed } from 'vue'
-import '../../assets/scss/savedPrompt.scss'
-
-export default {
-    props: {
-        selected: {
-            type: Object,
-        }
-    },
-    emits: ['setAlertText', 'setRegisterMode', ],
-    setup(props:any, context:any) {
-        const preset = computed(() => props.selected)
-
-        // 強化値の{}と()を切り替える
-        const enhanceBraceMessage = ref<string>('( )に変換')
-        const toggleEnhanceBrace = () => {
-            if (enhanceBraceMessage.value === '( )に変換') {
-                enhanceBraceMessage.value = '{ }に変換'
-                preset.value.commands = preset.value.commands.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-                preset.value.commands_ban = preset.value.commands_ban.replaceAll(/\{/g, '(').replaceAll(/\}/g, ')')
-            } else {
-                enhanceBraceMessage.value = '( )に変換'
-                preset.value.commands = preset.value.commands.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-                preset.value.commands_ban = preset.value.commands_ban.replaceAll(/\(/g, '{').replaceAll(/\)/g, '}')
-            }
-        }
-
-        // クリックした文字列をコピーする
-        const alertText = ref<string>('')
-        const copyText = (text: string, name: string) => {
-            const href = location.href.substring(0,5)
-            if (href === 'https') {
-                navigator.clipboard.writeText(text)
-            } else if (href === 'http:') {
-                const input = document.createElement('input')
-                document.body.appendChild(input)
-                input.value = text
-                input.select()
-                document.execCommand('copy')
-                document.body.removeChild(input)
-            }
-            alertText.value = preset.value.description + 'の' + name + 'をコピーしました。'
-            context.emit('setAlertText', alertText.value)
-        }
-
-        // 編集ボタンが押された場合プリセット詳細画面を編集画面に切り替える
-        const setRegisterMode = (state: boolean, mode: string) => context.emit('setRegisterMode', state, mode)
-
-        return {
-            preset,
-            enhanceBraceMessage: enhanceBraceMessage,
-            alertText,
-
-            toggleEnhanceBrace,
-            copyText,
-            setRegisterMode,
-        }
-    }
-}
-</script>

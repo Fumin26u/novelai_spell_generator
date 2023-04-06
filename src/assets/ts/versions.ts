@@ -1,5 +1,10 @@
 const versions = [
     {
+        date: '2022年12月4日',
+        version: '1.8.0',
+        detail: 'プログラムの大規模リファクタリングによる表示速度の向上',
+    },
+    {
         date: '2022年11月26日',
         version: '1.7.2',
         detail: 'プリセット内容にStable Diffusion WebUI (by AUTOMATIC1111)の項目を追加',

@@ -7,6 +7,7 @@ const algorithms = [
     'DPM2 a',
     'DPM++ 2S a',
     'DPM++ 2M',
+    'DPM++ SDE',
     'DPM fast',
     'DPM adaptive',
     'LMS Karras',
@@ -14,6 +15,7 @@ const algorithms = [
     'DPM2 a Karras',
     'DPM++ 2S a Karras',
     'DPM++ 2M Karras',
+    'DPM++ SDE Karras',
     'DDIM',
     'PLMS',
 ]

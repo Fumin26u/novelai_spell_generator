@@ -1,0 +1,19 @@
+@import './style.scss';
+.terms-of-use, .privacy-policy {
+    > div {
+        margin: 2em 0;
+    }
+    
+    li {
+        list-style: auto;
+        margin: 8px 0;
+    }
+
+    p {
+        margin: 8px 0;
+    }
+
+    ol > ol {
+        padding-left: 32px;
+    }
+}

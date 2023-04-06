@@ -170,7 +170,7 @@ main.prompt-generator {
 }
 
 .prompt-settings > .prompt {
-    max-height: 560px;
+    max-height: 60vh;
     overflow-y: scroll;
     border-bottom: 1px solid $border-color;
 
@@ -245,7 +245,7 @@ main.prompt-generator {
     width: 100%;
     @include mediaQuery(medium) {
         position: absolute;
-        bottom: 28px;
+        bottom: 24px;
     }
     div p {
         font-size: 13px;
@@ -254,7 +254,7 @@ main.prompt-generator {
         margin: 0 0 4px;
         > span {
             display: block;
-            max-height: 130px;
+            max-height: 14vh;
             overflow-y: auto;
             font-weight: normal;
         }
