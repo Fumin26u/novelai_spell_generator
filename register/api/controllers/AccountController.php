@@ -119,4 +119,90 @@ class AccountController {
         $this->response['content'] = 'ログアウトしました。';
         return $this->response;
     }
+
+    // パスワード更新用のトークン送信
+    public function sendToken($post) {
+        // 指定されたメアドとユーザーIDが存在するか調べる
+        $isExistUserData = $this->confirmIsExistSameData(h($post['email']), h($post['user_id'])) === '' ? false : true;
+
+        // メアドとユーザーIDが存在しない場合、エラーを返して終了
+        if (!$isExistUserData) {
+            $this->response['error'] = true;
+            $this->response['content'] = '指定したメールアドレスまたはユーザーIDは存在しません。';
+            return $this->response;
+        }
+
+        // ワンタイムトークンの生成
+        $token = bin2hex(random_bytes(16));
+        $url = 'https://nai-pg.com/#/forgotPassword?token=' + $token;
+
+        // トークンをDBに登録
+        try {
+            $pdo = dbConnect();
+            $pdo->beginTransaction();
+
+            // トークンが既存の場合の更新のため一度削除
+            $st = $pdo->prepare('DELETE FROM update_token WHERE user_id = :user_id');
+            $st->bindValue(':user_id', h($post['user_id']), PDO::PARAM_STR);
+            $st->execute();
+
+            $sql = <<< SQL
+            INSERT INTO update_token 
+            (user_id, token, is_token_active, created_at)
+            VALUES
+            (:user_id, :token, 1, NOW())
+            SQL;
+            $st = $pdo->prepare($sql);
+            $st->bindValue(':user_id', h($post['user_id']), PDO::PARAM_STR);
+            $st->bindValue(':token', $token, PDO::PARAM_STR);
+            $st->execute();
+
+            $pdo->commit();
+        } catch (PDOException $e) {
+            echo 'データベース接続に失敗しました。';
+            if (DEBUG) echo $e;
+        }
+
+        // メールの送信
+        $mail_content = <<<EOM
+
+        ＝＝＝＝＝＝＝＝＝＝パスワードの更新＝＝＝＝＝＝＝＝＝＝
+
+        NovelAI プロンプトジェネレーターのご利用ありがとうございます。
+        10分以内に、以下のリンクからパスワードの更新をお願いします。
+
+        $url
+
+        本メールは送信専用です。返信は受付できませんのでご了承ください。
+
+        EOM;
+        
+        $to = h($post['email']);
+        $from = 'no-reply@nai-sg.com';
+
+        // メールヘッダ
+        $header = 'From: ' . mb_encode_mimeheader('NovelAI スペルジェネレーター', 'UTF-8') . '<' . $from . '>';
+    
+        // タイトル
+        $title = 'パスワードの更新 | NovelAI スペルジェネレーター';
+    
+        // 本文
+        $message = '';
+        $message .= brReplace(periodReplace($mail_content));
+    
+        // 送信＋判定
+        $isSentMail = mb_send_mail($to, $title, $message, $header);
+
+        if ($isSentMail) {
+            $this->response['content'] = 'メール送信に成功しました。';
+        } else {
+            $this->response['error'] = true;
+            $this->response['content'] = 'メール送信に失敗しました。お手数ですが、時間を置いて再度お試しいただけますようよろしくお願いします。';
+        }
+    }
+
+    // パスワード更新
+    public function updatePassword() {
+
+    }
 }

@@ -8,7 +8,7 @@ require_once($home . 'database/commonlib.php');
 require_once($home . 'api/controllers/AccountController.php');
 $accountController = new AccountController();
 
-$postMethods = ['logout', 'login', 'register', 'getUserData'];
+$postMethods = ['logout', 'login', 'register', 'getUserData', 'sendToken', 'updatePassword'];
 // 指定された方式以外が送られてきた場合はエラーを流し強制終了
 if (!isset($post['method']) || !in_array($post['method'], $postMethods)) {
     echo json_encode($accountController->sendErrorLog(), JSON_UNESCAPED_UNICODE);
@@ -29,6 +29,12 @@ switch ($post['method']) {
         break;
     case 'getUserData':
         $response = $accountController->getUserData();
+        break;
+    case 'sendToken':
+        $response = $accountController->sendToken($post);
+        break;
+    case 'updatePassword':
+        $response = $accountController->updatePassword();
         break;
     default:
         $response = $accountController->sendErrorLog();
