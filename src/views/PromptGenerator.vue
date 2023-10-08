@@ -329,6 +329,13 @@ onMounted(async () => {
     <HeaderComponent></HeaderComponent>
     <main class="prompt-generator">
         <div class="prompt-list">
+            <div class="" style="border: 2px dashed #888; padding: 4px 16px; margin: 0 1em 1em;">
+                <h2 style="color: red;">重要なお知らせ</h2>
+                <p>
+                    本アプリは、ドメインの契約更新に伴い、2023年10月25日を持ってサービスを終了させていただきます。<br>
+                    約1年の間、誠にご利用ありがとうございました。
+                </p>
+            </div>
             <section class="user-setting-area">
                 <div class="upload-prompt">
                     <label :id="'upload-prompt'"
